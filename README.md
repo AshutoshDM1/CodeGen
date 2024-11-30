@@ -1,6 +1,16 @@
-# CodeGen
-CodeGen: Online coding platform with AI-powered assistance and collaborative development for seamless coding.
+# CodeGen  
+**CodeGen** is an online coding platform featuring AI-powered assistance and collaborative tools for a seamless coding experience.  
 
-## This is My Third Full Stack Project. I will Start Building from 1 Dec.
+Basicaly it a Website which work like **Raplit** + with Power of **Cloude.ai/V0**.
 
-## New Learning - Nextjs [ SSR + CSR ] , NextAuth [ with email varification ]  , Python [ ML Lybraries ] ,  MLops [ Deploying a custum ML Coding Model on Server ] , WebContaiers , MicroServices 
+## Project Overview  
+This is my third full-stack project, starting on **1st December**.  
+
+## New Learnings  
+- **Next.js**: Server-Side Rendering (SSR) + Client-Side Rendering (CSR)  
+- **NextAuth**: Email verification for authentication  
+- **Python**: Exploring ML libraries  
+- **MLOps**: Deploying a custom ML coding model on a server  
+- **WebContainers**: Containerized development environments  
+- **Microservices**: Modular service architecture  
+ 
