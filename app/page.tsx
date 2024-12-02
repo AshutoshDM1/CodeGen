@@ -1,19 +1,19 @@
-import HeroSection from "@/components/HeroSection";
-import Navbar from "@/components/Navbar";
+"use client";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useState } from "react";
 
-export default function Home() {
+export default function SignIn() {
+  const session = useSession();
+  console.log(session);
+
   return (
-    <main
-      style={{
-        background:
-          "linear-gradient(160deg, #000 0%, #00ffd5 20%, #000 40%, #000 60%, #00ff88 80%, #000 100%)",
-      }}
-      className="h-[100vh] w-full flex flex-col"
-    >
-      <Navbar />
-      <div className="flex-1 flex justify-center items-center">
-        <HeroSection />
-      </div>
-    </main>
+    <div className="flex min-h-screen items-center justify-center text-white ">
+      <button
+        onClick={() => signOut()}
+        className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+      >
+        Sign Out
+      </button>
+    </div>
   );
 }

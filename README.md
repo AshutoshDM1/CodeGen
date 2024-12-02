@@ -4,6 +4,7 @@
 
 Basicaly it a Website which work like **Raplit** + with Power of **Cloude.ai/V0**.
 
+![image](https://github.com/AshutoshDM1/CodeGen/blob/main/public/image.png)
 ## Project Overview
 
 This is my third full-stack project, starting on **1st December**.
@@ -17,4 +18,3 @@ This is my third full-stack project, starting on **1st December**.
 - **WebContainers**: Containerized development environments
 - **Microservices**: Modular service architecture
 
-![image](image.png)

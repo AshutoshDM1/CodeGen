@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
           <div className="font-[500] text-[20px] font-[Mona Sans] flex justify-center items-center gap-1 pl-2  cursor-pointer">
             <Image
               className="object-cover w-[33px] "
-              src="codegen.png"
+              src="/codegen.png"
               alt="logo"
               width={33}
               height={33}
