@@ -13,8 +13,11 @@ export function middleware(request: NextRequest) {
   // Customize these paths based on your project's auth routes
   const isPublicPath = path === "/auth/login" || path === "/auth/register";
 
-  // Get the token from cookies - works with NextAuth.js session
-  const token = request.cookies.get("next-auth.session-token")?.value || "";
+  // Get the token from cookies - handle both production and development environments
+  const token =
+    request.cookies.get("next-auth.session-token")?.value ||
+    request.cookies.get("__Secure-next-auth.session-token")?.value ||
+    "";
 
   // Redirect authenticated users away from auth pages
   if (isPublicPath && token) {
@@ -39,9 +42,9 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/workspace",
-    "/auth/login", 
+    "/auth/login",
     "/auth/register",
     "/settings/:path*",
-    "/profile/:path*"
-  ]
+    "/profile/:path*",
+  ],
 };
