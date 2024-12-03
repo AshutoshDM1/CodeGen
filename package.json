@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
     "@prisma/client": "^6.0.0",
+    "@radix-ui/react-slot": "^1.1.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
@@ -18,9 +19,8 @@
     "lucide-react": "^0.462.0",
     "next": "15.0.3",
     "next-auth": "^4.24.10",
-    "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
-    "react-hook-form": "^7.53.2",
+    "react": "^18",
+    "react-dom": "^18",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"

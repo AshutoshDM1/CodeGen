@@ -26,7 +26,7 @@ const RegisterPage = () => {
       email,
       name,
       password,
-      callbackUrl: "/",
+      callbackUrl: "/workspace",
       action: "signup",
       redirect: true,
     };

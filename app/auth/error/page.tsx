@@ -1,32 +1,20 @@
-"use client";
-import { useSearchParams } from "next/navigation";
-import React from "react";
-import Link from "next/link";
+import React, { Suspense } from "react";
+import ErrorComponent from "@/components/Error";
 
 export default function ErrorPage() {
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
-
-  let errorMessage = "An error occurred";
-  if (error === "CredentialsSignin") {
-    errorMessage = "Invalid email or password";
-  } else if (error === "Email already exists") {
-    errorMessage = "An account with this email already exists";
-  } else if (error === "Missing fields") {
-    errorMessage = "Please fill in all required fields";
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="rounded-lg bg-red-50 p-8 text-center">
-        <h1 className="mb-4 text-2xl font-bold text-red-600">
-          Authentication Error
-        </h1>
-        <p className="text-red-500">{errorMessage}</p>
-        <Link className="hover:underline" href="/auth/login">
-          Go back to login
-        </Link>
-      </div>
+    <div className="flex min-h-screen w-full items-center justify-center">
+      <Suspense
+        fallback={
+          <div className="flex space-x-2">
+            <div className="h-4 w-4 animate-pulse rounded-full bg-blue-600"></div>
+            <div className="h-4 w-4 animate-pulse rounded-full bg-blue-600 delay-150"></div>
+            <div className="h-4 w-4 animate-pulse rounded-full bg-blue-600 delay-300"></div>
+          </div>
+        }
+      >
+        <ErrorComponent />
+      </Suspense>
     </div>
   );
 }

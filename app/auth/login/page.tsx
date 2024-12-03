@@ -24,7 +24,7 @@ const LoginPage = () => {
     const sendUserdata: SendLoginUserdata = {
       email,
       password,
-      callbackUrl: "/",
+      callbackUrl: "/workspace",
       action: "login",
       redirect: true,
     };

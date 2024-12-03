@@ -1,15 +1,23 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Image from 'next/image';
+import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 const Navbar: React.FC = () => {
+  const { data: session } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const onClick = () => {
     setIsLoading(true);
-    router.push("/auth/login");
+    if (session?.user?.name) {
+      router.push("/workspace");
+    } else {
+      router.push("/auth/login");
+    }
   };
+
+  console.log(session?.user?.name);
   return (
     <>
       <div className="h-[4.5vh] w-full flex justify-center items-center select-none mt-5">
@@ -34,10 +42,12 @@ const Navbar: React.FC = () => {
             <button
               onClick={onClick}
               disabled={isLoading}
-              className="h-full w-16 font-[600] text-[15px] text-[#000] cursor-pointer bg-slate-50 px-[17px]  rounded-[30px] flex justify-center items-center gap-2"
+              className="h-full font-[600] text-[15px] text-[#000] cursor-pointer bg-slate-50 px-[17px]  rounded-[30px] flex justify-center items-center gap-2"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-[#121212] border-t-transparent rounded-full animate-spin" />
+              ) : session?.user?.name ? (
+                "Get Started"
               ) : (
                 "Login"
               )}
