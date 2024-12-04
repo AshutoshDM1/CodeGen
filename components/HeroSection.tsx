@@ -1,13 +1,19 @@
 "use client";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const HeroSection: React.FC = () => {
   const router = useRouter();
+  const session = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const onClick = () => {
     setIsLoading(true);
-    router.push("/auth/login");
+    if (session.status === "unauthenticated") {
+      router.push("/auth/login");
+    } else {
+      router.push("/workspace");
+    }
   };
 
   return (

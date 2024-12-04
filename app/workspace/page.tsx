@@ -1,20 +1,21 @@
 "use client";
-import React from "react";
-import { signOut } from "next-auth/react";
+import { ResizablePanelGroup } from "@/components/ui/resizable";
+import Sidebar from "@/components/worspace/Sidebar";
+import AiChat from "@/components/worspace/AiChat";
+import CodeEditor from "@/components/worspace/codeEditor";
+
 const Dashboard = () => {
   return (
-    <>
-      <div className="h-[100vh] w-full bg-[#000] p-2 ">
-        <div className="h-[5vh] w-full bg-[#121212] flex justify-between px-4">
-          <button
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className="bg-[#121212]  text-[#fff] px-4 py-2 rounded-[5px]"
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-    </>
+    <div className="h-screen w-full">
+      <ResizablePanelGroup direction="horizontal" className="min-h-screen">
+        {/* # This is the Sidebar */}
+        <Sidebar />
+        {/* # This is the AiChat */}
+        <AiChat />
+        {/* # This is the Code Area with the code editor monaco */}
+        <CodeEditor />
+      </ResizablePanelGroup>
+    </div>
   );
 };
 
