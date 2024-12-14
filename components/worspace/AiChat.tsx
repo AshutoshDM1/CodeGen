@@ -19,6 +19,7 @@ const AiChat = () => {
           <NavbarAiChat />
               {/* the ai chat section */}
           <div className="h-full w-full  flex flex-col text-white justify-between">
+            
             <div className="flex-grow overflow-y-auto p-4">
               {messages.map((msg, index) => (
                 <div key={index} className="mb-2 p-2 rounded shadow">
