@@ -1,3 +1,4 @@
+import { ToggleMode } from "@/components/Toggle";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,6 +27,7 @@ const NavbarAiChat = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        <ToggleMode />
       </div>
     </>
   );

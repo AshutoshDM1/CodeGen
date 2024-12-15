@@ -6,7 +6,7 @@ import CodeEditor from "@/components/worspace/codeEditor";
 
 const Dashboard = () => {
   return (
-    <div className="h-screen w-full">
+    <div className="h-screen w-full ">
       <ResizablePanelGroup direction="horizontal" className="min-h-screen">
         {/* # This is the Sidebar */}
         <Sidebar />

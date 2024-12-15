@@ -20,8 +20,8 @@ const Navbar: React.FC = () => {
   console.log(session?.user?.name);
   return (
     <>
-      <div className="h-[4.5vh] w-full flex justify-center items-center select-none mt-5">
-        <div className="h-full max-w-[43rem] mx-auto w-full flex justify-between items-center px-1 py-1 bg-[#000] text-white rounded-[25px] ">
+      <div className="h-[4vh] w-full flex justify-center items-center select-none mt-[1vh] relative z-[10]  ">
+        <div className="h-full max-w-[43rem] mx-auto w-full flex justify-between items-center px-1 py-1  text-white rounded-[25px] backdrop-blur-sm ">
           <div className="font-[500] text-[20px] font-[Mona Sans] flex justify-center items-center gap-1 pl-2  cursor-pointer">
             <Image
               className="object-cover w-[33px] "

@@ -17,8 +17,8 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <div className="w-full flex flex-col justify-between items-center">
-      <div className="text-center font-bold text-[40px] md:text-[55px] mt-5 md:mt-0 flex flex-col justify-between items-center text-white ">
+    <div className="flex flex-col justify-between items-center relative z-[10]  pointer-events-none ">
+      <div className="text-center font-bold text-[40px] md:text-[85px] mt-5 md:mt-0 flex flex-col justify-between items-center text-white ">
         <div className="py-12 space-y-2">
           <h1>
             Your{" "}
@@ -46,7 +46,7 @@ const HeroSection: React.FC = () => {
           <div className="flex flex-wrap justify-center gap-4 mt-8">
             <button
               onClick={onClick}
-              className="px-6 text-black h-12 flex justify-center items-center text-center font-sans font-medium text-[18px] bg-white/90 rounded-[20px] cursor-pointer hover:bg-white transition"
+              className="px-6 text-black h-12 flex justify-center items-center text-center font-sans font-medium text-[18px] bg-white/90 rounded-[20px] cursor-pointer hover:bg-white transition pointer-events-auto"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-[#121212] border-t-transparent rounded-full animate-spin" />
@@ -55,10 +55,7 @@ const HeroSection: React.FC = () => {
               )}
             </button>
 
-            <button
-              onClick={() => router.push("/features")}
-              className="px-6 h-12 flex justify-center items-center text-center font-sans font-medium text-[18px] border-2 border-white/20 text-white rounded-[20px] cursor-pointer hover:bg-white/10 transition"
-            >
+            <button className="px-6 h-12 flex justify-center items-center text-center font-sans font-medium text-[18px] border-2 border-white/20 text-white rounded-[20px] cursor-pointer pointer-events-auto hover:bg-white/10 transition">
               Explore Features
             </button>
           </div>

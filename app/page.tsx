@@ -1,44 +1,23 @@
-"use client";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { useChatStore } from "./store/chatStore";
+import Scene from "@/components/3d-sence";
+import HeroSection from "@/components/HeroSection";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
-  const { messages, addMessage } = useChatStore();
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch("http://localhost:4000/chat");
-      const reader = response.body?.getReader();
-
-      if (!reader) {
-        throw new Error("Failed to get reader from response");
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = new TextDecoder().decode(value);
-        addMessage(chunk);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
   return (
-    <div className="p-4">
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded-md"
-        onClick={fetchData}
+    <>
+      <main
+        style={{
+          background:
+            "linear-gradient(160deg, rgba(0,255,252,1) 0%, rgba(0,157,155,1) 0%, rgba(0,59,58,1) 12%, rgba(0,0,0,1) 17%, rgba(0,0,0,1) 36%, rgba(0,0,0,1) 59%, rgba(0,0,0,1) 83%, rgba(20,112,60,1) 92%, rgba(23,128,68,1) 94%, rgba(29,164,87,1) 100%, rgba(45,253,135,1) 100%)",
+        }}
+        className="w-full flex flex-col bg-black"
       >
-        Start Chat
-      </button>
-      <div className="mt-4 space-y-2 text-white bg-gray-700 p-4 rounded-md">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {messages.join("")}
-        </ReactMarkdown>
-      </div>
-    </div>
+        <Navbar />
+        <div className="h-[95vh] w-full flex justify-center items-center overflow-hidden relative z-[10]">
+          <HeroSection />
+          <Scene />
+        </div>
+      </main>
+    </>
   );
 }

@@ -8,8 +8,10 @@ import {
 import { code } from "@/lib/code";
 import FileExplorer from "../FileExplorer";
 import DevNavbar from "./DevNavbar";
+import { useState } from "react";
 
 const CodeEditor = () => {
+  const [showFileExplorer] = useState(true);
   return (
     <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
       <div className="h-full ">
@@ -18,14 +20,12 @@ const CodeEditor = () => {
         </div>
         <div className="h-[95vh] w-full bg-[#000] ">
           <ResizablePanelGroup direction="horizontal" className="min-h-[95vh] ">
-            <ResizablePanel
-              className="min-w-[170px]"
-              defaultSize={20}
-              minSize={15}
-              maxSize={60}
-            >
-              <FileExplorer />
-            </ResizablePanel>
+            {showFileExplorer && (
+              <ResizablePanel minSize={15} maxSize={100} defaultSize={22}>
+                <FileExplorer
+                />
+              </ResizablePanel>
+            )}
             <ResizableHandle />
             <ResizablePanel minSize={15} maxSize={100} defaultSize={80}>
               <Editor
@@ -49,7 +49,7 @@ const CodeEditor = () => {
                   fontFamily: "Mono Lisa",
                   fontWeight: "400",
                   lineNumbers: "on",
-                  minimap: { enabled: true },
+                  minimap: { enabled: false },
                   scrollBeyondLastLine: false,
                   renderLineHighlight: "all",
                   cursorStyle: "line",

@@ -1,5 +1,6 @@
 import { ChevronRight, ChevronDown, File, Folder } from "lucide-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface FileItem {
   name: string;
@@ -36,10 +37,21 @@ const FileTree = ({ item, depth = 0 }: FileTreeProps) => {
           {item.name}
         </span>
       </div>
-      {isOpen &&
-        item.children?.map((child, index) => (
-          <FileTree key={index} item={child} depth={depth + 1} />
-        ))}
+      <AnimatePresence initial={false}>
+        {isOpen && item.children && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ overflow: "hidden" }}
+          >
+            {item.children.map((child, index) => (
+              <FileTree key={index} item={child} depth={depth + 1} />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -61,9 +73,9 @@ const FileExplorer = () => {
   ];
 
   return (
-    <div className="text-white h-full select-none ">
-      <div className="p-2 px-3 text-sm text-neutral-400 border-b-[1.5px] border-border mb-2 ">
-        Files
+    <div className="text-white h-full select-none">
+      <div className="p-2 px-3 text-sm text-neutral-200 border-b-[1.5px] border-border mb-2 ">
+        File Explorer
       </div>
       {files.map((item, index) => (
         <FileTree key={index} item={item} />
