@@ -1,5 +1,5 @@
 "use client";
-import { useChatStore } from "@/app/store/chatStore";
+import { useChatStore } from "@/store/chatStore";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 

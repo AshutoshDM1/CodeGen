@@ -27,7 +27,6 @@ const NavbarAiChat = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <ToggleMode />
       </div>
     </>
   );

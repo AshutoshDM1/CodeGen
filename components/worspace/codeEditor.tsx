@@ -21,7 +21,7 @@ const CodeEditor = () => {
         <div className="h-[95vh] w-full bg-[#000] ">
           <ResizablePanelGroup direction="horizontal" className="min-h-[95vh] ">
             {showFileExplorer && (
-              <ResizablePanel minSize={15} maxSize={100} defaultSize={22}>
+              <ResizablePanel minSize={15} maxSize={100} defaultSize={18}>
                 <FileExplorer
                 />
               </ResizablePanel>

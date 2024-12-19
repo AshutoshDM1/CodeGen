@@ -46,7 +46,7 @@ const HeroSection: React.FC = () => {
           <div className="flex flex-wrap justify-center gap-4 mt-8">
             <button
               onClick={onClick}
-              className="px-6 text-black h-12 flex justify-center items-center text-center font-sans font-medium text-[18px] bg-white/90 rounded-[20px] cursor-pointer hover:bg-white transition pointer-events-auto"
+              className="px-6 min-w-42 text-black h-12 flex justify-center items-center text-center font-sans font-medium text-[18px] bg-white/90 rounded-[20px] cursor-pointer hover:bg-white transition pointer-events-auto"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-[#121212] border-t-transparent rounded-full animate-spin" />
