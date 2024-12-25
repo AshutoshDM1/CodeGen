@@ -19,15 +19,15 @@ const HeroSection: React.FC = () => {
   return (
     <div className="flex flex-col justify-between items-center relative z-[10]  pointer-events-none ">
       <div className="text-center font-bold text-[40px] md:text-[85px] mt-5 md:mt-0 flex flex-col justify-between items-center text-white ">
-        <div className="py-12 space-y-2">
+        <div className="py-12 space-y-2  px -4">
           <h1>
             Your{" "}
-            <span className="bg-gradient-to-r from-cyan-300 to-green-300 text-transparent bg-clip-text">
+            <span className="bg-gradient-to-r from-cyan-500 to-green-500 text-transparent bg-clip-text">
               AI Powered
             </span>
           </h1>
           <h1>
-            <span className="bg-gradient-to-r from-cyan-300 to-green-300 text-transparent bg-clip-text">
+            <span className="bg-gradient-to-r from-cyan-500 to-green-500 text-transparent bg-clip-text">
               Coding{" "}
             </span>
             Workspace
@@ -35,10 +35,10 @@ const HeroSection: React.FC = () => {
         </div>
 
         <div className="h-fit flex justify-center items-center flex-col max-w-3xl px-4">
-          <p className="text-center font-sans font-light text-[20px] md:text-[23px] text-gray-200">
+          <p className="text-start  font-sans font-light text-[20px] md:text-[23px] text-gray-200">
             Experience the future of coding with our AI-powered platform.
           </p>
-          <p className="text-center font-sans font-light text-[20px] md:text-[23px] text-gray-200">
+          <p className="text-start  font-sans font-light text-[20px] md:text-[23px] text-gray-200">
             Write, deploy, and collaborate in real-time with integrated AI
             assistance.
           </p>

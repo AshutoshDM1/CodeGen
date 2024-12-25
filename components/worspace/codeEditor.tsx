@@ -5,13 +5,15 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "../ui/resizable";
-import { code } from "@/lib/code";
 import FileExplorer from "../FileExplorer";
 import DevNavbar from "./DevNavbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useChatStore } from "@/store/chatStore";
+import { CloudCog } from "lucide-react";
 
 const CodeEditor = () => {
   const [showFileExplorer] = useState(true);
+
   return (
     <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
       <div className="h-full ">
@@ -22,8 +24,7 @@ const CodeEditor = () => {
           <ResizablePanelGroup direction="horizontal" className="min-h-[95vh] ">
             {showFileExplorer && (
               <ResizablePanel minSize={15} maxSize={100} defaultSize={18}>
-                <FileExplorer
-                />
+                <FileExplorer />
               </ResizablePanel>
             )}
             <ResizableHandle />
@@ -31,7 +32,6 @@ const CodeEditor = () => {
               <Editor
                 height="95vh"
                 defaultLanguage="typescript"
-                defaultValue={code}
                 onMount={(editor, monaco) => {
                   monaco.editor.defineTheme("custom-chai-theme", customTheme);
                   monaco.editor.setTheme("custom-chai-theme");

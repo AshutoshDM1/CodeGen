@@ -1,6 +1,7 @@
 import { ChevronRight, ChevronDown, File, Folder } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { codebase } from "@/store/chatStore";
 
 interface FileItem {
   name: string;
@@ -57,20 +58,7 @@ const FileTree = ({ item, depth = 0 }: FileTreeProps) => {
 };
 
 const FileExplorer = () => {
-  const files: FileItem[] = [
-    {
-      name: "app",
-      type: "folder",
-      children: [
-        {
-          name: "components",
-          type: "folder",
-          children: [{ name: "navbar.tsx", type: "file" }],
-        },
-        { name: "layout.tsx", type: "file" },
-      ],
-    },
-  ];
+  const files: FileItem[] = codebase;
 
   return (
     <div className="text-white h-full select-none">
