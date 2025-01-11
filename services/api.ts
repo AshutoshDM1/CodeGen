@@ -15,9 +15,12 @@ export const messageuser = {
     },
     {
       role: "user",
-      content: "make a simple boilerplate of vite write very less code",
+      content:
+        "plese stick to the format I told you in system prompt <example> block if you dont know what format to use then use send message and dont send the response with any other format such as using ```html or ```js or any other code block format",
+    },
+    {
+      role: "user",
+      content: "make a todo list app in react use tailwind css",
     },
   ],
 };
-
-
