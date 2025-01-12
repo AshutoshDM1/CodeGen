@@ -6,7 +6,7 @@ interface Message {
 }
 
 interface AIResponse {
-  startingContent?: string;
+  startingContent?: string;     
   code: Array<file | command>;
   endingContent?: string;
 }

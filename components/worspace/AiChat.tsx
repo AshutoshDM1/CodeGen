@@ -31,6 +31,8 @@ const AiChat = () => {
                           ? "https://github.com/shadcn.png"
                           : "/codegen.png"
                       }
+                      crossOrigin="anonymous"
+                      alt={message.role}
                     />
                     <AvatarFallback>
                       {message.role === "user" ? "CN" : "AI"}
@@ -41,9 +43,7 @@ const AiChat = () => {
                       <p></p>
                     </div>
                   ) : (
-                    <p className="text-sm text-zinc-100 mt-3 ">
-                      
-                    </p>
+                    <p className="text-sm text-zinc-100 mt-3 "></p>
                   )}
                 </div>
               ))}

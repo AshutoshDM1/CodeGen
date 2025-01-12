@@ -5,9 +5,10 @@ import { Providers } from "./providers";
 export const metadata: Metadata = {
   title: "CodeGen",
   description:
-    "CodeGen is a Modern Web Based Coding Platefrom which use make you code less and develop fast",
-  icons:
-    "https://res.cloudinary.com/dnvl8mqba/image/upload/v1733239329/CodeGen/codegen_kf1lk0.png",
+    "CodeGen is a Modern Web Based Coding Platform which use make you code less and develop fast",
+  icons: {
+    icon: '/codegen.png',
+  },
 };
 
 export default function RootLayout({
