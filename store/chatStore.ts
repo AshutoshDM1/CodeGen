@@ -6,7 +6,7 @@ interface Message {
 }
 
 interface AIResponse {
-  startingContent?: string;     
+  startingContent?: string;
   code: Array<file | command>;
   endingContent?: string;
 }
@@ -20,6 +20,16 @@ interface ChatStore {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }
+
+interface Messages {
+  messages: string;
+  setMessages: (messages: string) => void;
+}
+
+export const useMessages = create<Messages>((set) => ({
+  messages: "",
+  setMessages: (messages) => set({ messages }),
+}));
 
 export const useChatStore = create<ChatStore>((set) => ({
   messages: [
@@ -55,57 +65,47 @@ export const useChatStore = create<ChatStore>((set) => ({
 interface FileItem {
   name: string;
   type: "file" | "folder";
-  
   children?: FileItem[];
-}
-
-interface FileTreeProps {
-  item: FileItem;
-  depth?: number;
 }
 
 export const codebase: FileItem[] = [
   {
-    name: "vite-project",
+    name: "src",
     type: "folder",
     children: [
       {
-        name: "src",
-        type: "folder",
-        children: [
-          {
-            name: "components",
-            type: "folder",
-            children: [
-              {
-                name: "App.tsx",
-                type: "file",
-              },
-            ],
-          },
-          {
-            name: "main.tsx",
-            type: "file",
-          },
-        ],
-      },
-      {
-        name: "index.html",
+        name: "index.css",
         type: "file",
       },
       {
-        name: "package.json",
+        name: "main.jsx",
         type: "file",
       },
       {
-        name: "tsconfig.json",
-        type: "file",
-      },
-      {
-        name: "vite.config.ts",
+        name: "App.jsx",
         type: "file",
       },
     ],
+  },
+  {
+    name: "package.json",
+    type: "file",
+  },
+  {
+    name: "vite.config.js",
+    type: "file",
+  },
+  {
+    name: "index.html",
+    type: "file",
+  },
+  {
+    name: "postcss.config.js",
+    type: "file",
+  },
+  {
+    name: "tailwind.config.js",
+    type: "file",
   },
 ];
 
@@ -152,6 +152,49 @@ export const useCodeStore = create<CodeStore>((set) => ({
       }
       return { code };
     }),
+}));
+
+export enum Show {
+  CODE = "code",
+  PREVIEW = "preview",
+  TERMINAL = "terminal",
+}
+
+interface ShowPreview {
+  showPreview: Show;
+  setShowCode: () => void;
+  setShowTerminal: () => void;
+  setShowPreview: () => void;
+}
+
+export const useShowPreview = create<ShowPreview>((set) => ({
+  showPreview: Show.CODE,
+  setShowCode: () => set({ showPreview: Show.CODE }),
+  setShowTerminal: () => set({ showPreview: Show.TERMINAL }),
+  setShowPreview: () => set({ showPreview: Show.PREVIEW }),
+}));
+
+interface TerminalStore {
+  terminal: string[];
+  addCommand: (terminal: string) => void;
+  clearTerminal: () => void;
+}
+
+export const useTerminalStore = create<TerminalStore>((set) => ({
+  terminal: ["Welcome to the terminal"],
+  addCommand: (terminal) =>
+    set((state) => ({ terminal: [...state.terminal, terminal] })),
+  clearTerminal: () => set({ terminal: [] }),
+}));
+
+interface FilePaths {
+  filePaths: string;
+  setFilePaths: (filePaths: string) => void;
+}
+
+export const useFilePaths = create<FilePaths>((set) => ({
+  filePaths: "src/App.jsx",
+  setFilePaths: (filePaths) => set({ filePaths }),
 }));
 
 export const demoMessages: Message[] = [
@@ -237,3 +280,171 @@ export default function TodoList() {
     },
   },
 ];
+
+export const projectFiles = {
+  "package.json": {
+    file: {
+      contents: `{
+          "name": "vite-react-app",
+          "private": true,
+          "version": "0.0.0",
+          "type": "module",
+          "scripts": {
+            "dev": "vite",
+            "build": "vite build",
+            "preview": "vite preview"
+          },
+          "dependencies": {
+            "react": "^18.2.0",
+            "react-dom": "^18.2.0"
+          },
+          "devDependencies": {
+            "@vitejs/plugin-react": "^4.2.0",
+            "autoprefixer": "^10.4.17",
+            "postcss": "^8.4.35",
+            "tailwindcss": "^3.4.1",
+            "vite": "^5.0.0"
+          }
+        }`,
+    },
+  },
+  "vite.config.js": {
+    file: {
+      contents: `
+          import { defineConfig } from 'vite'
+          import react from '@vitejs/plugin-react'
+
+          export default defineConfig({
+            plugins: [react()],
+            server: {
+              host: true,
+              port: 5173
+            }
+          })`,
+    },
+  },
+  "index.html": {
+    file: {
+      contents: `
+          <!DOCTYPE html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>CodeGen</title>
+            </head>
+            <body>
+              <div id="root"></div>
+              <script type="module" src="/src/main.jsx"></script>
+            </body>
+          </html>`,
+    },
+  },
+  "postcss.config.js": {
+    file: {
+      contents: `
+          export default {
+            plugins: {
+              tailwindcss: {},
+              autoprefixer: {},
+            },
+          }`,
+    },
+  },
+  "tailwind.config.js": {
+    file: {
+      contents: `
+          /** @type {import('tailwindcss').Config} */
+          export default {
+            content: [
+              "./index.html",
+              "./src/**/*.{js,ts,jsx,tsx}",
+            ],
+            theme: {
+              extend: {},
+            },
+            plugins: [],
+          }`,
+    },
+  },
+  src: {
+    directory: {
+      "index.css": {
+        file: {
+          contents: `
+              @tailwind base;
+              @tailwind components;
+              @tailwind utilities;`,
+        },
+      },
+      "main.jsx": {
+        file: {
+          contents: `
+              import React from 'react'
+              import ReactDOM from 'react-dom/client'
+              import App from './App'
+              import './index.css'
+
+              ReactDOM.createRoot(document.getElementById('root')).render(
+                <React.StrictMode>
+                  <App />
+                </React.StrictMode>
+              )`,
+        },
+      },
+      "App.jsx": {
+        file: {
+          contents: `
+              function App() {
+                return (
+                  <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                    <h1 className="text-4xl font-bold text-gray-800">
+                      Hello from React + Vite + Tailwind!
+                    </h1>
+                  </div>
+                )
+              }
+              
+              export default App`,
+        },
+      },
+    },
+  },
+};
+
+type FileContent = {
+  file?: {
+    contents: string;
+  };
+  directory?: {
+    [key: string]: FileContent;
+  };
+};
+
+export function findFileContent(
+  files: Record<string, FileContent>,
+  path: string
+): string | null {
+  // Split the path into parts
+  const parts = path.split("/");
+
+  let current: FileContent | undefined = files[parts[0]];
+
+  // For paths like "src/App.jsx", we need to traverse the directory structure
+  for (let i = 1; i < parts.length; i++) {
+    if (!current) return null;
+
+    // If we're in a directory, get the next part
+    if (current.directory) {
+      current = current.directory[parts[i]];
+    } else {
+      return null;
+    }
+  }
+
+  // Return the file contents if we found them
+  return current?.file?.contents ?? null;
+}
+
+// Usage example:
+// const content = findFileContent(projectFiles, "src/App.jsx");

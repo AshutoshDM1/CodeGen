@@ -28,10 +28,10 @@ const AiChat = () => {
                       className="rounded-full h-8 w-9"
                       src={
                         message.role === "user"
-                          ? "https://github.com/shadcn.png"
+                          ? "/user.jpg"
                           : "/codegen.png"
                       }
-                      crossOrigin="anonymous"
+                      // crossOrigin="anonymous"
                       alt={message.role}
                     />
                     <AvatarFallback>

@@ -86,3 +86,32 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+.editor {
+  /* counter-reset: line; */
+  /* border: 1px solid #333; */
+  /* border-radius: 4px; */
+}
+
+.editor__textarea {
+  outline: none;
+  /* padding-left: 60px !important; */
+}
+
+.editor__pre {
+  /* padding-left: 60px !important; */
+}
+
+.editor__textarea::before,
+.editor__pre::before {
+  /* counter-increment: line; */
+  /* content: counter(line); */
+  position: absolute;
+  left: 0;
+  color: #666;
+  padding: 0 16px;
+  text-align: right;
+  width: 60px;
+  border-right: 1px solid #333;
+}

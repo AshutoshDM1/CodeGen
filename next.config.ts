@@ -7,6 +7,11 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "github.com",
+        pathname: "/**",
+      },
     ],
   },
   async headers() {
@@ -25,13 +30,22 @@ const nextConfig = {
         ],
       },
       {
-        // Add CORS headers for Cloudinary images
         source: "/api/:path*",
         headers: [
           {
             key: "Access-Control-Allow-Origin",
             value: "*",
           },
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "cross-origin",
+          },
+        ],
+      },
+      {
+        // Add headers for external images
+        source: "/:path*",
+        headers: [
           {
             key: "Cross-Origin-Resource-Policy",
             value: "cross-origin",

@@ -1,7 +1,7 @@
 import { ChevronRight, ChevronDown, File, Folder } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { codebase } from "@/store/chatStore";
+import { codebase, useFilePaths } from "@/store/chatStore";
 
 interface FileItem {
   name: string;
@@ -12,17 +12,34 @@ interface FileItem {
 interface FileTreeProps {
   item: FileItem;
   depth?: number;
+  path?: string;
+  onFileClick: (filePath: string) => void;
 }
 
-const FileTree = ({ item, depth = 0 }: FileTreeProps) => {
+const FileTree = ({
+  item,
+  depth = 0,
+  path = "",
+  onFileClick,
+}: FileTreeProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const currentPath = path ? `${path}/${item.name}` : item.name;
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (item.type === "folder") {
+      setIsOpen(!isOpen);
+    } else {
+      onFileClick(currentPath);
+    }
+  };
 
   return (
     <div className="px-2">
       <div
-        className="flex items-center gap-1 py-1 hover:bg-neutral-700/50 cursor-pointer rounded-md px-2 "
+        className="flex items-center gap-1 py-1 hover:bg-neutral-700/50 cursor-pointer rounded-md px-2"
         style={{ paddingLeft: `${depth * 12}px` }}
-        onClick={() => item.type === "folder" && setIsOpen(!isOpen)}
+        onClick={handleClick}
       >
         {item.type === "folder" && (
           <span className="min-w-4 min-h-4">
@@ -48,7 +65,13 @@ const FileTree = ({ item, depth = 0 }: FileTreeProps) => {
             style={{ overflow: "hidden" }}
           >
             {item.children.map((child, index) => (
-              <FileTree key={index} item={child} depth={depth + 1} />
+              <FileTree
+                key={index}
+                item={child}
+                depth={depth + 1}
+                path={currentPath}
+                onFileClick={onFileClick}
+              />
             ))}
           </motion.div>
         )}
@@ -59,6 +82,11 @@ const FileTree = ({ item, depth = 0 }: FileTreeProps) => {
 
 const FileExplorer = () => {
   const files: FileItem[] = codebase;
+  const { setFilePaths } = useFilePaths();
+
+  const onFileClick = (filePath: string) => {
+    setFilePaths(filePath);
+  };
 
   return (
     <div className="text-white h-full select-none">
@@ -66,7 +94,7 @@ const FileExplorer = () => {
         File Explorer
       </div>
       {files.map((item, index) => (
-        <FileTree key={index} item={item} />
+        <FileTree key={index} item={item} onFileClick={onFileClick} />
       ))}
     </div>
   );

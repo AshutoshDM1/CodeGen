@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Paperclip, ArrowUp, CloudCog } from "lucide-react";
 import { X } from "lucide-react";
 import { messageuser } from "@/services/api";
-import { useChatStore } from "@/store/chatStore";
+import { useChatStore, useMessages } from "@/store/chatStore";
 import { useState } from "react";
 
 interface AIMessage {
@@ -27,7 +27,7 @@ interface AIMessage {
 
 export default function ChatInput() {
   const { addMessage, isLoading, setIsLoading, addChunk } = useChatStore();
-
+  const { setMessages } = useMessages();
   const [inputValue, setInputValue] = useState("");
   let buffer = "";
   const fetchData = async () => {
@@ -68,6 +68,7 @@ export default function ChatInput() {
 
         const chunk = new TextDecoder().decode(value);
         buffer += chunk;
+        setMessages(buffer);
 
         // Handle artifact opening tag
         if (buffer.includes("<boltArtifact")) {
