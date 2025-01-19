@@ -87,31 +87,136 @@ body {
   }
 }
 
+/* First, reset Prism's default theme */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #d4d4d4;
+  background: none;
+  text-shadow: none;
+  font-family: "Fira Code", Monaco, "Courier New", Courier, monospace;
+  font-size: 14px;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  tab-size: 2;
+}
 
+/* Custom syntax colors */
+.token.comment {
+  color: #6a9955;
+}
+
+.token.keyword {
+  color: #ff79c6;
+}
+
+.token.string {
+  color: #6ace90;
+}
+
+.token.function {
+  color: #61afef;
+}
+
+.token.number {
+  color: #b5cea8;
+}
+
+.token.operator {
+  color: #ff79c6;
+}
+
+.token.class-name {
+  color: #4ec9b0;
+}
+
+.token.constant {
+  color: #ff79c6;
+}
+
+.token.punctuation {
+  color: #d4d4d4;
+}
+
+.token.property {
+  color: #9cdcfe;
+}
+
+.token.parameter {
+  color: #9cdcfe;
+}
+
+.token.boolean {
+  color: #569cd6;
+}
+
+.token.tag {
+  color: #ff79c6;
+}
+
+.token.attr-name {
+  color: #9cdcfe;
+}
+
+.token.attr-value {
+  color: #2cce71;
+}
+
+/* Keep your existing line number styles */
 .editor {
-  /* counter-reset: line; */
-  /* border: 1px solid #333; */
-  /* border-radius: 4px; */
+  counter-reset: line;
 }
 
-.editor__textarea {
-  outline: none;
-  /* padding-left: 60px !important; */
+.editor textarea,
+.editor pre {
+  line-height: 1.5;
+  min-height: 100vh;
 }
 
-.editor__pre {
-  /* padding-left: 60px !important; */
+.editor pre {
+  position: relative;
 }
 
-.editor__textarea::before,
-.editor__pre::before {
-  /* counter-increment: line; */
-  /* content: counter(line); */
+.editor pre > code {
+  display: block;
+}
+
+.editor pre > code > span {
+  display: block;
+  line-height: 1.5;
+  position: relative;
+}
+
+.editor pre > code > span:before {
+  counter-increment: line;
+  content: counter(line);
   position: absolute;
-  left: 0;
-  color: #666;
-  padding: 0 16px;
+  left: -45px;
+  width: 35px;
   text-align: right;
-  width: 60px;
-  border-right: 1px solid #333;
+  color: #666;
+  opacity: 0.5;
+  font-size: 14px;
+  user-select: none;
+}
+
+/* Ensure line numbers are visible at the bottom */
+.editor pre > code > span:last-child {
+  min-height: 1.5em; /* Match line-height */
+  padding-bottom: 1px; /* Force the last line to have height */
+}
+
+/* Remove outline on editor focus */
+.editor textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.editor textarea {
+  border: none !important;
+  outline: none !important;
 }

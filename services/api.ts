@@ -16,7 +16,7 @@ export const messageuser = {
     {
       role: "user",
       content:
-        "plese stick to the format I told you in system prompt <example> block if you dont know what format to use then use send message and dont send the response with any other format such as using ```html or ```js or any other code block format",
+        "the format in which you will respond is Introduction of what you are going to do 1. greating  2. all file names 3. a message to the user and then <boltArtifact>...</boltArtifact>  then what you have done and then a message to the user",
     },
     {
       role: "user",

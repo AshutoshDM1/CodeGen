@@ -11,7 +11,6 @@ import {
   Show,
   useChatStore,
   useFilePaths,
-  useMessages,
   useShowPreview,
 } from "@/store/chatStore";
 import WebContainer from "./webContainer";
@@ -19,7 +18,6 @@ import Terminal from "./Terminal";
 import { projectFiles } from "@/store/chatStore";
 import Editor from "react-simple-code-editor";
 import Prism from "prismjs";
-import "prismjs/themes/prism-tomorrow.css";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-jsx";
 import "prismjs/components/prism-typescript";
@@ -34,8 +32,6 @@ const CodeEditor = () => {
   const [value, setValue] = useState(
     findFileContent(projectFiles, filePaths) ?? ""
   );
-  const { messages } = useMessages();
-  const code = messages;
   useEffect(() => {
     setValue(findFileContent(projectFiles, filePaths) ?? "");
   }, [filePaths]);
@@ -46,6 +42,15 @@ const CodeEditor = () => {
       Prism.languages[getLanguageFromPath(filePaths)],
       getLanguageFromPath(filePaths)
     );
+  };
+
+  const renderLineNumbers = () => {
+    const lines = value.split("\n").length;
+    return Array.from({ length: lines + 1 }, (_, i) => (
+      <div key={i} className="line-number">
+        {i + 1}
+      </div>
+    ));
   };
 
   return (
@@ -67,23 +72,32 @@ const CodeEditor = () => {
               )}
               <ResizableHandle />
               <ResizablePanel minSize={15} maxSize={100} defaultSize={80}>
-                <div className="h-full w-full overflow-auto px-3">
-                  <Editor
-                    value={value}
-                    onValueChange={(code) => setValue(code)}
-                    highlight={highlight}
-                    padding={5}
-                    style={{
-                      fontFamily: '"Fira code", "Fira Mono", monospace',
-                      fontSize: 14,
-                      backgroundColor: "#000",
-                      minHeight: "95vh",
-                      color: "#fff",
-                    }}
-                    className="editor"
-                    textareaClassName="editor__textarea"
-                    preClassName="editor__pre"
-                  />
+                <div className="h-[95vh] w-full overflow-auto p-4 pt-0">
+                  <div className="relative">
+                    <div
+                      className="absolute left-0 -top-1 bottom-0 p-4 text-right text-gray-500 select-none"
+                      style={{ width: "50px" }}
+                    >
+                      {renderLineNumbers()}
+                    </div>
+                    <Editor
+                      value={value}
+                      onValueChange={(code) => setValue(code)}
+                      highlight={highlight}
+                      padding={10}
+                      style={{
+                        fontFamily: '"Fira code", "Fira Mono", monospace',
+                        fontSize: 16,
+                        backgroundColor: "#000",
+                        minHeight: "95vh",
+                        color: "#fff",
+                        marginLeft: "50px",
+                      }}
+                      className="editor"
+                      textareaClassName="editor__textarea"
+                      preClassName="editor__pre"
+                    />
+                  </div>
                 </div>
               </ResizablePanel>
             </ResizablePanelGroup>

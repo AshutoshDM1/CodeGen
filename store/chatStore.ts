@@ -1,13 +1,73 @@
 import { create } from "zustand";
 
-interface Message {
+export const projectFiles = {
+  "package.json": {
+    file: {
+      contents: `{\n  "name": "vite-react-app",\n  "private": true,\n  "version": "0.0.0",\n  "type": "module",\n  "scripts": {\n    "dev": "vite",\n    "build": "vite build",\n    "preview": "vite preview"\n  },\n  "dependencies": {\n    "react": "^18.2.0",\n    "react-dom": "^18.2.0"\n  },\n  "devDependencies": {\n    "@vitejs/plugin-react": "^4.2.0",\n    "autoprefixer": "^10.4.17",\n    "postcss": "^8.4.35",\n    "tailwindcss": "^3.4.1",\n    "vite": "^5.0.0"\n  }\n}`,
+    },
+  },
+  "vite.config.js": {
+    file: {
+      contents: `import { defineConfig } from 'vite'\nimport react from '@vitejs/plugin-react'\n\nexport default defineConfig({\n  plugins: [react()],\n  server: {\n    host: true,\n    port: 5173\n  }\n})`,
+    },
+  },
+  "index.html": {
+    file: {
+      contents: `<!DOCTYPE html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>CodeGen</title>\n  </head>\n  <body>\n    <div id="root"></div>\n    <script type="module" src="/src/main.jsx"></script>\n  </body>\n</html>`,
+    },
+  },
+  "postcss.config.js": {
+    file: {
+      contents: `export default {\n  plugins: {\n    tailwindcss: {},\n    autoprefixer: {},\n  },\n}`,
+    },
+  },
+  "tailwind.config.js": {
+    file: {
+      contents: `/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    "./index.html",\n    "./src/**/*.{js,ts,jsx,tsx}",\n  ],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}`,
+    },
+  },
+  src: {
+    directory: {
+      "index.css": {
+        file: {
+          contents: `@tailwind base;\n@tailwind components;\n@tailwind utilities;`,
+        },
+      },
+      "main.jsx": {
+        file: {
+          contents: `import React from 'react'\nimport ReactDOM from 'react-dom/client'\nimport App from './App'\nimport './index.css'\n\nReactDOM.createRoot(document.getElementById('root')).render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>\n)`,
+        },
+      },
+      "App.jsx": {
+        file: {
+          contents: `function App() {\n  return (\n    <div className="min-h-screen bg-gray-100 flex items-center justify-center">\n      <h1 className="text-4xl font-bold text-gray-800">\n        Hello from React + Vite + Tailwind!\n      </h1>\n    </div>\n  )\n}\n\nexport default App`,
+        },
+      },
+    },
+  },
+};
+
+export interface Message {
   role: "user" | "assistant";
   content: string | AIResponse;
 }
 
-interface AIResponse {
+interface FileContent {
+  file?: {
+    contents: string;
+  };
+  directory?: {
+    [key: string]: FileContent;
+  };
+}
+
+export type projectFiles = {
+  [key: string]: FileContent;
+};
+
+export interface AIResponse {
   startingContent?: string;
-  code: Array<file | command>;
+  projectFiles: projectFiles;
   endingContent?: string;
 }
 
@@ -21,23 +81,22 @@ interface ChatStore {
   setIsLoading: (loading: boolean) => void;
 }
 
-interface Messages {
-  messages: string;
-  setMessages: (messages: string) => void;
-}
-
-export const useMessages = create<Messages>((set) => ({
-  messages: "",
-  setMessages: (messages) => set({ messages }),
-}));
-
 export const useChatStore = create<ChatStore>((set) => ({
   messages: [
     {
       role: "user",
       content: "I want to make a todo list",
     },
+    {
+      role: "assistant",
+      content: {
+        startingContent: "I have created a todo list for you",
+        projectFiles: projectFiles,
+        endingContent: "Thank you for using my service",
+      },
+    },
   ],
+
   isLoading: false,
   setMessages: (messages) => set({ messages }),
   addChunk: (chunk) =>
@@ -193,233 +252,11 @@ interface FilePaths {
 }
 
 export const useFilePaths = create<FilePaths>((set) => ({
-  filePaths: "src/App.jsx",
+  filePaths: "index.html",
   setFilePaths: (filePaths) => set({ filePaths }),
 }));
 
-export const demoMessages: Message[] = [
-  {
-    role: "user",
-    content: "Create a simple todo list application",
-  },
-  {
-    role: "assistant",
-    content: {
-      startingContent:
-        "I'll help you create a simple todo list application. Here's the code you'll need:",
-      code: [
-        {
-          type: "file",
-          filePath: "src/components/TodoList.tsx",
-          content: `import React, { useState } from 'react';
 
-interface Todo {
-  id: number;
-  text: string;
-  completed: boolean;
-}
-
-export default function TodoList() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [input, setInput] = useState('');
-
-  const addTodo = () => {
-    if (input.trim()) {
-      setTodos([...todos, { id: Date.now(), text: input, completed: false }]);
-      setInput('');
-    }
-  };
-
-  return (
-    <div className="max-w-md mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Todo List</h1>
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 px-3 py-2 border rounded"
-          placeholder="Add a new todo"
-        />
-        <button
-          onClick={addTodo}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Add
-        </button>
-      </div>
-      <ul className="space-y-2">
-        {todos.map((todo) => (
-          <li key={todo.id} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => {
-                setTodos(todos.map(t =>
-                  t.id === todo.id ? { ...t, completed: !t.completed } : t
-                ));
-              }}
-            />
-            <span className={todo.completed ? 'line-through' : ''}>
-              {todo.text}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}`,
-        },
-        {
-          type: "shell",
-          content: "npm install @types/react @types/react-dom",
-        },
-      ],
-      endingContent:
-        "You can now import and use this TodoList component in your main App.tsx file. The component includes basic functionality for adding todos and marking them as complete.",
-    },
-  },
-];
-
-export const projectFiles = {
-  "package.json": {
-    file: {
-      contents: `{
-          "name": "vite-react-app",
-          "private": true,
-          "version": "0.0.0",
-          "type": "module",
-          "scripts": {
-            "dev": "vite",
-            "build": "vite build",
-            "preview": "vite preview"
-          },
-          "dependencies": {
-            "react": "^18.2.0",
-            "react-dom": "^18.2.0"
-          },
-          "devDependencies": {
-            "@vitejs/plugin-react": "^4.2.0",
-            "autoprefixer": "^10.4.17",
-            "postcss": "^8.4.35",
-            "tailwindcss": "^3.4.1",
-            "vite": "^5.0.0"
-          }
-        }`,
-    },
-  },
-  "vite.config.js": {
-    file: {
-      contents: `
-          import { defineConfig } from 'vite'
-          import react from '@vitejs/plugin-react'
-
-          export default defineConfig({
-            plugins: [react()],
-            server: {
-              host: true,
-              port: 5173
-            }
-          })`,
-    },
-  },
-  "index.html": {
-    file: {
-      contents: `
-          <!DOCTYPE html>
-          <html lang="en">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>CodeGen</title>
-            </head>
-            <body>
-              <div id="root"></div>
-              <script type="module" src="/src/main.jsx"></script>
-            </body>
-          </html>`,
-    },
-  },
-  "postcss.config.js": {
-    file: {
-      contents: `
-          export default {
-            plugins: {
-              tailwindcss: {},
-              autoprefixer: {},
-            },
-          }`,
-    },
-  },
-  "tailwind.config.js": {
-    file: {
-      contents: `
-          /** @type {import('tailwindcss').Config} */
-          export default {
-            content: [
-              "./index.html",
-              "./src/**/*.{js,ts,jsx,tsx}",
-            ],
-            theme: {
-              extend: {},
-            },
-            plugins: [],
-          }`,
-    },
-  },
-  src: {
-    directory: {
-      "index.css": {
-        file: {
-          contents: `
-              @tailwind base;
-              @tailwind components;
-              @tailwind utilities;`,
-        },
-      },
-      "main.jsx": {
-        file: {
-          contents: `
-              import React from 'react'
-              import ReactDOM from 'react-dom/client'
-              import App from './App'
-              import './index.css'
-
-              ReactDOM.createRoot(document.getElementById('root')).render(
-                <React.StrictMode>
-                  <App />
-                </React.StrictMode>
-              )`,
-        },
-      },
-      "App.jsx": {
-        file: {
-          contents: `
-              function App() {
-                return (
-                  <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                    <h1 className="text-4xl font-bold text-gray-800">
-                      Hello from React + Vite + Tailwind!
-                    </h1>
-                  </div>
-                )
-              }
-              
-              export default App`,
-        },
-      },
-    },
-  },
-};
-
-type FileContent = {
-  file?: {
-    contents: string;
-  };
-  directory?: {
-    [key: string]: FileContent;
-  };
-};
 
 export function findFileContent(
   files: Record<string, FileContent>,
@@ -446,5 +283,12 @@ export function findFileContent(
   return current?.file?.contents ?? null;
 }
 
-// Usage example:
-// const content = findFileContent(projectFiles, "src/App.jsx");
+// Function to count lines in a file
+export function getLineCount(
+  files: Record<string, FileContent>,
+  path: string
+): number {
+  const content = findFileContent(files, path);
+  if (!content) return 0;
+  return content.split("\n").length;
+}

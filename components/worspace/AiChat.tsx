@@ -6,10 +6,41 @@ import ChatInput from "./aiChat/chat-input";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
-import { useChatStore } from "@/store/chatStore";
+import { useChatStore, Message, AIResponse } from "@/store/chatStore";
 
 const AiChat = () => {
   const { messages } = useChatStore();
+
+  const renderContent = (message: Message) => {
+    if (message.role === "user") {
+      return (
+        <p className="text-sm text-zinc-100 mt-3">
+          {message.content as string}
+        </p>
+      );
+    }
+
+    const content = message.content as AIResponse;
+    return (
+      <div className="space-y-4">
+        {content.startingContent && (
+          <div className="prose prose-invert max-w-none">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {content.startingContent}
+            </ReactMarkdown>
+          </div>
+        )}
+
+        {content.endingContent && (
+          <div className="prose prose-invert max-w-none mt-4">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {content.endingContent}
+            </ReactMarkdown>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -21,30 +52,23 @@ const AiChat = () => {
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-5 pl-5 py-5 bg-foreground/5 rounded-lg"
+                  className={`flex items-start gap-5 p-5 rounded-lg ${
+                    message.role === "assistant" ? "bg-foreground/5" : ""
+                  }`}
                 >
                   <Avatar>
                     <AvatarImage
                       className="rounded-full h-8 w-9"
                       src={
-                        message.role === "user"
-                          ? "/user.jpg"
-                          : "/codegen.png"
+                        message.role === "user" ? "/user.jpg" : "/codegen.png"
                       }
-                      // crossOrigin="anonymous"
                       alt={message.role}
                     />
                     <AvatarFallback>
                       {message.role === "user" ? "CN" : "AI"}
                     </AvatarFallback>
                   </Avatar>
-                  {message.role === "assistant" ? (
-                    <div className="mt-5 prose prose-invert max-w-none">
-                      <p></p>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-zinc-100 mt-3 "></p>
-                  )}
+                  <div className="flex-1 min-w-0 text-sm ">{renderContent(message)}</div>
                 </div>
               ))}
             </div>
