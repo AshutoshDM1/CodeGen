@@ -47,12 +47,51 @@ export const projectFiles = {
   },
 };
 
+export const useEditorCode = create<{
+  EditorCode: projectFiles;
+  addfileCode: (filePath: string, code: string) => void;
+  setEditorCode: (filePath: string, code: string) => void;
+}>((set) => ({
+  EditorCode: projectFiles,
+  addfileCode: (filePath, code) =>
+    set((state) => ({
+      EditorCode: {
+        ...state.EditorCode,
+        [filePath]: {
+          file: {
+            contents: state.EditorCode[filePath]?.file?.contents + code,
+          },
+        },
+      },
+    })),
+  setEditorCode: (filePath, code) =>
+    set((state) => {
+      const parts = filePath.split("/");
+      let current = { ...state.EditorCode };
+
+      // Handle nested paths
+      if (parts.length > 1) {
+        let temp = current;
+        for (let i = 0; i < parts.length - 1; i++) {
+          temp =
+            (temp[parts[i]].directory as { [key: string]: FileContent }) || {};
+        }
+        temp[parts[parts.length - 1]] = { file: { contents: code } };
+      } else {
+        // Handle root level files
+        current[filePath] = { file: { contents: code } };
+      }
+
+      return { EditorCode: current };
+    }),
+}));
+
 export interface Message {
   role: "user" | "assistant";
   content: string | AIResponse;
 }
 
-interface FileContent {
+export interface FileContent {
   file?: {
     contents: string;
   };
@@ -71,6 +110,12 @@ export interface AIResponse {
   endingContent?: string;
 }
 
+interface AIMessage {
+  startingContent: string;
+  projectFiles: projectFiles;
+  endingContent: string;
+}
+
 interface ChatStore {
   messages: Message[];
   setMessages: (messages: Message[]) => void;
@@ -79,26 +124,50 @@ interface ChatStore {
   clearMessages: () => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+  addAIbeforeMsg: (chunk: string) => void;
+  addAIafterMsg: (chunk: string) => void;
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
   messages: [
-    {
-      role: "user",
-      content: "I want to make a todo list",
-    },
-    {
-      role: "assistant",
-      content: {
-        startingContent: "I have created a todo list for you",
-        projectFiles: projectFiles,
-        endingContent: "Thank you for using my service",
-      },
-    },
+    // { role: "user", content: "Make a simple react app with tailwind css" },
+    // {
+    //   role: "assistant",
+    //   content: {
+    //     startingContent:
+    //       "Sure, I'll create a simple React app with Tailwind CSS for you. Here's the initial setup:",
+    //     projectFiles: projectFiles,
+    //     endingContent: "Here's the complete project files:",
+    //   },
+    // },
   ],
 
+  
   isLoading: false,
   setMessages: (messages) => set({ messages }),
+  addAIbeforeMsg: (chunk: string) =>
+    set((state) => {
+      const messages = [...state.messages];
+      const lastMessage = messages[messages.length - 1];
+      // console.log(lastMessage);
+      if (lastMessage && lastMessage.role === "assistant") {
+        if (typeof lastMessage.content !== "string") {
+          lastMessage.content.startingContent += chunk;
+        }
+      }
+      return { messages };
+    }),
+  addAIafterMsg: (chunk: string) =>
+    set((state) => {
+      const messages = [...state.messages];
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.role === "assistant") {
+        if (typeof lastMessage.content !== "string") {
+          lastMessage.content.endingContent += chunk;
+        }
+      }
+      return { messages };
+    }),
   addChunk: (chunk) =>
     set((state) => {
       const messages = [...state.messages];
@@ -252,11 +321,9 @@ interface FilePaths {
 }
 
 export const useFilePaths = create<FilePaths>((set) => ({
-  filePaths: "index.html",
+  filePaths: "src/App.jsx",
   setFilePaths: (filePaths) => set({ filePaths }),
 }));
-
-
 
 export function findFileContent(
   files: Record<string, FileContent>,

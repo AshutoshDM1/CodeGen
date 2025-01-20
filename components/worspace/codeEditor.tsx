@@ -1,3 +1,4 @@
+import { Editor } from "@monaco-editor/react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -7,50 +8,66 @@ import FileExplorer from "../FileExplorer";
 import DevNavbar from "./DevNavbar";
 import { useEffect, useState } from "react";
 import {
+  FileContent,
   findFileContent,
   Show,
-  useChatStore,
+  useEditorCode,
   useFilePaths,
   useShowPreview,
 } from "@/store/chatStore";
 import WebContainer from "./webContainer";
 import Terminal from "./Terminal";
 import { projectFiles } from "@/store/chatStore";
-import Editor from "react-simple-code-editor";
-import Prism from "prismjs";
-import "prismjs/components/prism-javascript";
-import "prismjs/components/prism-jsx";
-import "prismjs/components/prism-typescript";
-import "prismjs/components/prism-tsx";
-import "prismjs/components/prism-css";
-import "prismjs/components/prism-json";
+import { customTheme } from "@/lib/monacoCustomTheme";
+import { GeistMono } from "geist/font/mono";
+
+// Helper function to determine language based on file extension
+function getLanguageFromPath(path: string): string {
+  const ext = path.split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "js":
+      return "javascript";
+    case "jsx":
+      return "javascript";
+    case "ts":
+      return "typescript";
+    case "tsx":
+      return "tsx";
+    case "css":
+      return "css";
+    case "json":
+      return "json";
+    default:
+      return "javascript";
+  }
+}
 
 const CodeEditor = () => {
   const { showPreview } = useShowPreview();
   const { filePaths } = useFilePaths();
   const [showFileExplorer] = useState(true);
-  const [value, setValue] = useState(
-    findFileContent(projectFiles, filePaths) ?? ""
-  );
+  const { EditorCode, setEditorCode } = useEditorCode();
+  const code = findFileContent(EditorCode as projectFiles, filePaths) ?? "";
+  const [editor, setEditor] = useState<any>(null);
+  const [monacoInstance, setMonacoInstance] = useState<any>(null);
+
   useEffect(() => {
-    setValue(findFileContent(projectFiles, filePaths) ?? "");
-  }, [filePaths]);
+    if (editor && monacoInstance) {
+      const model = editor.getModel();
+      if (model) {
+        monacoInstance.editor.setModelLanguage(
+          model,
+          getLanguageFromPath(filePaths)
+        );
+      }
+    }
+  }, [filePaths, editor, showPreview, monacoInstance]);
 
-  const highlight = (code: string) => {
-    return Prism.highlight(
-      code,
-      Prism.languages[getLanguageFromPath(filePaths)],
-      getLanguageFromPath(filePaths)
-    );
-  };
-
-  const renderLineNumbers = () => {
-    const lines = value.split("\n").length;
-    return Array.from({ length: lines + 1 }, (_, i) => (
-      <div key={i} className="line-number">
-        {i + 1}
-      </div>
-    ));
+  const handleEditorChange = (value: string | undefined) => {
+    if (value) {
+      const filePath = filePaths;
+      setEditorCode(filePath, value);
+    }
   };
 
   return (
@@ -72,33 +89,74 @@ const CodeEditor = () => {
               )}
               <ResizableHandle />
               <ResizablePanel minSize={15} maxSize={100} defaultSize={80}>
-                <div className="h-[95vh] w-full overflow-auto p-4 pt-0">
-                  <div className="relative">
-                    <div
-                      className="absolute left-0 -top-1 bottom-0 p-4 text-right text-gray-500 select-none"
-                      style={{ width: "50px" }}
-                    >
-                      {renderLineNumbers()}
-                    </div>
-                    <Editor
-                      value={value}
-                      onValueChange={(code) => setValue(code)}
-                      highlight={highlight}
-                      padding={10}
-                      style={{
-                        fontFamily: '"Fira code", "Fira Mono", monospace',
-                        fontSize: 16,
-                        backgroundColor: "#000",
-                        minHeight: "95vh",
-                        color: "#fff",
-                        marginLeft: "50px",
-                      }}
-                      className="editor"
-                      textareaClassName="editor__textarea"
-                      preClassName="editor__pre"
-                    />
-                  </div>
-                </div>
+                <Editor
+                  className={GeistMono.className}
+                  height="95vh"
+                  defaultLanguage={getLanguageFromPath(filePaths)}
+                  value={code}
+                  onMount={(editor, monaco) => {
+                    setEditor(editor);
+                    setMonacoInstance(monaco);
+                    monaco.editor.defineTheme("custom-chai-theme", customTheme);
+                    monaco.editor.setTheme("custom-chai-theme");
+
+                    // Disable all validations for TypeScript/JavaScript
+                    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(
+                      {
+                        noSemanticValidation: true,
+                        noSyntaxValidation: true,
+                        noSuggestionDiagnostics: true,
+                      }
+                    );
+                    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(
+                      {
+                        noSemanticValidation: true,
+                        noSyntaxValidation: true,
+                        noSuggestionDiagnostics: true,
+                      }
+                    );
+
+                    // Disable all markers without modifying the model
+                    monaco.editor.setModelMarkers(editor.getModel()!, "", []);
+                  }}
+                  onChange={handleEditorChange}
+                  options={{
+                    wordWrap: "on",
+                    fontSize: 14,
+                    fontFamily: "GeistMono",
+                    fontWeight: "400",
+                    lineNumbers: "on",
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    renderLineHighlight: "all",
+                    cursorStyle: "line",
+                    automaticLayout: true,
+                    padding: { top: 16 },
+                    folding: true,
+                    bracketPairColorization: {
+                      enabled: true,
+                    },
+                    quickSuggestions: false,
+                    parameterHints: { enabled: false },
+                    suggestOnTriggerCharacters: false,
+                    acceptSuggestionOnEnter: "off",
+                    tabCompletion: "off",
+                    wordBasedSuggestions: "off",
+                  }}
+                  beforeMount={(monaco) => {
+                    // Load language support before mounting
+                    monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
+                      {
+                        jsx: monaco.languages.typescript.JsxEmit.React,
+                        jsxFactory: "React.createElement",
+                        reactNamespace: "React",
+                        allowNonTsExtensions: true,
+                        allowJs: true,
+                        target: monaco.languages.typescript.ScriptTarget.Latest,
+                      }
+                    );
+                  }}
+                />
               </ResizablePanel>
             </ResizablePanelGroup>
           ) : null}
@@ -109,26 +167,5 @@ const CodeEditor = () => {
     </ResizablePanel>
   );
 };
-
-// Helper function to determine language based on file extension
-function getLanguageFromPath(path: string): string {
-  const ext = path.split(".").pop()?.toLowerCase();
-  switch (ext) {
-    case "js":
-      return "javascript";
-    case "jsx":
-      return "jsx";
-    case "ts":
-      return "typescript";
-    case "tsx":
-      return "tsx";
-    case "css":
-      return "css";
-    case "json":
-      return "json";
-    default:
-      return "javascript";
-  }
-}
 
 export default CodeEditor;

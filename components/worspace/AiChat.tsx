@@ -10,7 +10,7 @@ import { useChatStore, Message, AIResponse } from "@/store/chatStore";
 
 const AiChat = () => {
   const { messages } = useChatStore();
-
+  // console.log(messages);
   const renderContent = (message: Message) => {
     if (message.role === "user") {
       return (
@@ -28,14 +28,15 @@ const AiChat = () => {
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {content.startingContent}
             </ReactMarkdown>
+            <br />
           </div>
         )}
 
         {content.endingContent && (
           <div className="prose prose-invert max-w-none mt-4">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {content.endingContent}
-            </ReactMarkdown>
+            <br />
+            {content.endingContent}
+            <br />
           </div>
         )}
       </div>
@@ -68,7 +69,9 @@ const AiChat = () => {
                       {message.role === "user" ? "CN" : "AI"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0 text-sm ">{renderContent(message)}</div>
+                  <div className="flex-1 min-w-0 text-sm ">
+                    {renderContent(message)}
+                  </div>
                 </div>
               ))}
             </div>

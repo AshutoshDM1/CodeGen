@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Paperclip, ArrowUp, CloudCog } from "lucide-react";
+import { Paperclip, ArrowUp } from "lucide-react";
 import { X } from "lucide-react";
 import { messageuser } from "@/services/api";
 import { useChatStore } from "@/store/chatStore";
@@ -26,9 +26,18 @@ interface AIMessage {
 }
 
 export default function ChatInput() {
-  const { addMessage, isLoading, setIsLoading, addChunk } = useChatStore();
+  const {
+    messages,
+    addMessage,
+    isLoading,
+    setIsLoading,
+    addAIbeforeMsg,
+    addAIafterMsg,
+  } = useChatStore();
   const [inputValue, setInputValue] = useState("");
+  // console.log(messages);
   let buffer = "";
+  let buferAfter = "";
   const fetchData = async () => {
     try {
       const response = await fetch(`http://localhost:4000/api/chat`, {
@@ -49,8 +58,17 @@ export default function ChatInput() {
         },
         afterMsg: "",
       };
-
+      addMessage({
+        role: "assistant",
+        content: {
+          startingContent: "",
+          projectFiles: {},
+          endingContent: "",
+        },
+      });
+      // console.log(messages);
       const reader = response.body.getReader();
+      let isBefore = false;
       let isInsideArtifact = false;
       let isInsideFileAction = false;
       let isInsideShellAction = false;
@@ -67,7 +85,14 @@ export default function ChatInput() {
 
         const chunk = new TextDecoder().decode(value);
         buffer += chunk;
-        
+        if (chunk.includes("<")) {
+          isBefore = true;
+        }
+        // Parse and log content before any boltArtifact tag
+        if (!isInsideArtifact && !isBefore) {
+          addAIbeforeMsg(chunk);
+        }
+
         // Handle artifact opening tag
         if (buffer.includes("<boltArtifact")) {
           const artifactMatch = buffer.match(
@@ -78,6 +103,7 @@ export default function ChatInput() {
             isInsideArtifact = true;
             message.boltArtifact.title = artifactMatch[2];
             message.beforeMsg = buffer.split("<boltArtifact")[0];
+            console.log("Before Message Content:", message.beforeMsg);
             buffer = buffer.substring(buffer.indexOf(">") + 1);
           }
         }
@@ -89,7 +115,8 @@ export default function ChatInput() {
           const filePathMatch = buffer.match(/filePath="([^"]*)"/);
           if (filePathMatch) {
             currentFileAction.filePath = filePathMatch[1];
-            console.log("Starting file action for:", filePathMatch[1]);
+            console.log("File Type:", filePathMatch[1].split(".").pop()); // Log file extension
+            console.log("File Path:", filePathMatch[1]);
             buffer = buffer.substring(buffer.indexOf(">") + 1);
           }
         }
@@ -102,11 +129,18 @@ export default function ChatInput() {
           buffer = buffer.substring(buffer.indexOf(">") + 1);
         }
 
+        // Handle file action content streaming
+        if (isInsideFileAction) {
+          
+          currentFileAction.content += chunk;
+        }
+
         // Handle closing tags and content
         if (isInsideFileAction && buffer.includes("</boltAction>")) {
           currentFileAction.content = buffer.split("</boltAction>")[0].trim();
           message.boltArtifact.fileActions.push({ ...currentFileAction });
-          console.log("Completed file action:", {
+          console.log("File Content:", currentFileAction.content);
+          console.log("File Action:", {
             path: currentFileAction.filePath,
             contentLength: currentFileAction.content.length,
           });
@@ -124,21 +158,17 @@ export default function ChatInput() {
           buffer = buffer.substring(buffer.indexOf("</boltAction>") + 13);
         }
 
-        // Handle artifact closing
-        if (isInsideArtifact && buffer.includes("</boltArtifact>")) {
-          isInsideArtifact = false;
-          message.afterMsg = buffer.split("</boltArtifact>")[1] || "";
-          console.log("Completed boltArtifact:", {
-            title: message.boltArtifact.title,
-            fileActionsCount: message.boltArtifact.fileActions.length,
-            shellActionsCount: message.boltArtifact.shellActions.length,
-          });
-          buffer = "";
+        if (buffer.includes("</boltArtifact>")) {
+          buferAfter = buffer.split("</boltArtifact>")[1] || "";
+          // Clean up the after message
+          buferAfter = buferAfter.replace(/^[>\s]+/, "").trim();
+          // console.log("After Message Content:", buferAfter);
+          if (buferAfter) {
+            addAIafterMsg(chunk);
+          }
         }
-
-        addChunk(chunk);
       }
-
+      console.log(messages);
       console.log("Final parsed message:", message);
       return message;
     } catch (err) {

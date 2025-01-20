@@ -2,12 +2,14 @@ import { useEffect } from "react";
 
 import { useWebContainer } from "@/hooks/useWebContainer";
 import { useState } from "react";
-import { projectFiles } from "@/store/chatStore";
+import { useEditorCode } from "@/store/chatStore";
+import { FileSystemTree } from "@webcontainer/api";
 
 const WebContainer = () => {
   const { webcontainer, loading: webcontainerLoading } = useWebContainer();
   const [url, setUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { EditorCode } = useEditorCode();
 
   useEffect(() => {
     const setupWebContainer = async () => {
@@ -15,11 +17,11 @@ const WebContainer = () => {
         setIsLoading(true);
         if (!webcontainer) return;
 
-        
-        console.log(projectFiles);
+        // console.log(EditorCode);
 
         // Mount the files
-        await webcontainer.mount(projectFiles);
+        const files = EditorCode as unknown as FileSystemTree;
+        await webcontainer.mount(files);
 
         // Install dependencies
         const installProcess = await webcontainer.spawn("npm", ["install"]);
