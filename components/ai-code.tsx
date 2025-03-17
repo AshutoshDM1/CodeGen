@@ -19,7 +19,7 @@ export default function Home() {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = new TextDecoder().decode(value);
-        addMessage(chunk);
+        addMessage({ content: chunk, role: "assistant" });
       }
     } catch (error) {
       console.error("Error fetching data:", error);

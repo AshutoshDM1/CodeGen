@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { ResizableHandle, ResizablePanel } from "../ui/resizable";
 import NavbarAiChat from "./aiChat/Navbar.aiChat";
 import ChatInput from "./aiChat/chat-input";

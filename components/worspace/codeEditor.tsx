@@ -1,4 +1,5 @@
 import { Editor } from "@monaco-editor/react";
+import * as monaco from "monaco-editor";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -8,7 +9,7 @@ import FileExplorer from "../FileExplorer";
 import DevNavbar from "./DevNavbar";
 import { useEffect, useState } from "react";
 import {
-  FileContent,
+  // FileContent,
   findFileContent,
   Show,
   useEditorCode,
@@ -48,8 +49,11 @@ const CodeEditor = () => {
   const [showFileExplorer] = useState(true);
   const { EditorCode, setEditorCode } = useEditorCode();
   const code = findFileContent(EditorCode as projectFiles, filePaths) ?? "";
-  const [editor, setEditor] = useState<any>(null);
-  const [monacoInstance, setMonacoInstance] = useState<any>(null);
+  const [editor, setEditor] =
+    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [monacoInstance, setMonacoInstance] = useState<typeof monaco | null>(
+    null
+  );
 
   useEffect(() => {
     if (editor && monacoInstance) {
@@ -83,7 +87,7 @@ const CodeEditor = () => {
               className="min-h-[95vh]"
             >
               {showFileExplorer && (
-                <ResizablePanel minSize={15} maxSize={100} defaultSize={18}>
+                <ResizablePanel minSize={20} maxSize={100} defaultSize={18}>
                   <FileExplorer />
                 </ResizablePanel>
               )}

@@ -27,7 +27,7 @@ interface AIMessage {
 
 export default function ChatInput() {
   const {
-    messages,
+    // messages,
     addMessage,
     isLoading,
     setIsLoading,
@@ -35,7 +35,6 @@ export default function ChatInput() {
     addAIafterMsg,
   } = useChatStore();
   const [inputValue, setInputValue] = useState("");
-  // console.log(messages);
   let buffer = "";
   let buferAfter = "";
   const fetchData = async () => {
@@ -66,7 +65,7 @@ export default function ChatInput() {
           endingContent: "",
         },
       });
-      // console.log(messages);
+
       const reader = response.body.getReader();
       let isBefore = false;
       let isInsideArtifact = false;
@@ -88,62 +87,46 @@ export default function ChatInput() {
         if (chunk.includes("<")) {
           isBefore = true;
         }
-        // Parse and log content before any boltArtifact tag
+
         if (!isInsideArtifact && !isBefore) {
           addAIbeforeMsg(chunk);
         }
 
-        // Handle artifact opening tag
         if (buffer.includes("<boltArtifact")) {
           const artifactMatch = buffer.match(
             /<boltArtifact id="([^"]*)" title="([^"]*)">/
           );
           if (artifactMatch) {
-            console.log("Starting to parse boltArtifact:", artifactMatch[2]);
             isInsideArtifact = true;
             message.boltArtifact.title = artifactMatch[2];
             message.beforeMsg = buffer.split("<boltArtifact")[0];
-            console.log("Before Message Content:", message.beforeMsg);
             buffer = buffer.substring(buffer.indexOf(">") + 1);
           }
         }
 
-        // Handle file action
         if (isInsideArtifact && buffer.includes('<boltAction type="file"')) {
           isInsideFileAction = true;
           currentFileAction = { type: "file", filePath: "", content: "" };
           const filePathMatch = buffer.match(/filePath="([^"]*)"/);
           if (filePathMatch) {
             currentFileAction.filePath = filePathMatch[1];
-            console.log("File Type:", filePathMatch[1].split(".").pop()); // Log file extension
-            console.log("File Path:", filePathMatch[1]);
             buffer = buffer.substring(buffer.indexOf(">") + 1);
           }
         }
 
-        // Handle shell action
         if (isInsideArtifact && buffer.includes('<boltAction type="shell"')) {
           isInsideShellAction = true;
           currentShellAction = { type: "shell", content: "" };
-          console.log("Starting shell action");
           buffer = buffer.substring(buffer.indexOf(">") + 1);
         }
 
-        // Handle file action content streaming
         if (isInsideFileAction) {
-          
           currentFileAction.content += chunk;
         }
 
-        // Handle closing tags and content
         if (isInsideFileAction && buffer.includes("</boltAction>")) {
           currentFileAction.content = buffer.split("</boltAction>")[0].trim();
           message.boltArtifact.fileActions.push({ ...currentFileAction });
-          console.log("File Content:", currentFileAction.content);
-          console.log("File Action:", {
-            path: currentFileAction.filePath,
-            contentLength: currentFileAction.content.length,
-          });
           isInsideFileAction = false;
           buffer = buffer.substring(buffer.indexOf("</boltAction>") + 13);
         }
@@ -151,28 +134,21 @@ export default function ChatInput() {
         if (isInsideShellAction && buffer.includes("</boltAction>")) {
           currentShellAction.content = buffer.split("</boltAction>")[0].trim();
           message.boltArtifact.shellActions.push({ ...currentShellAction });
-          console.log("Completed shell action:", {
-            command: currentShellAction.content,
-          });
           isInsideShellAction = false;
           buffer = buffer.substring(buffer.indexOf("</boltAction>") + 13);
         }
 
         if (buffer.includes("</boltArtifact>")) {
           buferAfter = buffer.split("</boltArtifact>")[1] || "";
-          // Clean up the after message
           buferAfter = buferAfter.replace(/^[>\s]+/, "").trim();
-          // console.log("After Message Content:", buferAfter);
           if (buferAfter) {
             addAIafterMsg(chunk);
           }
         }
       }
-      console.log(messages);
-      console.log("Final parsed message:", message);
+      console.log(message);
       return message;
     } catch (err) {
-      console.error("Error in getchat:", err);
       throw err;
     }
   };
@@ -181,14 +157,12 @@ export default function ChatInput() {
     if (!inputValue.trim()) return;
 
     setIsLoading(true);
-    // Add user message to chat
     addMessage({ role: "user", content: inputValue });
-    setInputValue(""); // Clear input
+    setInputValue("");
 
     try {
       await fetchData();
     } catch (error) {
-      // Handle error (maybe add an error message to chat)
       console.error(error);
     } finally {
       setIsLoading(false);

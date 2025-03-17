@@ -61,7 +61,7 @@ const WebContainer = () => {
     if (!webcontainerLoading) {
       setupWebContainer();
     }
-  }, [webcontainer, webcontainerLoading]);
+  }, [webcontainer, webcontainerLoading, EditorCode]);
 
   return (
     <div className="h-full w-full">

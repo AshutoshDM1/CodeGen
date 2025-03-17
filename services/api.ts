@@ -27,7 +27,7 @@ export const messageuser = {
     },
     {
       role: "user",
-      content: "make a very simple hero section in react with tailwind",
+      content: "Make a good level todo list app with frame-motion and good styling",
     },
   ],
 };
