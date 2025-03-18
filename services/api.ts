@@ -1,6 +1,3 @@
-import axios from "axios";
-const URL = process.env.NEXT_PUBLIC_API_URL;
-
 export const exampleBefoer =
   'Okay, I will create a simple todo list application using React and Tailwind CSS.\n\n1.  Greetings!\n2.  The following files will be created or modified:\n    *   `src/App.tsx`\n    *   `src/components/TodoList.tsx`\n    *   `src/components/TodoItem.tsx`\n    *   `src/components/AddTodo.tsx`\n3.  This application will allow you to add, remove, and mark todos as complete.\n\n<boltArtifact id="simple-todo-list" title="Simple Todo List App">\n\nI have completed the task. You can now view the todo list application in the preview.\n \n ';
 
