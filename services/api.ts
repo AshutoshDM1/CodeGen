@@ -1,6 +1,6 @@
 export const exampleBefoer =
-  'Okay, I will create a simple todo list application using React and Tailwind CSS.\n\n1.  Greetings!\n2.  The following files will be created or modified:\n    *   `src/App.tsx`\n    *   `src/components/TodoList.tsx`\n    *   `src/components/TodoItem.tsx`\n    *   `src/components/AddTodo.tsx`\n3.  This application will allow you to add, remove, and mark todos as complete.\n\n<boltArtifact id="simple-todo-list" title="Simple Todo List App">\n\nI have completed the task. You can now view the todo list application in the preview.\n \n ';
-
+  'Okay, I will create a simple todo list application using React and Tailwind CSS.\n\n1.  Greetings!\n2.  The following files will be created or modified:\n    *   `src/App.jsx`\n    *   `src/components/TodoList.jsx`\n    *   `src/components/TodoItem.jsx`\n    *   `src/components/AddTodo.jsx`\n3.  This application will allow you to add, remove, and mark todos as complete.\n\n<boltArtifact id="simple-todo-list" title="Simple Todo List App">\n\nI have completed the task. You can now view the todo list application in the preview.\n \n ';
+  
 export const exampleAfter =
   "\n \n I have completed the task. You can now view the todo list application in the preview. \n \n";
 
@@ -20,11 +20,11 @@ export const messageuser = {
       role: "user",
       content:
         `The format in which you will respond is Introduction of what you are going to do 1. greating  2. all file names 3. a message to the user here is the example if user ask for a todo list app ${exampleBefoer} and then <boltArtifact>...</boltArtifact>  then tell the user that you have completed the task ${exampleAfter}
-        you have to strictly follow this format and nothing else`,
+        you have to strictly follow this format and nothing else But the file`,
     },
     {
       role: "user",
-      content: "Make a good level todo list app with frame-motion and good styling",
+      content: "Make a good level todo list app with frame-motion and good styling Keeping in mind the project is alreadyhave boilerplate codewhich is created by vite Having js as language and jsx files and tailwind css as styling language which is already installed in the project ",
     },
   ],
 };

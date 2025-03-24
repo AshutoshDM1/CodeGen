@@ -26,6 +26,11 @@ export const projectFiles = {
       contents: `/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    "./index.html",\n    "./src/**/*.{js,ts,jsx,tsx}",\n  ],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}`,
     },
   },
+  "tailwind.config.ts": {
+    file: {
+      contents: `/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    "./index.html",\n    "./src/**/*.{js,ts,jsx,tsx}",\n  ],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}`,
+    },
+  },
   src: {
     directory: {
       "index.css": {
@@ -38,9 +43,9 @@ export const projectFiles = {
           contents: `import React from 'react'\nimport ReactDOM from 'react-dom/client'\nimport App from './App'\nimport './index.css'\n\nReactDOM.createRoot(document.getElementById('root')).render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>\n)`,
         },
       },
-      "App.jsx": {
+      "App.tsx": {
         file: {
-          contents: `function App() {\n  return (\n    <div className="min-h-screen bg-gray-100 flex items-center justify-center">\n      <h1 className="text-4xl font-bold text-gray-800">\n        Hello from React + Vite + Tailwind!\n      </h1>\n    </div>\n  )\n}\n\nexport default App`,
+          contents: `import React from 'react'\n function App() {\n  return (\n    <div className="min-h-screen bg-gray-100 flex items-center justify-center">\n      <h1 className="text-4xl font-bold text-gray-800">\n        Hello from React + Vite + Tailwind!\n      </h1>\n    </div>\n  )\n}\n\nexport default App`,
         },
       },
     },
@@ -49,34 +54,43 @@ export const projectFiles = {
 
 export const useEditorCode = create<{
   EditorCode: projectFiles;
-  addfileCode: (filePath: string, code: string) => void;
   setEditorCode: (filePath: string, code: string) => void;
+  getfileCode: (filePath: string) => string;
 }>((set) => ({
   EditorCode: projectFiles,
-  addfileCode: (filePath, code) =>
-    set((state) => ({
-      EditorCode: {
-        ...state.EditorCode,
-        [filePath]: {
-          file: {
-            contents: state.EditorCode[filePath]?.file?.contents + code,
-          },
-        },
-      },
-    })),
+  getfileCode: (filePath: string): string => {
+    return findFileContent(useEditorCode.getState().EditorCode, filePath) ?? "";
+  },
   setEditorCode: (filePath, code) =>
     set((state) => {
       const parts = filePath.split("/");
       let current = { ...state.EditorCode };
+      console.log("setEditorCode called ");
 
       // Handle nested paths
       if (parts.length > 1) {
-        let temp = current;
+        let parentObj = current;
+
+        // Create directory structure if it doesn't exist
         for (let i = 0; i < parts.length - 1; i++) {
-          temp =
-            (temp[parts[i]].directory as { [key: string]: FileContent }) || {};
+          const dirName = parts[i];
+
+          // Check if directory exists, create it if not
+          if (!parentObj[dirName]) {
+            parentObj[dirName] = { directory: {} };
+          } else if (!parentObj[dirName].directory) {
+            parentObj[dirName].directory = {};
+          }
+
+          // Move to next level
+          parentObj = parentObj[dirName].directory as {
+            [key: string]: FileContent;
+          };
         }
-        temp[parts[parts.length - 1]] = { file: { contents: code } };
+
+        // Set the file at the final level
+        const fileName = parts[parts.length - 1];
+        parentObj[fileName] = { file: { contents: code } };
       } else {
         // Handle root level files
         current[filePath] = { file: { contents: code } };
@@ -142,7 +156,7 @@ export const useChatStore = create<ChatStore>((set) => ({
     // },
   ],
 
-  
+  // asdfasdfasdf
   isLoading: false,
   setMessages: (messages) => set({ messages }),
   addAIbeforeMsg: (chunk: string) =>
@@ -195,47 +209,6 @@ interface FileItem {
   type: "file" | "folder";
   children?: FileItem[];
 }
-
-export const codebase: FileItem[] = [
-  {
-    name: "src",
-    type: "folder",
-    children: [
-      {
-        name: "index.css",
-        type: "file",
-      },
-      {
-        name: "main.jsx",
-        type: "file",
-      },
-      {
-        name: "App.jsx",
-        type: "file",
-      },
-    ],
-  },
-  {
-    name: "package.json",
-    type: "file",
-  },
-  {
-    name: "vite.config.js",
-    type: "file",
-  },
-  {
-    name: "index.html",
-    type: "file",
-  },
-  {
-    name: "postcss.config.js",
-    type: "file",
-  },
-  {
-    name: "tailwind.config.js",
-    type: "file",
-  },
-];
 
 export type file = {
   filePath: string;
@@ -317,12 +290,121 @@ export const useTerminalStore = create<TerminalStore>((set) => ({
 
 interface FilePaths {
   filePaths: string;
+  fileupdating: boolean;
   setFilePaths: (filePaths: string) => void;
+  setFileupdating: (fileupdating: boolean) => void;
 }
 
+export const codebase: FileItem[] = [
+  {
+    name: "src",
+    type: "folder",
+    children: [
+      {
+        name: "index.css",
+        type: "file",
+      },
+      {
+        name: "main.jsx",
+        type: "file",
+      },
+      {
+        name: "App.tsx",
+        type: "file",
+      },
+    ],
+  },
+  {
+    name: "package.json",
+    type: "file",
+  },
+  {
+    name: "vite.config.js",
+    type: "file",
+  },
+  {
+    name: "index.html",
+    type: "file",
+  },
+  {
+    name: "postcss.config.js",
+    type: "file",
+  },
+  {
+    name: "tailwind.config.js",
+    type: "file",
+  },
+];
+
 export const useFilePaths = create<FilePaths>((set) => ({
-  filePaths: "src/App.jsx",
+  fileupdating: false,
+  filePaths: "src/App.tsx",
   setFilePaths: (filePaths) => set({ filePaths }),
+  setFileupdating: (fileupdating: boolean) =>
+    set({ fileupdating: !fileupdating }),
+}));
+
+interface FileExplorer {
+  fileExplorer: FileItem[];
+  setFileExplorer: (fileExplorer: FileItem[]) => void;
+  addFileExplorer: (fileName: string) => void;
+  deleteFileExplorer: (fileName: string) => void;
+  renameFileExplorer: (fileName: string, newName: string) => void;
+  newFolderExplorer: (folderName: string) => void;
+}
+
+export const useFileExplorer = create<FileExplorer>((set) => ({
+  fileExplorer: codebase,
+  setFileExplorer: (fileExplorer) => set({ fileExplorer }),
+  addFileExplorer: (fileName: string) =>
+    set((state) => {
+      const { openFolders } = useFileExplorerState.getState();
+      const currentFolder = Array.from(openFolders).pop(); // Get last opened folder
+
+      if (currentFolder) {
+        // Add file to the selected folder
+        return {
+          fileExplorer: state.fileExplorer.map((item) => {
+            if (item.name === currentFolder && item.type === "folder") {
+              return {
+                ...item,
+                children: [
+                  ...(item.children || []),
+                  { name: fileName, type: "file" },
+                ],
+              };
+            }
+            return item;
+          }),
+        };
+      }
+
+      // If no folder is open, add to root
+      return {
+        fileExplorer: [...state.fileExplorer, { name: fileName, type: "file" }],
+      };
+    }),
+  deleteFileExplorer: (fileName: string) =>
+    set({
+      fileExplorer: useFileExplorer
+        .getState()
+        .fileExplorer.filter((item) => item.name !== fileName),
+    }),
+  renameFileExplorer: (fileName: string, newName: string) =>
+    set({
+      fileExplorer: useFileExplorer
+        .getState()
+        .fileExplorer.map((item) =>
+          item.name === fileName ? { ...item, name: newName } : item
+        ),
+    }),
+  newFolderExplorer: (folderName: string) =>
+    set({
+      fileExplorer: [
+        ...useFileExplorer.getState().fileExplorer,
+        { name: folderName, type: "folder" },
+      ],
+    }),
 }));
 
 export function findFileContent(
@@ -334,7 +416,7 @@ export function findFileContent(
 
   let current: FileContent | undefined = files[parts[0]];
 
-  // For paths like "src/App.jsx", we need to traverse the directory structure
+  // For paths like "src/App.tsx", we need to traverse the directory structure
   for (let i = 1; i < parts.length; i++) {
     if (!current) return null;
 
@@ -350,12 +432,21 @@ export function findFileContent(
   return current?.file?.contents ?? null;
 }
 
-// Function to count lines in a file
-export function getLineCount(
-  files: Record<string, FileContent>,
-  path: string
-): number {
-  const content = findFileContent(files, path);
-  if (!content) return 0;
-  return content.split("\n").length;
+interface FileExplorerState {
+  openFolders: Set<string>;
+  setOpenFolder: (path: string, isOpen: boolean) => void;
 }
+
+export const useFileExplorerState = create<FileExplorerState>((set) => ({
+  openFolders: new Set<string>(),
+  setOpenFolder: (path: string, isOpen: boolean) =>
+    set((state) => {
+      const newOpenFolders = new Set(state.openFolders);
+      if (isOpen) {
+        newOpenFolders.add(path);
+      } else {
+        newOpenFolders.delete(path);
+      }
+      return { openFolders: newOpenFolders };
+    }),
+}));

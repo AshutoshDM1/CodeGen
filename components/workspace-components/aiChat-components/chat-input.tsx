@@ -5,7 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Paperclip, ArrowUp } from "lucide-react";
 import { X } from "lucide-react";
 import { messageuser } from "@/services/api";
-import { useChatStore } from "@/store/chatStore";
+import {
+  useChatStore,
+  useEditorCode,
+  useFilePaths,
+  useFileExplorer,
+  findFileContent,
+} from "@/store/chatStore";
 import { useState } from "react";
 
 interface AIMessage {
@@ -26,6 +32,7 @@ interface AIMessage {
 }
 
 export default function ChatInput() {
+  const { setFileupdating } = useFilePaths();
   const {
     // messages,
     addMessage,
@@ -34,7 +41,10 @@ export default function ChatInput() {
     addAIbeforeMsg,
     addAIafterMsg,
   } = useChatStore();
+  const { EditorCode, setEditorCode } = useEditorCode();
   const [inputValue, setInputValue] = useState("");
+  const { setFilePaths } = useFilePaths();
+  const { addFileExplorer } = useFileExplorer();
   let buffer = "";
   let buferAfter = "";
   const fetchData = async () => {
@@ -49,6 +59,7 @@ export default function ChatInput() {
       });
 
       if (!response.body) throw new Error("No response body");
+      setFileupdating(true);
       const message: AIMessage = {
         beforeMsg: "",
         boltArtifact: {
@@ -78,6 +89,7 @@ export default function ChatInput() {
         content: "",
       };
       let currentShellAction = { type: "shell" as const, content: "" };
+      let accumulatedContent = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -85,6 +97,7 @@ export default function ChatInput() {
 
         const chunk = new TextDecoder().decode(value);
         buffer += chunk;
+
         if (chunk.includes("<")) {
           isBefore = true;
         }
@@ -108,28 +121,61 @@ export default function ChatInput() {
         if (isInsideArtifact && buffer.includes('<boltAction type="file"')) {
           isInsideFileAction = true;
           currentFileAction = { type: "file", filePath: "", content: "" };
+          accumulatedContent = ""; // Reset accumulated content
           const filePathMatch = buffer.match(/filePath="([^"]*)"/);
           if (filePathMatch) {
             currentFileAction.filePath = filePathMatch[1];
+
+            // Check if file exists, if not create it
+            const fileExists = findFileContent(
+              EditorCode,
+              currentFileAction.filePath
+            );
+            if (!fileExists && currentFileAction.filePath) {
+              const filename =
+                currentFileAction.filePath.split("/").pop() || "";
+              addFileExplorer(filename);
+            }
+
+            // Initialize with empty content
+            if (currentFileAction.filePath) {
+              setFilePaths(currentFileAction.filePath);
+              setEditorCode(currentFileAction.filePath, "");
+            }
+
             buffer = buffer.substring(buffer.indexOf(">") + 1);
           }
+        }
+
+        if (isInsideFileAction) {
+          // Only add to content if we're not seeing XML tags
+          if (!chunk.includes("<") && !chunk.includes(">")) {
+            accumulatedContent += chunk;
+            if (currentFileAction.filePath) {
+              // Clean and update content
+              const cleanContent = accumulatedContent
+                .replace(/\\n/g, "\n")
+                .replace(/\\t/g, "\t")
+                .replace(/\\([^\\])/g, "$1")
+                .replace(/\\"/g, '"')
+                .trim();
+
+              setEditorCode(currentFileAction.filePath, cleanContent);
+            }
+          }
+        }
+
+        if (isInsideFileAction && buffer.includes("</boltAction>")) {
+          currentFileAction.content = accumulatedContent.trim();
+          message.boltArtifact.fileActions.push({ ...currentFileAction });
+          isInsideFileAction = false;
+          buffer = buffer.substring(buffer.indexOf("</boltAction>") + 13);
         }
 
         if (isInsideArtifact && buffer.includes('<boltAction type="shell"')) {
           isInsideShellAction = true;
           currentShellAction = { type: "shell", content: "" };
           buffer = buffer.substring(buffer.indexOf(">") + 1);
-        }
-
-        if (isInsideFileAction) {
-          currentFileAction.content += chunk;
-        }
-
-        if (isInsideFileAction && buffer.includes("</boltAction>")) {
-          currentFileAction.content = buffer.split("</boltAction>")[0].trim();
-          message.boltArtifact.fileActions.push({ ...currentFileAction });
-          isInsideFileAction = false;
-          buffer = buffer.substring(buffer.indexOf("</boltAction>") + 13);
         }
 
         if (isInsideShellAction && buffer.includes("</boltAction>")) {
@@ -144,6 +190,7 @@ export default function ChatInput() {
           buferAfter = buferAfter.replace(/^[>\s]+/, "").trim();
           if (buferAfter) {
             addAIafterMsg(chunk);
+            setFileupdating(false);
           }
         }
       }

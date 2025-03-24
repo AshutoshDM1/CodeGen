@@ -1,9 +1,9 @@
 "use client";
 import { ResizablePanelGroup } from "@/components/ui/resizable";
-import Sidebar from "@/components/worspace/Sidebar";
-import AiChat from "@/components/worspace/AiChat";
-import CodeEditor from "@/components/worspace/codeEditor";
-import Alert from "./components/Alert";
+import Alert from "@/components/workspace-components/Alert";
+import AiChat from "@/components/workspace-components/AiChat";
+import CodeEditor from "@/components/workspace-components/codeEditor";
+import Sidebar from "@/components/workspace-components/Sidebar";
 
 const Dashboard = () => {
   return (

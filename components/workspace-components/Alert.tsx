@@ -7,11 +7,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+
 } from "@/components/ui/alert-dialog";
 
 export default function Alert() {
   return (
-    <AlertDialog defaultOpen>
+    <AlertDialog defaultOpen={true}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-2xl bg-gradient-to-r from-cyan-500 to-green-500 text-transparent bg-clip-text font-bold">
@@ -68,3 +69,5 @@ export default function Alert() {
     </AlertDialog>
   );
 }
+
+

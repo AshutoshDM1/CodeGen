@@ -7,7 +7,7 @@ import {
 } from "../ui/resizable";
 import FileExplorer from "../FileExplorer";
 import DevNavbar from "./DevNavbar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   // FileContent,
   findFileContent,
@@ -15,40 +15,64 @@ import {
   useEditorCode,
   useFilePaths,
   useShowPreview,
+  useFileExplorer,
 } from "@/store/chatStore";
+
 import WebContainer from "./webContainer";
 import Terminal from "./Terminal";
 import { projectFiles } from "@/store/chatStore";
 import { customTheme } from "@/lib/monacoCustomTheme";
 import { GeistMono } from "geist/font/mono";
-
-// Helper function to determine language based on file extension
-function getLanguageFromPath(path: string): string {
-  const ext = path.split(".").pop()?.toLowerCase();
-  switch (ext) {
-    case "js":
-      return "javascript";
-    case "jsx":
-      return "javascript";
-    case "ts":
-      return "typescript";
-    case "tsx":
-      return "tsx";
-    case "css":
-      return "css";
-    case "json":
-      return "json";
-    default:
-      return "javascript";
-  }
-}
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 const CodeEditor = () => {
-  const { showPreview } = useShowPreview();
-  const { filePaths } = useFilePaths();
+  const { filePaths, fileupdating } = useFilePaths();
+
+  const getLanguageFromPath = useCallback(
+    (path: string): string => {
+      if (fileupdating === false) {
+        return "javascript";
+      }
+      const ext = path.split(".").pop()?.toLowerCase();
+      switch (ext) {
+        case "js":
+          return "javascript";
+        case "jsx":
+          return "javascript";
+        case "ts":
+          return "typescript";
+        case "tsx":
+          return "typescript";
+        case "css":
+          return "css";
+        case "json":
+          return "json";
+        default:
+          return "javascript";
+      }
+    },
+    [fileupdating]
+  );
+
+  const {
+    addFileExplorer,
+    deleteFileExplorer,
+    renameFileExplorer,
+    newFolderExplorer,
+  } = useFileExplorer();
   const [showFileExplorer] = useState(true);
+  const { showPreview } = useShowPreview();
   const { EditorCode, setEditorCode } = useEditorCode();
-  const code = findFileContent(EditorCode as projectFiles, filePaths) ?? "";
+  const code =
+    findFileContent(EditorCode as projectFiles, filePaths)?.replace(
+      /\/boltAction\s*$/,
+      ""
+    ) ?? "";
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [monacoInstance, setMonacoInstance] = useState<typeof monaco | null>(
@@ -65,12 +89,13 @@ const CodeEditor = () => {
         );
       }
     }
-  }, [filePaths, editor, showPreview, monacoInstance]);
+  }, [filePaths, editor, showPreview, monacoInstance, getLanguageFromPath]);
 
   const handleEditorChange = (value: string | undefined) => {
     if (value) {
       const filePath = filePaths;
-      setEditorCode(filePath, value);
+      const cleanedValue = value.replace(/\/boltAction\s*$/, "");
+      setEditorCode(filePath, cleanedValue);
     }
   };
 
@@ -88,7 +113,41 @@ const CodeEditor = () => {
             >
               {showFileExplorer && (
                 <ResizablePanel minSize={20} maxSize={100} defaultSize={18}>
-                  <FileExplorer />
+                  <ContextMenu>
+                    <ContextMenuTrigger>
+                      <FileExplorer />
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem
+                        onClick={() => {
+                          addFileExplorer("newFile");
+                        }}
+                      >
+                        New File
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={() => {
+                          newFolderExplorer("newFolder");
+                        }}
+                      >
+                        New Folder
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={() => {
+                          deleteFileExplorer(filePaths);
+                        }}
+                      >
+                        Delete
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={() => {
+                          renameFileExplorer(filePaths, "newName");
+                        }}
+                      >
+                        Rename
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
                 </ResizablePanel>
               )}
               <ResizableHandle />

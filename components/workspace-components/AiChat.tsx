@@ -1,11 +1,11 @@
 "use client";
 import { ResizableHandle, ResizablePanel } from "../ui/resizable";
-import NavbarAiChat from "./aiChat/Navbar.aiChat";
-import ChatInput from "./aiChat/chat-input";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import { useChatStore, Message, AIResponse } from "@/store/chatStore";
+import NavbarAiChat from "./aiChat-components/Navbar.aiChat";
+import ChatInput from "./aiChat-components/chat-input";
 
 const AiChat = () => {
   const { messages } = useChatStore();
