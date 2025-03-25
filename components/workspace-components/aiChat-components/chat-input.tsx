@@ -44,13 +44,13 @@ export default function ChatInput() {
   const { EditorCode, setEditorCode } = useEditorCode();
   const [inputValue, setInputValue] = useState("");
   const { setFilePaths } = useFilePaths();
-  const { addFileExplorer } = useFileExplorer();
+  const { addFileByAI } = useFileExplorer();
   let buffer = "";
   let buferAfter = "";
   const fetchData = async () => {
     try {
-      const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-      const response = await fetch(`${URL}/api/chat`, {
+      const URL = process.env.NEXT_PUBLIC_API_URL || "https://codegen-server-yuxj.onrender.com";
+      const response = await fetch(`${URL}/api/chatDemo`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export default function ChatInput() {
       });
 
       if (!response.body) throw new Error("No response body");
-      setFileupdating(true);
+
       const message: AIMessage = {
         beforeMsg: "",
         boltArtifact: {
@@ -78,6 +78,7 @@ export default function ChatInput() {
         },
       });
 
+      setFileupdating(false);
       const reader = response.body.getReader();
       let isBefore = false;
       let isInsideArtifact = false;
@@ -134,7 +135,10 @@ export default function ChatInput() {
             if (!fileExists && currentFileAction.filePath) {
               const filename =
                 currentFileAction.filePath.split("/").pop() || "";
-              addFileExplorer(filename);
+              // Create the file and open its parent folders
+              addFileByAI(currentFileAction.filePath, filename);
+              // Set the current file path
+              setFilePaths(currentFileAction.filePath);
             }
 
             // Initialize with empty content
@@ -148,16 +152,31 @@ export default function ChatInput() {
         }
 
         if (isInsideFileAction) {
-          // Only add to content if we're not seeing XML tags
-          if (!chunk.includes("<") && !chunk.includes(">")) {
+          if (
+            !chunk.includes("</boltAction>") &&
+            !chunk.includes("<boltAction")
+          ) {
             accumulatedContent += chunk;
             if (currentFileAction.filePath) {
-              // Clean and update content
+              // First remove any XML tags at start and end
               const cleanContent = accumulatedContent
+                .replace(/^>?\s*/, "") // Remove leading '>' and whitespace
+                .replace(/\s*<\/boltAction>\s*$/, "") // Remove trailing boltAction tag
+                // Then process HTML entities and escapes
                 .replace(/\\n/g, "\n")
                 .replace(/\\t/g, "\t")
                 .replace(/\\([^\\])/g, "$1")
                 .replace(/\\"/g, '"')
+                .replace(/&amp;/g, "&")
+                .replace(/&lt;/g, "<")
+                .replace(/&gt;/g, ">")
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'")
+                .replace(/&amp;lt;/g, "<")
+                .replace(/&amp;gt;/g, ">")
+                .replace(/\{&gt;/g, "{>")
+                .replace(/&lt;\}/g, "<}")
+                .replace(/=&gt;/g, "=>")
                 .trim();
 
               setEditorCode(currentFileAction.filePath, cleanContent);
@@ -166,7 +185,14 @@ export default function ChatInput() {
         }
 
         if (isInsideFileAction && buffer.includes("</boltAction>")) {
-          currentFileAction.content = accumulatedContent.trim();
+          const cleanContent = accumulatedContent
+            .replace(/\\n/g, "\n")
+            .replace(/\\t/g, "\t")
+            .replace(/\\([^\\])/g, "$1")
+            .replace(/\\"/g, '"')
+            .replace(/\/boltAction\s*$/, "")
+            .trim();
+          currentFileAction.content = cleanContent;
           message.boltArtifact.fileActions.push({ ...currentFileAction });
           isInsideFileAction = false;
           buffer = buffer.substring(buffer.indexOf("</boltAction>") + 13);
@@ -190,11 +216,13 @@ export default function ChatInput() {
           buferAfter = buferAfter.replace(/^[>\s]+/, "").trim();
           if (buferAfter) {
             addAIafterMsg(chunk);
-            setFileupdating(false);
+            setFileupdating(true);
+            message.afterMsg += chunk;
           }
         }
       }
       console.log(message);
+      console.log(EditorCode);
       return message;
     } catch (err) {
       throw err;

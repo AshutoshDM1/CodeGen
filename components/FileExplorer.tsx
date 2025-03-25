@@ -29,9 +29,18 @@ const FileTree = ({
   const currentPath = path ? `${path}/${item.name}` : item.name;
   const { filePaths } = useFilePaths();
   const { openFolders, setOpenFolder } = useFileExplorerState();
-
   const isOpen = openFolders.has(currentPath);
   const isSelected = currentPath === filePaths;
+
+  // Sort function for children
+  const sortItems = (items: FileItem[]) => {
+    return [...items].sort((a, b) => {
+      if (a.type === b.type) {
+        return a.name.localeCompare(b.name);
+      }
+      return a.type === "folder" ? -1 : 1;
+    });
+  };
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -44,7 +53,7 @@ const FileTree = ({
   return (
     <div className="px-3 mb-1 ">
       <div
-        className={`flex items-center gap-1 py-1  hover:bg-neutral-700/50 cursor-pointer rounded-md pr-2 ${
+        className={`flex items-center gap-1 py-1 mb-1 hover:bg-neutral-700/50 cursor-pointer rounded-md pr-2 ${
           isSelected ? "bg-neutral-700" : ""
         }`}
         style={{ paddingLeft: `${depth * 12}px` }}
@@ -73,7 +82,7 @@ const FileTree = ({
             transition={{ duration: 0.2 }}
             style={{ overflow: "hidden" }}
           >
-            {item.children.map((child, index) => (
+            {sortItems(item.children).map((child, index) => (
               <FileTree
                 key={index}
                 item={child}
@@ -93,16 +102,27 @@ const FileExplorer = () => {
   const { fileExplorer } = useFileExplorer();
   const { setFilePaths } = useFilePaths();
 
+  // Sort function to put folders before files
+  const sortItems = (items: FileItem[]) => {
+    return [...items].sort((a, b) => {
+      if (a.type === b.type) {
+        return a.name.localeCompare(b.name); // Alphabetical within same type
+      }
+      return a.type === "folder" ? -1 : 1; // Folders before files
+    });
+  };
+
   const onFileClick = (filePath: string) => {
     setFilePaths(filePath);
   };
 
   return (
     <div className="text-white h-full select-none">
+
       <div className="p-2 px-3 text-sm text-neutral-200 border-b-[1.5px] border-border mb-2 ">
         File Explorer
       </div>
-      {fileExplorer.map((item, index) => (
+      {sortItems(fileExplorer).map((item, index) => (
         <FileTree key={index} item={item} onFileClick={onFileClick} />
       ))}
     </div>
