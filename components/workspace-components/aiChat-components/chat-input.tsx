@@ -49,8 +49,10 @@ export default function ChatInput() {
   let buferAfter = "";
   const fetchData = async () => {
     try {
-      const URL = process.env.NEXT_PUBLIC_API_URL || "https://codegen-server-yuxj.onrender.com";
-      const response = await fetch(`${URL}/api/chatDemo`, {
+      const URL =
+        process.env.NEXT_PUBLIC_API_URL ||
+        "https://codegen-server-yuxj.onrender.com";
+      const response = await fetch(`${URL}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,7 +223,6 @@ export default function ChatInput() {
           }
         }
       }
-      console.log(message);
       console.log(EditorCode);
       return message;
     } catch (err) {
@@ -246,9 +247,9 @@ export default function ChatInput() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto border rounded-lg pt-1">
+    <div className="w-full max-w-3xl mx-auto border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 ">
       {/* Premium Banner */}
-      <div className="flex items-center justify-between px-4 pt-2 mb-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex items-center justify-between px-4 pt-2 mb-2  ">
         <p className="text-sm text-zinc-100">
           Need more messages? Get higher limits with Premium.
         </p>
@@ -268,7 +269,7 @@ export default function ChatInput() {
       </div>
 
       {/* Chat Input */}
-      <Card className="border-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <Card className="border-0 bg-transparent">
         <div className="flex flex-col items-start px-1 py-2">
           <div className="flex items-center gap-2 w-full">
             <Input
@@ -279,7 +280,7 @@ export default function ChatInput() {
               }}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
               placeholder="Ask CodeGen AI a question..."
             />
             <div className="flex items-center gap-2">

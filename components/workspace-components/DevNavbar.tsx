@@ -1,7 +1,8 @@
 import { Code2, Layout, Share, Terminal } from "lucide-react";
 import { Button } from "../ui/button";
 import { Show, useShowPreview } from "@/store/chatStore";
-const DevNavbar = () => {
+
+const DevNavbar = ({ setShowWorkspace }: { setShowWorkspace: (showWorkspace: boolean) => void }) => {
   const { setShowPreview, setShowCode, setShowTerminal, showPreview } =
     useShowPreview();
   return (
@@ -12,6 +13,7 @@ const DevNavbar = () => {
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-neutral-400 hover:text-white"
+          onClick={() => setShowWorkspace(false)}
         >
           <span className="text-lg">≫</span>
         </Button>
@@ -33,7 +35,7 @@ const DevNavbar = () => {
             active={showPreview === Show.TERMINAL}
             onClick={setShowTerminal}
             icon={<Terminal size={16} />}
-            label="Console"
+            label="Terminal"
           />
         </div>
       </div>

@@ -3,7 +3,7 @@ import { create } from "zustand";
 export const projectFiles = {
   "package.json": {
     file: {
-      contents: `{\n  "name": "vite-react-app",\n  "private": true,\n  "version": "0.0.0",\n  "type": "module",\n  "scripts": {\n    "dev": "vite",\n    "build": "vite build",\n    "preview": "vite preview"\n  },\n  "dependencies": {\n    "react": "^18.2.0",\n    "react-dom": "^18.2.0"\n  },\n  "devDependencies": {\n    "@vitejs/plugin-react": "^4.2.0",\n    "autoprefixer": "^10.4.17",\n    "postcss": "^8.4.35",\n    "tailwindcss": "^3.4.1",\n    "vite": "^5.0.0"\n  }\n}`,
+      contents: `{\n  "name": "vite-react-typescript-starter",\n  "private": true,\n  "version": "0.0.0",\n  "type": "module",\n  "scripts": {\n    "dev": "vite",\n    "build": "vite build",\n    "lint": "eslint .",\n    "preview": "vite preview"\n  },\n  "dependencies": {\n    "framer-motion": "^11.3.19",\n    "lucide-react": "^0.344.0",\n    "react": "^18.3.1",\n    "react-dom": "^18.3.1"\n  },\n  "devDependencies": {\n    "@eslint/js": "^9.9.1",\n    "@types/react": "^18.3.5",\n    "@types/react-dom": "^18.3.0",\n    "@vitejs/plugin-react": "^4.3.1",\n    "autoprefixer": "^10.4.18",\n    "eslint": "^9.9.1",\n    "eslint-plugin-react-hooks": "^5.1.0-rc.0",\n    "eslint-plugin-react-refresh": "^0.4.11",\n    "globals": "^15.9.0",\n    "postcss": "^8.4.35",\n    "tailwindcss": "^3.4.1",\n    "typescript": "^5.5.3",\n    "typescript-eslint": "^8.3.0",\n    "vite": "^5.4.2"\n  }\n}`,
     },
   },
   "vite.config.js": {
@@ -45,7 +45,178 @@ export const projectFiles = {
       },
       "App.tsx": {
         file: {
-          contents: `import React from 'react'\n function App() {\n  return (\n    <div className="min-h-screen bg-gray-100 flex items-center justify-center">\n      <h1 className="text-4xl font-bold text-gray-800">\n        Hello from React + Vite + Tailwind!\n      </h1>\n    </div>\n  )\n}\n\nexport default App`,
+          contents: `import React from 'react'
+import { motion } from 'framer-motion'
+
+const fadeIn = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 }
+}
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+}
+
+function App() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-blue-950 text-white">
+      {/* Navbar */}
+      <motion.nav 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100 }}
+        className="fixed w-full top-0 bg-black/20 backdrop-blur-lg z-50"
+      >
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent"
+          >
+            CodeGen
+          </motion.div>
+          <div className="flex gap-8 items-center">
+            <motion.a 
+              whileHover={{ scale: 1.1 }}
+              className="hover:text-blue-400 transition-colors"
+              href="#"
+            >
+              Home
+            </motion.a>
+            <motion.a 
+              whileHover={{ scale: 1.1 }}
+              className="hover:text-blue-400 transition-colors"
+              href="#"
+            >
+              Features
+            </motion.a>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg"
+            >
+              Get Started
+            </motion.button>
+          </div>
+        </div>
+      </motion.nav>
+
+      {/* Hero Section */}
+      <motion.div 
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+        className="pt-32 px-4 max-w-7xl mx-auto min-h-screen flex flex-col items-center justify-center text-center"
+      >
+        <motion.h1 
+          variants={fadeIn}
+          className="text-6xl md:text-7xl font-bold mb-6"
+        >
+          Build Faster with
+          <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent"> AI</span>
+        </motion.h1>
+        
+        <motion.p 
+          variants={fadeIn}
+          className="text-xl text-gray-300 mb-12 max-w-2xl"
+        >
+          Experience the next generation of coding with AI-powered assistance. Write better code, faster than ever before.
+        </motion.p>
+
+        <motion.div 
+          variants={fadeIn}
+          className="flex flex-wrap gap-4 justify-center"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium text-lg shadow-lg shadow-blue-500/30"
+          >
+            Try it Free
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-white/10 backdrop-blur hover:bg-white/20 px-8 py-4 rounded-xl font-medium text-lg border border-white/30"
+          >
+            Learn More
+          </motion.button>
+        </motion.div>
+
+        {/* Feature Cards */}
+        <motion.div 
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="grid md:grid-cols-3 gap-8 mt-24"
+        >
+          {[
+            {
+              title: "Smart Completion",
+              description: "AI-powered code suggestions that understand your context",
+              icon: "🤖"
+            },
+            {
+              title: "Real-time Help",
+              description: "Get instant solutions to your coding problems",
+              icon: "⚡"
+            },
+            {
+              title: "Code Analysis",
+              description: "Automatic code review and optimization suggestions",
+              icon: "🔍"
+            }
+          ].map((feature, index) => (
+            <motion.div
+              key={index}
+              variants={fadeIn}
+              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+              className="p-6 rounded-2xl bg-white/5 backdrop-blur border border-white/10 hover:border-blue-500/50 transition-colors"
+            >
+              <div className="text-4xl mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+              <p className="text-gray-400">{feature.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Stats Section */}
+        <motion.div 
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="grid md:grid-cols-3 gap-12 mt-24"
+        >
+          {[
+            { number: "10K+", label: "Developers" },
+            { number: "1M+", label: "Lines Generated" },
+            { number: "99%", label: "Satisfaction" }
+          ].map((stat, index) => (
+            <motion.div
+              key={index}
+              variants={fadeIn}
+              className="text-center"
+            >
+              <motion.div 
+                whileHover={{ scale: 1.1 }}
+                className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent"
+              >
+                {stat.number}
+              </motion.div>
+              <div className="text-gray-400 mt-2">{stat.label}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
+    </div>
+  )
+}
+
+export default App`,
         },
       },
     },
@@ -169,19 +340,18 @@ interface ChatStore {
 
 export const useChatStore = create<ChatStore>((set) => ({
   messages: [
-    // { role: "user", content: "Make a simple react app with tailwind css" },
-    // {
-    //   role: "assistant",
-    //   content: {
-    //     startingContent:
-    //       "Sure, I'll create a simple React app with Tailwind CSS for you. Here's the initial setup:",
-    //     projectFiles: projectFiles,
-    //     endingContent: "Here's the complete project files:",
-    //   },
-    // },
+    { role: "user", content: "Make a simple react app with tailwind css" },
+    {
+      role: "assistant",
+      content: {
+        startingContent:
+          "Sure, I'll create a simple React app with Tailwind CSS for you. Here's the initial setup:",
+        projectFiles: projectFiles,
+        endingContent: "Here's the complete project files:",
+      },
+    },
   ],
 
-  // asdfasdfasdf
   isLoading: false,
   setMessages: (messages) => set({ messages }),
   addAIbeforeMsg: (chunk: string) =>
@@ -284,6 +454,7 @@ export enum Show {
   CODE = "code",
   PREVIEW = "preview",
   TERMINAL = "terminal",
+  NONE = "none",
 }
 
 interface ShowPreview {
@@ -291,26 +462,59 @@ interface ShowPreview {
   setShowCode: () => void;
   setShowTerminal: () => void;
   setShowPreview: () => void;
+  setShowNone: () => void;
+  showWorkspace: boolean;
+  setShowWorkspace: (showWorkspace: boolean) => void;
 }
 
 export const useShowPreview = create<ShowPreview>((set) => ({
   showPreview: Show.CODE,
+  showWorkspace: true,
+  setShowWorkspace: (showWorkspace: boolean) => set({ showWorkspace }),
   setShowCode: () => set({ showPreview: Show.CODE }),
   setShowTerminal: () => set({ showPreview: Show.TERMINAL }),
   setShowPreview: () => set({ showPreview: Show.PREVIEW }),
+  setShowNone: () => set({ showPreview: Show.NONE }),
 }));
 
 interface TerminalStore {
   terminal: string[];
+  url: string;
   addCommand: (terminal: string) => void;
   clearTerminal: () => void;
+  showTerminalInput: boolean;
+  setShowTerminalInput: (showTerminalInput: boolean) => void;
+  setUrl: (url: string) => void;
+  isLoadingWebContainer: boolean;
+  setIsLoadingWebContainer: (isLoadingWebContainer: boolean) => void;
+  isSavingFiles: boolean;
+  setIsSavingFiles: (isSavingFiles: boolean) => void;
 }
 
+interface FullPreview {
+  fullPreview: boolean;
+  setFullPreview: (fullPreview: boolean) => void;
+}
+
+export const useFullPreview = create<FullPreview>((set) => ({
+  fullPreview: false,
+  setFullPreview: (fullPreview: boolean) => set({ fullPreview }),
+}));
+
 export const useTerminalStore = create<TerminalStore>((set) => ({
+  isSavingFiles: false,
+  setIsSavingFiles: (isSavingFiles: boolean) => set({ isSavingFiles }),
+  isLoadingWebContainer: true,
+  setIsLoadingWebContainer: (isLoadingWebContainer) =>
+    set({ isLoadingWebContainer }),
+  showTerminalInput: true,
+  url: "",
   terminal: ["Welcome to the terminal"],
   addCommand: (terminal) =>
     set((state) => ({ terminal: [...state.terminal, terminal] })),
   clearTerminal: () => set({ terminal: [] }),
+  setShowTerminalInput: (showTerminalInput) => set({ showTerminalInput }),
+  setUrl: (url: string) => set({ url }),
 }));
 
 interface FilePaths {
