@@ -5,7 +5,6 @@ import { Input } from "../ui/input";
 import { InteractiveHoverButton } from "../ui/interactive-hover-button";
 import { motion, AnimatePresence } from "framer-motion";
 
-
 const TerminalMain = () => {
   const terminal = useTerminalStore((state) => state.terminal);
   const addCommand = useTerminalStore((state) => state.addCommand);
@@ -14,7 +13,6 @@ const TerminalMain = () => {
     (state) => state.showTerminalInput
   );
   const [command, setCommand] = useState("");
-
 
   // Helper function to determine if a line is a URL
   const isUrl = (text: string) => text.includes("Server is ready at:");
@@ -38,12 +36,10 @@ const TerminalMain = () => {
     }
   };
 
-
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key="terminal"
+        key="terminal-main"
         initial={{ opacity: 0, x: 100 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -100 }}
@@ -60,7 +56,7 @@ const TerminalMain = () => {
               // onClick={handleSaveAndRemount}
             />
             <InteractiveHoverButton
-            className="w-[140px]"
+              className="w-[140px]"
               content="npm install"
               onHoverText="Install dependencies"
               // onClick={handleSaveAndRemount}
@@ -72,42 +68,44 @@ const TerminalMain = () => {
               onClick={clearTerminal}
             />
           </div>
-          {terminal.map((line, index) => {
-            const trimmedLine = line.trim();
-            if (!trimmedLine) return null; // Skip empty lines
+          <div className="terminal-scrollbar h-full w-full overflow-y-auto">
+            {terminal.map((line, index) => {
+              const trimmedLine = line.trim();
+              if (!trimmedLine) return null; // Skip empty lines
 
-            return (
-              <div
-                key={index}
-                onClick={() => handleLineClick(trimmedLine)}
-                className={`${getLineStyle(
-                  trimmedLine
-                )} cursor-pointer break-words whitespace-pre-wrap max-w-full`}
-              >
-                <AnimatedSpan delay={index * 50}>
-                  <span>{trimmedLine}</span>
-                </AnimatedSpan>
+              return (
+                <div
+                  key={index}
+                  onClick={() => handleLineClick(trimmedLine)}
+                  className={`${getLineStyle(
+                    trimmedLine
+                  )} cursor-pointer break-words whitespace-pre-wrap max-w-full`}
+                >
+                  <AnimatedSpan delay={index * 50}>
+                    <span>{trimmedLine}</span>
+                  </AnimatedSpan>
+                </div>
+              );
+            })}
+            {!showTerminalInput && (
+              <div className="flex items-center gap-2">
+                <h1>Codegen $</h1>
+                <Input
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      addCommand(`> ${command}`);
+                      setCommand("");
+                    }
+                  }}
+                  className="w-full border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 cursor-text focus-visible:outline-none"
+                  type="text"
+                  value={command}
+                  placeholder="Enter a command"
+                  onChange={(e) => setCommand(e.target.value)}
+                />
               </div>
-            );
-          })}
-          {!showTerminalInput && (
-            <div className="flex items-center gap-2">
-              <h1>Codegen $</h1>
-              <Input
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    addCommand(`> ${command}`);
-                    setCommand("");
-                  }
-                }}
-                className="w-full border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 cursor-text focus-visible:outline-none"
-                type="text"
-                value={command}
-                placeholder="Enter a command"
-                onChange={(e) => setCommand(e.target.value)}
-              />
-            </div>
-          )}
+            )}
+          </div>
         </Terminal>
       </motion.div>
     </AnimatePresence>

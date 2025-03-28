@@ -325,7 +325,7 @@ interface AIMessage {
   projectFiles: projectFiles;
   endingContent: string;
 }
-
+// asdf
 interface ChatStore {
   messages: Message[];
   setMessages: (messages: Message[]) => void;

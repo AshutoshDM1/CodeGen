@@ -25,7 +25,6 @@ import {
 } from "@/store/chatStore";
 
 import WebContainer from "./webContainer";
-import Terminal from "./TerminalMain";
 import { projectFiles } from "@/store/chatStore";
 import { customTheme } from "@/lib/monacoCustomTheme";
 import { GeistMono } from "geist/font/mono";
@@ -40,6 +39,7 @@ import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import TerminalMain from "./TerminalMain";
 
 const CodeEditor = () => {
   const { filePaths, fileupdating } = useFilePaths();
@@ -52,8 +52,7 @@ const CodeEditor = () => {
   const [FilePopoverOpen, setFilePopoverOpen] = useState(false);
   const [RenamePopoverOpen, setRenamePopoverOpen] = useState(false);
   const [RenameFolderPopoverOpen, setRenameFolderPopoverOpen] = useState(false);
-  const { isSavingFiles, setIsSavingFiles} =
-    useTerminalStore();
+  const { isSavingFiles, setIsSavingFiles } = useTerminalStore();
   const getLanguageFromPath = useCallback(
     (path: string): string => {
       if (fileupdating === true) {
@@ -398,7 +397,7 @@ const CodeEditor = () => {
                               );
                               window.dispatchEvent(event);
                             }}
-                            className="py-1 px-3 rounded-md bg-gradient-to-r from-emerald-700 to-cyan-500 text-white duration-[300ms] hover:shadow-lg hover:from-emerald-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center gap-2"
+                            className="py-1 px-3 rounded-md bg-gradient-to-r from-emerald-700 to-cyan-500 text-white duration-&lsqb;300ms&rsqb; hover:shadow-lg hover:from-emerald-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center gap-2"
                           >
                             <h1 className="text-md">Save</h1>
                             {isSavingFiles ? (
@@ -529,7 +528,7 @@ const CodeEditor = () => {
                       damping: 30,
                     }}
                   >
-                    <Terminal />
+                    <TerminalMain />
                   </motion.div>
                 )}
               </AnimatePresence>

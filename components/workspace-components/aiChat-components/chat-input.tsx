@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Paperclip, ArrowUp } from "lucide-react";
 import { X } from "lucide-react";
 import { messageuser } from "@/services/api";
@@ -13,6 +12,7 @@ import {
   findFileContent,
 } from "@/store/chatStore";
 import { useState } from "react";
+import { ShinyButton } from "@/components/magicui/shiny-button";
 
 interface AIMessage {
   beforeMsg: string;
@@ -33,14 +33,8 @@ interface AIMessage {
 
 export default function ChatInput() {
   const { setFileupdating } = useFilePaths();
-  const {
-    // messages,
-    addMessage,
-    isLoading,
-    setIsLoading,
-    addAIbeforeMsg,
-    addAIafterMsg,
-  } = useChatStore();
+  const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } =
+    useChatStore();
   const { EditorCode, setEditorCode } = useEditorCode();
   const [inputValue, setInputValue] = useState("");
   const { setFilePaths } = useFilePaths();
@@ -246,18 +240,51 @@ export default function ChatInput() {
     }
   };
 
+  const enhancePrompt = async (inputValue: string) => {
+    try {
+      const URL = "http://localhost:4000/api/refinePrompt";
+      const response: Response = await fetch(URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: inputValue }),
+      });
+      if (!response.body) throw new Error("No response body");
+      setInputValue(""); // First clear the input
+      const reader = response.body.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = new TextDecoder().decode(value);
+        setInputValue((prev) => {
+          console.log(prev);
+          return prev + chunk;
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <div className="w-full max-w-3xl mx-auto border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 ">
       {/* Premium Banner */}
-      <div className="flex items-center justify-between px-4 pt-2 mb-2  ">
+      <div className="flex items-center justify-between px-4 pt-2 mb-2 flex-wrap gap-2 ">
         <p className="text-sm text-zinc-100">
           Need more messages? Get higher limits with Premium.
         </p>
-        <div className="flex items-center gap-2">
+        <div className="w-fit flex items-center gap-2">
+          <ShinyButton
+            onClick={() => enhancePrompt(inputValue)}
+            className="h-fit flex min-w-fit text-black"
+          >
+            Enhance Prompt
+          </ShinyButton>
           <Button
             variant="default"
             size="sm"
-            className="h-7 bg-emerald-400 hover:bg-emerald-500"
+            className="h-fit py-2 bg-emerald-400 hover:bg-emerald-500"
           >
             Upgrade Plan
           </Button>
@@ -272,16 +299,19 @@ export default function ChatInput() {
       <Card className="border-0 bg-transparent">
         <div className="flex flex-col items-start px-1 py-2">
           <div className="flex items-center gap-2 w-full">
-            <Input
+            <textarea
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !isLoading) {
+                if (e.key === "Enter" && !e.shiftKey && !isLoading) {
+                  e.preventDefault();
                   handleSubmit();
                 }
               }}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full border-0  focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent resize-none   min-h-[45px] p-2"
               placeholder="Ask CodeGen AI a question..."
+              rows={1}
+              style={{ overflow: "hidden" }}
             />
             <div className="flex items-center gap-2">
               <Button

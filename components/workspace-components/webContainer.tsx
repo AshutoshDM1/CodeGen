@@ -34,7 +34,7 @@ const WebContainer = () => {
       >
         <AnimatePresence mode="wait">
           {isLoading ? (
-            <WebContainerLoading />
+            <WebContainerLoading key="loading" />
           ) : url ? (
             <motion.div
               key="preview"

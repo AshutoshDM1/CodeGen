@@ -11,7 +11,6 @@ import { AnimatePresence } from "framer-motion";
 
 const AiChat = () => {
   const { messages } = useChatStore();
-  // console.log(messages);
   const renderContent = (message: Message) => {
     if (message.role === "user") {
       return (

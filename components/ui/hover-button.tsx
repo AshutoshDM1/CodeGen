@@ -9,8 +9,10 @@ interface HoverButtonProps
 }
 
 const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
-  ({ className, children, ...props }) => {
-    const buttonRef = React.useRef<HTMLButtonElement>(null);
+  ({ className, children, ...props }, ref) => {
+    // Keep local ref for our component's internal use
+    const localRef = React.useRef<HTMLButtonElement>(null);
+
     const [isListening, setIsListening] = React.useState(false);
     const [circles, setCircles] = React.useState<
       Array<{
@@ -24,7 +26,7 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
     const lastAddedRef = React.useRef(0);
 
     const createCircle = React.useCallback((x: number, y: number) => {
-      const buttonWidth = buttonRef.current?.offsetWidth || 0;
+      const buttonWidth = localRef.current?.offsetWidth || 0;
       const xPos = x / buttonWidth;
       const color = `linear-gradient(to right, var(--circle-start) ${
         xPos * 100
@@ -86,9 +88,29 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
       });
     }, [circles]);
 
+    // Sync refs when the local element changes
+    React.useEffect(() => {
+      if (localRef.current) {
+        if (typeof ref === "function") {
+          ref(localRef.current);
+        } else if (ref) {
+          // Using a proper type for the mutable ref
+          (ref as React.MutableRefObject<HTMLButtonElement | null>).current =
+            localRef.current;
+        }
+      }
+
+      // Cleanup when unmounting
+      return () => {
+        if (typeof ref === "function") {
+          ref(null);
+        }
+      };
+    }, [ref]);
+
     return (
       <button
-        ref={buttonRef}
+        ref={localRef}
         className={cn(
           "relative isolate px-8 py-3 rounded-3xl",
           "text-foreground font-medium text-base leading-6",
@@ -120,7 +142,7 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
               "absolute w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full",
               "blur-lg pointer-events-none z-[-1] transition-opacity duration-300",
               fadeState === "in" && "opacity-75",
-              fadeState === "out" && "opacity-0 duration-[1.2s]",
+              fadeState === "out" && "opacity-0 duration-&lsqb;1.2s&rsqb;",
               !fadeState && "opacity-0"
             )}
             style={{

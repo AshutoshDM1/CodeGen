@@ -1,4 +1,5 @@
 import { projectFiles } from "@/store/chatStore";
+import axios from "axios";
 
 export const exampleBefoer =
   'Okay, I will create a simple todo list application using React and Tailwind CSS.\n\n1.  Greetings!\n2.  The following files will be created or modified:\n    *   `src/App.jsx`\n    *   `src/components/TodoList.jsx`\n    *   `src/components/TodoItem.jsx`\n    *   `src/components/AddTodo.jsx`\n3.  This application will allow you to add, remove, and mark todos as complete.\n\n<boltArtifact id="simple-todo-list" title="Simple Todo List App">\n\nI have completed the task. You can now view the todo list application in the preview.\n \n ';
@@ -33,4 +34,11 @@ export const messageuser = {
         "can you make footer for this project and make it look good and responsive  and dont forget to update the package.json file otherwise it will not work in webcontainer",
     },
   ],
+};
+
+export const enhancePromptAPI = async (prompt: string) => {
+  const response = await axios.post("http://localhost:4000/api/refinePrompt", {
+    prompt: prompt,
+  });
+  return response.data;
 };

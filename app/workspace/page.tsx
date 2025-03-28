@@ -98,6 +98,14 @@ const Dashboard = () => {
       await webcontainer.mount(files);
       addCommand("> ✅ Files remounted successfully");
 
+      const installProcess = await webcontainer.spawn("npm", ["install"]);
+      const installExitCode = await installProcess.exit;
+      console.log("Install exit code:", installExitCode);
+      console.log("hi ");
+      console.log("Mounted files:", Object.keys(files).join(", "));
+      if (installExitCode !== 0) {
+        throw new Error("Installation failed");
+      }
       // Restart the dev server
       await startDevServer(webcontainer);
       addCommand("> 🚀 Restarting development server...");
@@ -181,7 +189,7 @@ const Dashboard = () => {
     <>
       <AnimatePresence mode="wait" initial={false}>
         {fullPreview ? (
-          <div className="h-screen w-full">
+          <div className="h-screen w-full" key="fullPreview">
             <HoverButton
               onClick={() => setFullPreview(false)}
               className="absolute top-2 right-5 flex items-center gap-2 bg-black-500/50 backdrop-blur-sm mix-blend-hard-light"
@@ -199,32 +207,28 @@ const Dashboard = () => {
             />
           </div>
         ) : (
-          <>
-            <div className="h-screen w-full">
-              <Alert />
-              <ResizablePanelGroup
-                direction="horizontal"
-                className="min-h-screen"
-              >
-                <SidebarMain />
-                <AiChat />
-                {showWorkspace === true ? (
-                  <CodeEditor />
-                ) : (
-                  <>
-                    <div className="absolute w-fit top-2 right-14 flex items-center justify-center">
-                      <InteractiveHoverButton
-                        content="Show Workspace"
-                        className="w-[222px] gap-10  flex items-center justify-center px-4 font-medium"
-                        onClick={() => setShowWorkspace(true)}
-                        arrow={true}
-                      />
-                    </div>
-                  </>
-                )}
-              </ResizablePanelGroup>
-            </div>
-          </>
+          <div key="workspaceView" className="h-screen w-full">
+            <Alert />
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="min-h-screen"
+            >
+              <SidebarMain />
+              <AiChat />
+              {showWorkspace === true ? (
+                <CodeEditor />
+              ) : (
+                <div className="absolute w-fit top-2 right-14 flex items-center justify-center">
+                  <InteractiveHoverButton
+                    content="Show Workspace"
+                    className="w-[222px] gap-10  flex items-center justify-center px-4 font-medium"
+                    onClick={() => setShowWorkspace(true)}
+                    arrow={true}
+                  />
+                </div>
+              )}
+            </ResizablePanelGroup>
+          </div>
         )}
       </AnimatePresence>
     </>

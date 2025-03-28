@@ -28,8 +28,8 @@ export const AnimatedSvg = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const [paths, setPaths] = useState<Array<{ id: number; d: string }>>([]);
 
-  // Generate random path data for morph effect
-  const generatePathData = () => {
+  // Generate random path data for morph effect - wrapped in useCallback to avoid dep changes
+  const generatePathData = React.useCallback(() => {
     const createRandomPath = (index: number) => {
       const amplitude = 10 + Math.random() * 20; // Random amplitude
       const frequency = 0.01 + Math.random() * 0.02; // Random frequency
@@ -59,7 +59,7 @@ export const AnimatedSvg = ({
     }));
 
     setPaths(initialPaths);
-  };
+  }, [width, height, pathsCount]);
 
   useEffect(() => {
     generatePathData();
@@ -72,7 +72,7 @@ export const AnimatedSvg = ({
 
       return () => clearInterval(interval);
     }
-  }, [variant, duration, pathsCount, width, height]);
+  }, [variant, duration, generatePathData]);
 
   const renderVariant = () => {
     switch (variant) {
