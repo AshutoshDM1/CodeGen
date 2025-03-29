@@ -13,9 +13,7 @@ import { useShowPreview } from "@/store/chatStore";
 import { useRef } from "react";
 import { FileSystemTree, WebContainer } from "@webcontainer/api";
 import { cleanTerminalOutput } from "@/components/workspace-components/webContainer";
-import { ArrowLeftIcon } from "lucide-react";
-import { HoverButton } from "@/components/ui/hover-button";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 
 const Dashboard = () => {
@@ -124,6 +122,41 @@ const Dashboard = () => {
     webcontainer,
   ]);
 
+  const npmRunDev = useCallback(async () => {
+    try {
+      if (!webcontainer) return;
+      const devProcess = await webcontainer.spawn("npm", ["run", "dev"]);
+      devProcessRef.current = devProcess;
+      devProcess.output.pipeTo(
+        new WritableStream({
+          write(chunk) {
+            addCommand(chunk);
+          },
+        })
+      );
+      addCommand("> 🚀 Running npm run dev...");
+    } catch (error) {
+      console.error("> ❌ Error running npm run dev:", error);
+    }
+  }, [webcontainer, addCommand]);
+
+  const npmInstall = useCallback(async () => {
+    try {
+      if (!webcontainer) return;
+      const installProcess = await webcontainer.spawn("npm", ["install"]);
+      installProcess.output.pipeTo(
+        new WritableStream({
+          write(chunk) {
+            addCommand(chunk);
+          },
+        })
+      );
+      addCommand("> 🚀 Running npm install...");
+    } catch (error) {
+      console.error("> ❌ Error running npm install:", error);
+    }
+  }, [webcontainer, addCommand]);
+
   // Initial setup - only runs once when the WebContainer is first available
   useEffect(() => {
     const setupWebContainer = async () => {
@@ -168,12 +201,22 @@ const Dashboard = () => {
     const handleRemount = () => {
       remountFiles();
     };
-
+    const handleNpmRunDev = () => {
+      npmRunDev();
+    };
+    const handleNpmInstall = () => {
+      npmInstall();
+    };
     window.addEventListener("remount-webcontainer", handleRemount);
+    window.addEventListener("npm-run-dev", handleNpmRunDev);
+    window.addEventListener("npm-install", handleNpmInstall);
+
     return () => {
       window.removeEventListener("remount-webcontainer", handleRemount);
+      window.removeEventListener("npm-run-dev", handleNpmRunDev);
+      window.removeEventListener("npm-install", handleNpmInstall);
     };
-  }, [webcontainer, remountFiles]);
+  }, [webcontainer, remountFiles, npmRunDev, npmInstall]);
 
   // Cleanup when component unmounts
   useEffect(() => {
@@ -190,21 +233,90 @@ const Dashboard = () => {
       <AnimatePresence mode="wait" initial={false}>
         {fullPreview ? (
           <div className="h-screen w-full" key="fullPreview">
-            <HoverButton
-              onClick={() => setFullPreview(false)}
-              className="absolute top-2 right-5 flex items-center gap-2 bg-black-500/50 backdrop-blur-sm mix-blend-hard-light"
+            <motion.div
+              key="preview"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full w-full "
             >
-              <ArrowLeftIcon className="w-6 h-6 text-white" />
-              <h1 className="text-white text-md">Back to Workspace</h1>
-            </HoverButton>
-
-            <iframe
-              width="100%"
-              height="100%"
-              src={url}
-              allow="cross-origin-isolated"
-              sandbox="allow-same-origin allow-scripts allow-forms"
-            />
+              <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="flex items-center justify-between gap-2 px-4 py-2 bg-black border-b border-border"
+              >
+                <div className="w-[50%] items-center gap-2 hidden 2xl:flex">
+                  <div className="w-full flex items-center gap-1 px-3 py-1.5 bg-[#111] rounded-md flex-1 max-w-2xl">
+                    <div className="flex items-center justify-center w-3 h-3 rounded-full bg-emerald-500/20">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    </div>
+                    <span className="w-full text-sm text-neutral-300 truncate">
+                      http://localhost:5173
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      const event = new CustomEvent("remount-webcontainer");
+                      window.dispatchEvent(event);
+                    }}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                      <path d="M21 3v5h-5" />
+                    </svg>
+                    Refresh
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setFullPreview(false)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 7l5 5-5 5V7m13 0l5 5-5 5V7" />
+                    </svg>
+                    Back to Workspace
+                  </motion.button>
+                </div>
+              </motion.div>
+              <div className="h-full w-full overflow-y-auto ai-chat-scrollbar">
+                <motion.iframe
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  height={"100%"}
+                  width={"100%"}
+                  src={url}
+                  allow="cross-origin-isolated"
+                  sandbox="allow-same-origin allow-scripts allow-forms"
+                />
+              </div>
+            </motion.div>
           </div>
         ) : (
           <div key="workspaceView" className="h-screen w-full">

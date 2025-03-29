@@ -1,5 +1,5 @@
 import { useTerminalStore } from "@/store/chatStore";
-import { AnimatedSpan, Terminal } from "../magicui/terminal";
+import { AnimatedSpan } from "../magicui/terminal";
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { InteractiveHoverButton } from "../ui/interactive-hover-button";
@@ -48,18 +48,29 @@ const TerminalMain = () => {
           stiffness: 300,
           damping: 30,
         }}
+        className="terminal-main-container"
       >
-        <Terminal className="relative">
-          <div className="absolute top-2 right-0 flex gap-2">
+        <div className="flex-none flex justify-between items-center gap-y-2 border-b border-border p-4 py-2">
+          <div className="flex items-center flex-row gap-x-2">
+            <div className="h-2 w-2 rounded-full bg-red-500"></div>
+            <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+            <div className="h-2 w-2 rounded-full bg-green-500"></div>
+          </div>
+          <div className="flex gap-2">
             <InteractiveHoverButton
+              className="w-[140px]"
               content="npm run dev"
-              // onClick={handleSaveAndRemount}
+              onClick={() => {
+                window.dispatchEvent(new Event("npm-run-dev"));
+              }}
             />
             <InteractiveHoverButton
               className="w-[140px]"
               content="npm install"
               onHoverText="Install dependencies"
-              // onClick={handleSaveAndRemount}
+              onClick={() => {
+                window.dispatchEvent(new Event("npm-install"));
+              }}
             />
             <InteractiveHoverButton
               className="font-mono"
@@ -68,45 +79,47 @@ const TerminalMain = () => {
               onClick={clearTerminal}
             />
           </div>
-          <div className="terminal-scrollbar h-full w-full overflow-y-auto">
-            {terminal.map((line, index) => {
-              const trimmedLine = line.trim();
-              if (!trimmedLine) return null; // Skip empty lines
+        </div>
+        <div className="terminal-content-area font-[default] tracking-[0px] terminal-scrollbar p-4">
+          {terminal.map((line, index) => {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) return null; // Skip empty lines
 
-              return (
-                <div
-                  key={index}
-                  onClick={() => handleLineClick(trimmedLine)}
-                  className={`${getLineStyle(
-                    trimmedLine
-                  )} cursor-pointer break-words whitespace-pre-wrap max-w-full`}
-                >
-                  <AnimatedSpan delay={index * 50}>
-                    <span>{trimmedLine}</span>
-                  </AnimatedSpan>
-                </div>
-              );
-            })}
-            {!showTerminalInput && (
-              <div className="flex items-center gap-2">
-                <h1>Codegen $</h1>
-                <Input
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      addCommand(`> ${command}`);
-                      setCommand("");
-                    }
-                  }}
-                  className="w-full border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 cursor-text focus-visible:outline-none"
-                  type="text"
-                  value={command}
-                  placeholder="Enter a command"
-                  onChange={(e) => setCommand(e.target.value)}
-                />
+            return (
+              <div
+                key={index}
+                onClick={() => handleLineClick(trimmedLine)}
+                className={`${getLineStyle(
+                  trimmedLine
+                )} cursor-pointer break-words whitespace-pre-wrap max-w-full py-0.5`}
+              >
+                <AnimatedSpan delay={index * 50}>
+                  <span>{trimmedLine}</span>
+                </AnimatedSpan>
               </div>
-            )}
+            );
+          })}
+        </div>
+
+        {/* Terminal input */}
+        {showTerminalInput && (
+          <div className="flex-none flex items-center gap-2 p-2 border-t border-border bg-black">
+            <h1 className="min-w-fit text-white">Codegen $</h1>
+            <Input
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  addCommand(`> ${command}`);
+                  setCommand("");
+                }
+              }}
+              className="w-full border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 cursor-text focus-visible:outline-none"
+              type="text"
+              value={command}
+              placeholder="Enter a command"
+              onChange={(e) => setCommand(e.target.value)}
+            />
           </div>
-        </Terminal>
+        )}
       </motion.div>
     </AnimatePresence>
   );

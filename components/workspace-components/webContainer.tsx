@@ -107,7 +107,7 @@ const WebContainer = () => {
                   </motion.button>
                 </div>
               </motion.div>
-              <div className="terminal-scrollbar h-full w-full overflow-y-auto">
+              <div className="h-[calc(100vh-102px)] w-full overflow-y-auto ai-chat-scrollbar">
                 <motion.iframe
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}

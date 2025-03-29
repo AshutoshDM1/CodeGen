@@ -46,6 +46,19 @@ export default function ChatInput() {
       const URL =
         process.env.NEXT_PUBLIC_API_URL ||
         "https://codegen-server-yuxj.onrender.com";
+
+      const Files = EditorCode;
+      const CurrentFiles = JSON.stringify(Files);
+      const prompt = inputValue;
+      const messageToAI = {
+        role: "user",
+        content: `here all the current files which are present ${CurrentFiles} do the changes in the files and dont forget to update the package.json file otherwise it will not work in webcontainer. ${prompt}`,
+      };
+
+      messageuser.messages.push(messageToAI);
+
+      console.log(messageuser);
+
       const response = await fetch(`${URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -268,7 +281,7 @@ export default function ChatInput() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 ">
+    <div className="mt-10 w-full max-w-3xl mx-auto border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 ">
       {/* Premium Banner */}
       <div className="flex items-center justify-between px-4 pt-2 mb-2 flex-wrap gap-2 ">
         <p className="text-sm text-zinc-100">
@@ -308,7 +321,7 @@ export default function ChatInput() {
               }}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full border-0  focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent resize-none   min-h-[45px] p-2"
+              className="w-full border-0  focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent resize-none   min-h-[52px] p-2"
               placeholder="Ask CodeGen AI a question..."
               rows={1}
               style={{ overflow: "hidden" }}

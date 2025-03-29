@@ -340,12 +340,22 @@ interface ChatStore {
 
 export const useChatStore = create<ChatStore>((set) => ({
   messages: [
-    { role: "user", content: "Make a simple react app with tailwind css" },
+    {
+      role: "user",
+      content:
+        "Adapt the current landing page's content and theme to represent my Codegen application",
+    },
     {
       role: "assistant",
       content: {
-        startingContent:
-          "Sure, I'll create a simple React app with Tailwind CSS for you. Here's the initial setup:",
+        startingContent: `Okay, I will adapt the current landing page to represent your Codegen application, using the existing structure, Tailwind CSS, framer-motion, and lucide-react icons. \n
+Greetings!\n
+The following files will be created or modified: \n
+src/App.tsx \n 
+This update will transform the landing page content and theme to showcase your Codegen application, including relevant text, icons, and imagery \n
+
+
+I have completed the task. You can now view the updated Codegen landing page in the preview.`,
         projectFiles: projectFiles,
         endingContent: "Here's the complete project files:",
       },
@@ -468,7 +478,7 @@ interface ShowPreview {
 }
 
 export const useShowPreview = create<ShowPreview>((set) => ({
-  showPreview: Show.CODE,
+  showPreview: Show.PREVIEW,
   showWorkspace: true,
   setShowWorkspace: (showWorkspace: boolean) => set({ showWorkspace }),
   setShowCode: () => set({ showPreview: Show.CODE }),

@@ -153,7 +153,7 @@ const CodeEditor = () => {
               <DevNavbar setShowWorkspace={setShowWorkspace} />
             </div>
 
-            <div className="h-[95vh] w-full bg-[#000]">
+            <div className="h-full w-full bg-[#000]">
               <AnimatePresence mode="wait">
                 {showPreview === Show.CODE && (
                   <motion.div
@@ -411,7 +411,7 @@ const CodeEditor = () => {
                         </div>
                         <Editor
                           className={GeistMono.className}
-                          height="95vh"
+                          height="88vh"
                           defaultLanguage={getLanguageFromPath(filePaths)}
                           value={code}
                           loading={

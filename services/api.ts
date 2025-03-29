@@ -7,6 +7,7 @@ export const exampleBefoer =
 export const exampleAfter =
   "\n \n I have completed the task. You can now view the todo list application in the preview. \n \n";
 
+
 export const messageuser = {
   messages: [
     {
@@ -26,13 +27,8 @@ export const messageuser = {
     },
     {
       role: "user",
-      content: `1. use frame-motion and good styling 2. Keeping in mind the project is already have boilerplate code which is created by vite Having js as language and jsx files and tailwind css as styling language which is already installed in the project 3. dont forget to update the package.json file otherwise it will not work in webcontainer  , here all the files are already created and you can see them in the project files ${projectFiles}`,
-    },
-    {
-      role: "user",
-      content:
-        "can you make footer for this project and make it look good and responsive  and dont forget to update the package.json file otherwise it will not work in webcontainer",
-    },
+      content: `1. use frame-motion and good styling 2. Keeping in mind the project is already have boilerplate code which is created by vite Having js as language and jsx files and tailwind css as styling language which is already installed in the project 3. dont forget to update the package.json file otherwise it will not work in webcontainer.`,
+    }
   ],
 };
 
@@ -42,3 +38,5 @@ export const enhancePromptAPI = async (prompt: string) => {
   });
   return response.data;
 };
+
+

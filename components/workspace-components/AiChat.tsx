@@ -8,9 +8,22 @@ import NavbarAiChat from "./aiChat-components/Navbar.aiChat";
 import ChatInput from "./aiChat-components/chat-input";
 import AnimatedGradientBackground from "../ui/animated-gradient-background";
 import { AnimatePresence } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 const AiChat = () => {
   const { messages } = useChatStore();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Function to scroll to bottom
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const renderContent = (message: Message) => {
     if (message.role === "user") {
       return (
@@ -50,13 +63,15 @@ const AiChat = () => {
           <div className="flex flex-col h-full items-center px-6 py-4 ease-in-out duration-300 overflow-x-hidden ">
             <AnimatedGradientBackground />
             <NavbarAiChat />
-            <div className="h-full w-full flex flex-col text-white justify-between overflow-y-auto">
+            <div className="h-full w-full flex flex-col text-white justify-between overflow-y-auto pr-5 ai-chat-scrollbar">
               <div className="flex-1 space-y-4 mt-5">
                 {messages.map((message, index) => (
                   <div
                     key={index}
                     className={`flex items-start gap-5 p-5 rounded-lg ${
-                      message.role === "assistant" ? "bg-foreground/5" : ""
+                      message.role === "assistant"
+                        ? "backdrop-blur-md bg-zinc-900/20"
+                        : ""
                     }`}
                   >
                     <Avatar>
@@ -76,6 +91,8 @@ const AiChat = () => {
                     </div>
                   </div>
                 ))}
+                {/* This empty div is used as a reference to scroll to */}
+                <div ref={messagesEndRef} />
               </div>
               <ChatInput />
             </div>
