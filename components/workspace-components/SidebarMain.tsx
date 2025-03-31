@@ -1,7 +1,7 @@
 import { Sidebar, SidebarBody, SidebarLink } from "../ui/sidebar";
 import { useState } from "react";
 import { BookOpen, Flag, FolderClosed, PlusIcon } from "lucide-react";
-
+import Image from "next/image";
 const SidebarMain = () => {
   const links = [
     {
@@ -51,7 +51,12 @@ const SidebarMain = () => {
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
             <div className="mt-20flex flex-col gap-2">
               <div className="flex items-center gap-2  mb-3">
-                <img src="./codegen.png" alt="logo" width={30} height={40} />
+                <Image
+                  src="/codegen.png"
+                  alt="logo"
+                  width={30}
+                  height={40}
+                />
                 <h1 className="text-xl font-medium text-zinc-100 mt-1">
                   CodeGen
                 </h1>

@@ -221,9 +221,6 @@ pre[class*="language-"] {
   outline: none !important;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap');
-
-
 .terminal-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
@@ -286,8 +283,6 @@ pre[class*="language-"] {
 
 
 
-
-
 /* Fixed terminal styles for better scrolling */
 .terminal-main-container {
   display: flex;
@@ -303,7 +298,5 @@ pre[class*="language-"] {
 }
 
 * {
-  font-family: "Geist Mono",;
-  font-weight: 300;
   letter-spacing: 0.3px;
 }

@@ -86,7 +86,7 @@ const CodeEditor = () => {
     newFolderExplorer,
   } = useFileExplorer();
   const [showFileExplorer] = useState(true);
-  const { showPreview, showWorkspace, setShowWorkspace } = useShowPreview();
+  const { showPreview, setShowWorkspace } = useShowPreview();
   const { EditorCode, setEditorCode } = useEditorCode();
   const code = findFileContent(EditorCode as projectFiles, filePaths) ?? "";
   const [editor, setEditor] =
@@ -136,8 +136,12 @@ const CodeEditor = () => {
   };
   return (
     <>
-      {showWorkspace ? (
-        <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+      <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+        <AnimatePresence
+          key="workspaceViewCodeEditorRoute"
+          mode="wait"
+          initial={true}
+        >
           <motion.div
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
@@ -146,6 +150,7 @@ const CodeEditor = () => {
               type: "spring",
               stiffness: 300,
               damping: 30,
+              duration: 0.5,
             }}
             className="h-full"
           >
@@ -460,7 +465,7 @@ const CodeEditor = () => {
                           options={{
                             wordWrap: "on",
                             fontSize: 14,
-                            fontFamily: "GeistMono",
+                            fontFamily: "JetBrains Mono",
                             fontWeight: "400",
                             lineNumbers: "on",
                             minimap: { enabled: false },
@@ -534,8 +539,8 @@ const CodeEditor = () => {
               </AnimatePresence>
             </div>
           </motion.div>
-        </ResizablePanel>
-      ) : null}
+        </AnimatePresence>
+      </ResizablePanel>
     </>
   );
 };

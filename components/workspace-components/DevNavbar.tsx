@@ -2,7 +2,11 @@ import { Code2, Layout, Share, Terminal } from "lucide-react";
 import { Button } from "../ui/button";
 import { Show, useShowPreview } from "@/store/chatStore";
 
-const DevNavbar = ({ setShowWorkspace }: { setShowWorkspace: (showWorkspace: boolean) => void }) => {
+const DevNavbar = ({
+  setShowWorkspace,
+}: {
+  setShowWorkspace: (showWorkspace: boolean) => void;
+}) => {
   const { setShowPreview, setShowCode, setShowTerminal, showPreview } =
     useShowPreview();
   return (
@@ -46,10 +50,11 @@ const DevNavbar = ({ setShowWorkspace }: { setShowWorkspace: (showWorkspace: boo
           <Share className="h-5 w-5" />
         </div>
         <Button
+          onClick={() => window.dispatchEvent(new Event("export-project"))}
           variant="default"
           className="bg-white hover:bg-neutral-200 text-black rounded-md px-3 py-1 text-sm font-medium"
         >
-          Deploy
+          Export
         </Button>
       </div>
     </div>

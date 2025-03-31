@@ -10,7 +10,7 @@ import AnimatedGradientBackground from "../ui/animated-gradient-background";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useRef } from "react";
 
-const AiChat = () => {
+const AiChat = ({ projectId }: { projectId: string | null }) => {
   const { messages } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +37,7 @@ const AiChat = () => {
     return (
       <div className="space-y-4 rounded-lg  ">
         {content.startingContent && (
-          <div className="prose prose-invert max-w-none">
+          <div className="prose prose-invert">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {content.startingContent}
             </ReactMarkdown>
@@ -62,9 +62,25 @@ const AiChat = () => {
         <ResizablePanel defaultSize={47} minSize={27} maxSize={67}>
           <div className="flex flex-col h-full items-center px-6 py-4 ease-in-out duration-300 overflow-x-hidden ">
             <AnimatedGradientBackground />
-            <NavbarAiChat />
-            <div className="h-full w-full flex flex-col text-white justify-between overflow-y-auto pr-5 ai-chat-scrollbar">
-              <div className="flex-1 space-y-4 mt-5">
+            <NavbarAiChat projectId={projectId} />
+            <div className="h-full w-full flex flex-col text-white  justify-center overflow-y-auto pr-5 ai-chat-scrollbar">
+              {messages.length === 0 ? (
+                <>
+                  <div className="flex flex-col items-center justify-center">
+                    <h1 className="text-4xl font-bold text-white ">
+                      Start the conversation with the
+                    </h1>
+                    <h1 className="text-5xl h-14 mt-3 font-bold bg-gradient-to-r from-blue-500 to-green-500 text-transparent bg-clip-text">
+                      Codegen AI
+                    </h1>
+                  </div>
+                </>
+              ) : null}
+              <div
+                className={`${
+                  messages.length === 0 ? "hidden" : "flex-1 space-y-4 mt-5"
+                } flex-1 space-y-4 mt-5`}
+              >
                 {messages.map((message, index) => (
                   <div
                     key={index}

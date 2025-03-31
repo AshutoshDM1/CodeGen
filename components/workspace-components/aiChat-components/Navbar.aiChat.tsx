@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-const NavbarAiChat = () => {
+const NavbarAiChat = ({ projectId }: { projectId: string | null }) => {
   return (
     <>
       <div className="h-fit flex w-full">
@@ -22,7 +22,11 @@ const NavbarAiChat = () => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>CodeGen Chat</BreadcrumbPage>
+              {projectId ? (
+                <BreadcrumbPage>{projectId}</BreadcrumbPage>
+              ) : (
+                <BreadcrumbPage>New Chat</BreadcrumbPage>
+              )}
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

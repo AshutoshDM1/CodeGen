@@ -1,8 +1,7 @@
-import { projectFiles } from "@/store/chatStore";
 import axios from "axios";
 
 export const exampleBefoer =
-  'Okay, I will create a simple todo list application using React and Tailwind CSS.\n\n1.  Greetings!\n2.  The following files will be created or modified:\n    *   `src/App.jsx`\n    *   `src/components/TodoList.jsx`\n    *   `src/components/TodoItem.jsx`\n    *   `src/components/AddTodo.jsx`\n3.  This application will allow you to add, remove, and mark todos as complete.\n\n<boltArtifact id="simple-todo-list" title="Simple Todo List App">\n\nI have completed the task. You can now view the todo list application in the preview.\n \n ';
+  'Okay, I will create a simple todo list application using React and Tailwind CSS.\n\n1.  Greetings! \n2.  The following files will be created or modified:\n    *   `src/App.tsx`\n    *   `src/components/TodoList.tsx`\n    *   `src/components/TodoItem.tsx`\n    *   `src/components/AddTodo.tsx`\n3.  This application will allow you to add, remove, and mark todos as complete.\n\n<boltArtifact id="simple-todo-list" title="Simple Todo List App">\n\nI have completed the task. You can now view the todo list application in the preview.\n \n ';
 
 export const exampleAfter =
   "\n \n I have completed the task. You can now view the todo list application in the preview. \n \n";
@@ -27,7 +26,7 @@ export const messageuser = {
     },
     {
       role: "user",
-      content: `1. use frame-motion and good styling 2. Keeping in mind the project is already have boilerplate code which is created by vite Having js as language and jsx files and tailwind css as styling language which is already installed in the project 3. dont forget to update the package.json file otherwise it will not work in webcontainer.`,
+      content: `1. use frame-motion and good styling 2. Keeping in mind the project is already have boilerplate code which is created by vite Having ts as language and tsx files and tailwind css as styling language which is already installed in the project 3. dont forget to update the package.json file otherwise it will not work in webcontainer.`,
     }
   ],
 };

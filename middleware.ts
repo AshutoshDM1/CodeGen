@@ -41,7 +41,7 @@ export function middleware(request: NextRequest) {
 // Configure protected routes - customize for your project
 export const config = {
   matcher: [
-    "/workspace",
+    "/workspace/:path*",
     "/auth/login",
     "/auth/register",
     "/settings/:path*",

@@ -52,7 +52,7 @@ export default function ChatInput() {
       const prompt = inputValue;
       const messageToAI = {
         role: "user",
-        content: `here all the current files which are present ${CurrentFiles} do the changes in the files and dont forget to update the package.json file otherwise it will not work in webcontainer. ${prompt}`,
+        content: `1. here all the current files which are present ${CurrentFiles} do the changes in the files 2. dont forget to update the package.json file otherwise it will not work in webcontainer.3. if user ask to make a app or website do changes in the files and make a that project currently the file have a basic Landing page so you can change that or if user ask to refine or edit the files then do the changes in the files and only in enhance the code dont change the whole project 4. ${prompt}`,
       };
 
       messageuser.messages.push(messageToAI);
@@ -239,11 +239,9 @@ export default function ChatInput() {
 
   const handleSubmit = async () => {
     if (!inputValue.trim()) return;
-
     setIsLoading(true);
     addMessage({ role: "user", content: inputValue });
     setInputValue("");
-
     try {
       await fetchData();
     } catch (error) {
