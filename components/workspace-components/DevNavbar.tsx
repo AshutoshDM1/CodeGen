@@ -1,6 +1,7 @@
 import { Code2, Layout, Share, Terminal } from "lucide-react";
 import { Button } from "../ui/button";
 import { Show, useShowPreview } from "@/store/chatStore";
+import { ShimmerButton } from "../ui/shimmer-button";
 
 const DevNavbar = ({
   setShowWorkspace,
@@ -49,13 +50,11 @@ const DevNavbar = ({
         <div className="flex items-center justify-center rounded-md px-3 py-2 hover:bg-foreground/10 cursor-pointer">
           <Share className="h-5 w-5" />
         </div>
-        <Button
-          onClick={() => window.dispatchEvent(new Event("export-project"))}
-          variant="default"
-          className="bg-white hover:bg-neutral-200 text-black rounded-md px-3 py-1 text-sm font-medium"
-        >
-          Export
-        </Button>
+        <ShimmerButton className="shadow-2xl">
+          <span className="whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white dark:from-white dark:to-slate-900/10 lg:text-lg">
+            Export
+          </span>
+        </ShimmerButton>
       </div>
     </div>
   );

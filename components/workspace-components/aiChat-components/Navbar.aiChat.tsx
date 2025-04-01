@@ -10,7 +10,7 @@ import {
 const NavbarAiChat = ({ projectId }: { projectId: string | null }) => {
   return (
     <>
-      <div className="h-fit flex w-full">
+      <div className={`h-fit flex w-full ${projectId ? "" : ""}`}>
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>

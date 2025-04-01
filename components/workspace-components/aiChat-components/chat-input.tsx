@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Paperclip, ArrowUp } from "lucide-react";
+import { Paperclip, ArrowUp, Loader2 } from "lucide-react";
 import { X } from "lucide-react";
 import { messageuser } from "@/services/api";
 import {
@@ -10,10 +10,14 @@ import {
   useFilePaths,
   useFileExplorer,
   findFileContent,
+  useShowPreview,
+  Show,
 } from "@/store/chatStore";
 import { useState } from "react";
 import { ShinyButton } from "@/components/magicui/shiny-button";
-
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { v4 as uuidv4 } from "uuid";
 interface AIMessage {
   beforeMsg: string;
   boltArtifact: {
@@ -31,7 +35,8 @@ interface AIMessage {
   afterMsg: string;
 }
 
-export default function ChatInput() {
+export default function ChatInput({ projectId }: { projectId: string | null }) {
+  const router = useRouter();
   const { setFileupdating } = useFilePaths();
   const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } =
     useChatStore();
@@ -39,6 +44,8 @@ export default function ChatInput() {
   const [inputValue, setInputValue] = useState("");
   const { setFilePaths } = useFilePaths();
   const { addFileByAI } = useFileExplorer();
+  const { setShowWorkspace, setShowCode, setShowTerminal, setShowPreview } =
+    useShowPreview();
   let buffer = "";
   let buferAfter = "";
   const fetchData = async () => {
@@ -56,8 +63,6 @@ export default function ChatInput() {
       };
 
       messageuser.messages.push(messageToAI);
-
-      console.log(messageuser);
 
       const response = await fetch(`${URL}/api/chat`, {
         method: "POST",
@@ -230,7 +235,8 @@ export default function ChatInput() {
           }
         }
       }
-      console.log(EditorCode);
+      setIsLoading(false);
+      setShowTerminal();
       return message;
     } catch (err) {
       throw err;
@@ -240,8 +246,17 @@ export default function ChatInput() {
   const handleSubmit = async () => {
     if (!inputValue.trim()) return;
     setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (projectId === null) {
+      const newId = uuidv4();
+      router.push(`/workspace/${newId}`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
     addMessage({ role: "user", content: inputValue });
     setInputValue("");
+    setShowWorkspace(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setShowCode();
     try {
       await fetchData();
     } catch (error) {
@@ -279,80 +294,100 @@ export default function ChatInput() {
   };
 
   return (
-    <div className="mt-10 w-full max-w-3xl mx-auto border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 ">
-      {/* Premium Banner */}
-      <div className="flex items-center justify-between px-4 pt-2 mb-2 flex-wrap gap-2 ">
-        <p className="text-sm text-zinc-100">
-          Need more messages? Get higher limits with Premium.
-        </p>
-        <div className="w-fit flex items-center gap-2">
-          <ShinyButton
-            onClick={() => enhancePrompt(inputValue)}
-            className="h-fit flex min-w-fit text-black"
-          >
-            Enhance Prompt
-          </ShinyButton>
-          <Button
-            variant="default"
-            size="sm"
-            className="h-fit py-2 bg-emerald-400 hover:bg-emerald-500"
-          >
-            Upgrade Plan
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
+    <AnimatePresence mode="wait">
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -10 }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 30,
+          duration: 1,
+        }}
+        className="mt-10 w-full max-w-3xl mx-auto border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 "
+      >
+        {/* Premium Banner */}
+        <div className="flex items-center justify-between px-4 pt-2 mb-2 flex-wrap gap-2 ">
+          <p className="text-sm text-zinc-100">
+            Need more messages? Get higher limits with Premium.
+          </p>
+          <div className="w-fit flex items-center gap-2">
+            <ShinyButton
+              onClick={() => enhancePrompt(inputValue)}
+              className="h-fit flex min-w-fit text-black"
+            >
+              Enhance Prompt
+            </ShinyButton>
+            <Button
+              variant="default"
+              size="sm"
+              className="h-fit py-2 bg-emerald-400 hover:bg-emerald-500"
+            >
+              Upgrade Plan
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {/* Chat Input */}
-      <Card className="border-0 bg-transparent">
-        <div className="flex flex-col items-start px-1 py-2">
-          <div className="flex items-center gap-2 w-full">
-            <textarea
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey && !isLoading) {
-                  e.preventDefault();
-                  handleSubmit();
-                }
-              }}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className="w-full border-0  focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent resize-none   min-h-[52px] p-2"
-              placeholder="Ask CodeGen AI a question..."
-              rows={1}
-              style={{ overflow: "hidden" }}
-            />
-            <div className="flex items-center gap-2">
-              <Button
-                disabled={isLoading}
-                variant="ghost"
-                className="h-8 bg-zinc-900 hover:bg-zinc-800"
-                onClick={handleSubmit}
-              >
-                {isLoading ? "Sending..." : "Submit"}
+        {/* Chat Input */}
+        <Card className="border-0 bg-transparent">
+          <div className="flex flex-col items-start px-1 py-2">
+            <div className="flex items-center gap-2 w-full">
+              <textarea
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && !isLoading) {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="w-full border-0  focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent resize-none   min-h-[52px] p-2"
+                placeholder="Ask CodeGen AI a question..."
+                rows={1}
+                style={{ overflow: "hidden" }}
+              />
+              <div className="flex items-center gap-2">
+                <Button
+                  disabled={isLoading}
+                  variant="ghost"
+                  className="h-8 bg-zinc-900 hover:bg-zinc-800"
+                  onClick={handleSubmit}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="sr-only">Loading...</span>
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <ArrowUp className="h-4 w-4" />
+                  <span className="sr-only">Submit</span>
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Paperclip className="h-5 w-5" />
+                <span className="sr-only">Attach file</span>
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <ArrowUp className="h-4 w-4" />
-                <span className="sr-only">Submit</span>
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <span className="h-5 w-5 flex items-center justify-center font-bold">
+                  ⌘
+                </span>
+                <span className="sr-only">Command</span>
               </Button>
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Paperclip className="h-5 w-5" />
-              <span className="sr-only">Attach file</span>
-            </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <span className="h-5 w-5 flex items-center justify-center font-bold">
-                ⌘
-              </span>
-              <span className="sr-only">Command</span>
-            </Button>
-          </div>
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </motion.div>
+    </AnimatePresence>
   );
 }

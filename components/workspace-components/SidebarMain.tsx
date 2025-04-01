@@ -6,7 +6,7 @@ const SidebarMain = () => {
   const links = [
     {
       label: "New Chat",
-      href: "#",
+      href: "/workspace",
       icon: (
         <div className="border-[1.5px] border-zinc-700 hover:bg-zinc-700 rounded-lg p-[7px]">
           <PlusIcon className="w-[15px] h-[15px] font-[300] text-neutral-200" />
@@ -24,7 +24,7 @@ const SidebarMain = () => {
     },
     {
       label: "Projects",
-      href: "#",
+      href: "/workspace/default",
       icon: (
         <div className="border-[1.5px] border-zinc-700 hover:bg-zinc-700 rounded-lg p-[7px]">
           <FolderClosed className="w-[15px] h-[15px] font-[300] text-neutral-200" />
@@ -49,7 +49,7 @@ const SidebarMain = () => {
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10 bg-black border-r border-zinc-700">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
-            <div className="mt-20flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2  mb-3">
                 <Image
                   src="/codegen.png"
