@@ -12,6 +12,7 @@ import {
   findFileContent,
   useShowPreview,
   Show,
+  useTerminalStore,
 } from "@/store/chatStore";
 import { useState } from "react";
 import { ShinyButton } from "@/components/magicui/shiny-button";
@@ -35,7 +36,19 @@ interface AIMessage {
   afterMsg: string;
 }
 
-export default function ChatInput({ projectId }: { projectId: string | null }) {
+export default function ChatInput({
+  projectId,
+  setUpdatingFiles,
+}: {
+  projectId: string | null;
+  setUpdatingFiles: (
+    files:
+      | Array<{ action: string; filePath: string }>
+      | ((
+          prev: Array<{ action: string; filePath: string }>
+        ) => Array<{ action: string; filePath: string }>)
+  ) => void;
+}) {
   const router = useRouter();
   const { setFileupdating } = useFilePaths();
   const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } =
@@ -46,6 +59,8 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
   const { addFileByAI } = useFileExplorer();
   const { setShowWorkspace, setShowCode, setShowTerminal, setShowPreview } =
     useShowPreview();
+  const { setIsLoadingWebContainerMessage, setIsLoadingWebContainer } =
+    useTerminalStore((state) => state);
   let buffer = "";
   let buferAfter = "";
   const fetchData = async () => {
@@ -153,6 +168,15 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
               addFileByAI(currentFileAction.filePath, filename);
               // Set the current file path
               setFilePaths(currentFileAction.filePath);
+              console.log(currentFileAction.filePath);
+              // Update the files being updated list to show in UI
+              setUpdatingFiles((prev) => [
+                ...prev,
+                {
+                  action: "Updating",
+                  filePath: currentFileAction.filePath,
+                },
+              ]);
             }
 
             // Initialize with empty content
@@ -236,7 +260,16 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
         }
       }
       setIsLoading(false);
-      setShowTerminal();
+      setIsLoadingWebContainerMessage("Compiling the project...");
+      setIsLoadingWebContainer(true);
+      const event = new CustomEvent("remount-webcontainer");
+      window.dispatchEvent(event);
+      setShowPreview();
+
+      // Don't clear the updating files state immediately
+      // We'll let the parent component handle that after rendering
+      // setUpdatingFiles([]);
+
       return message;
     } catch (err) {
       throw err;
@@ -246,6 +279,8 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
   const handleSubmit = async () => {
     if (!inputValue.trim()) return;
     setIsLoading(true);
+    // Clear the updating files when starting a new submission
+    setUpdatingFiles([]);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (projectId === null) {
       const newId = uuidv4();
@@ -284,7 +319,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
         if (done) break;
         const chunk = new TextDecoder().decode(value);
         setInputValue((prev) => {
-          console.log(prev);
           return prev + chunk;
         });
       }
@@ -305,7 +339,9 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           damping: 30,
           duration: 1,
         }}
-        className="mt-10 w-full max-w-3xl mx-auto border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 "
+        className={`mt-10 w-full ${
+          projectId === null ? "max-w-3xl self-center" : ""
+        } border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 `}
       >
         {/* Premium Banner */}
         <div className="flex items-center justify-between px-4 pt-2 mb-2 flex-wrap gap-2 ">

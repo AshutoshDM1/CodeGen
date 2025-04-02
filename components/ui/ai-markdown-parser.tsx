@@ -1,17 +1,22 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { FileIcon, CheckIcon, PackageIcon, CodeIcon } from "lucide-react";
+import { getFileIcon } from "@/lib/file-utils";
+import { FileUpdateIndicator } from "@/components/ui/file-update-indicator";
 
 interface AIMarkdownParserProps {
   content: string;
   animate?: boolean;
+  updatingFiles?:
+    | string[]
+    | Array<{ filename: string; action: string; filePath?: string }>
+    | Array<{ action: string; filePath: string }>;
 }
 
 export const AIMarkdownParser = ({
   content,
   animate = true,
+  updatingFiles = [],
 }: AIMarkdownParserProps) => {
   const [parsedContent, setParsedContent] = useState<JSX.Element[]>([]);
 
@@ -20,9 +25,70 @@ export const AIMarkdownParser = ({
     setParsedContent(parsed);
   }, [content, animate]);
 
+  // Check for file lists in the content and try to extract them even if they don't match the regex
+  useEffect(() => {
+    // This is a backup approach to extract file references if the regex fails
+    if (content && content.includes("*") && content.includes("`")) {
+      const lines = content.split("\n");
+      const fileLines = lines.filter(
+        (line) =>
+          line.includes("*") &&
+          line.includes("`") &&
+          line.trim().startsWith("*")
+      );
+
+      // Additional detection for the specific bulleted format with 3 spaces
+      const aiStyleRegex = /^\s*\*\s{3}`([^`]+)`\s*(.*)$/;
+
+      // If we found file lines in a format our parser might have missed, we can handle them here
+      if (fileLines.length > 0) {
+        // Try to extract file paths using the AI style format
+        const extractedFiles = fileLines
+          .map((line) => {
+            const match = line.match(aiStyleRegex);
+            if (match) {
+              return match[1]; // Return the filename
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        if (extractedFiles.length > 0) {
+          console.log("Extracted files from AI format:", extractedFiles);
+        }
+      }
+    }
+  }, [content]);
+
   return (
     <div className="ai-markdown-parser prose prose-invert max-w-none">
       {parsedContent}
+      {Array.isArray(updatingFiles) && updatingFiles.length > 0 && (
+        <div className="flex flex-col items-start gap-2 mt-4">
+          {updatingFiles.map((file) => {
+            if (typeof file === "string") {
+              return <FileUpdateIndicator key={file} filePath={file} />;
+            } else if ("filePath" in file) {
+              return (
+                <FileUpdateIndicator
+                  key={file.filePath}
+                  filePath={file.filePath}
+                  message={file.action}
+                />
+              );
+            } else if ("filename" in file) {
+              return (
+                <FileUpdateIndicator
+                  key={file.filename}
+                  filePath={file.filename}
+                  message={file.action}
+                />
+              );
+            }
+            return null;
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -38,15 +104,62 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
   let fileItems: JSX.Element[] = [];
   let currentIndex = 0;
 
+  // Check if this content contains a file list section
+  const hasFileListing = lines.some((line) => {
+    const trimmed = line.trim();
+    return (
+      trimmed.startsWith("*") &&
+      (trimmed.includes("`") || trimmed.includes("```")) &&
+      !trimmed.includes("```js") &&
+      !trimmed.includes("```ts")
+    );
+  });
+
   // Process each line
   lines.forEach((line, index) => {
     const trimmedLine = line.trim();
 
+    // Enhanced detection for any bullet points with backticks
+    // This will handle all variations of the AI's file listing format
+    const bulletWithFile =
+      trimmedLine.startsWith("*") &&
+      trimmedLine.includes("`") &&
+      !trimmedLine.includes("```");
+
     // Check for numbered list (e.g., "1. Item")
     const numberedMatch = trimmedLine.match(/^(\d+)\.\s(.+)$/);
 
-    // Check for file list items (e.g., "* `filename.js`")
-    const fileListMatch = trimmedLine.match(/^\*\s`([^`]+)`\s*(.*)$/);
+    // Check for file list items that start with an asterisk (e.g., "* `file.js`")
+    // Also handle format with multiple spaces after asterisk (e.g., "*   `file.js`")
+    const fileListMatch = trimmedLine.match(
+      /^\*\s{1,3}(?:\\?`|`)([^`]+)(?:\\?`|`)\s*(.*)$/
+    );
+
+    // Special check for the exact format AI often uses: "*   `filename.js`"
+    const aiStyleMatch = fileListMatch
+      ? null
+      : trimmedLine.match(/^\*\s{3}(?:\\?`|`)([^`]+)(?:\\?`|`)\s*(.*)$/);
+
+    // If we found an AI-style match but no regular match, use the AI-style match
+    const actualFileListMatch = fileListMatch || aiStyleMatch;
+
+    // Check for standalone file paths (e.g., "`file.js`")
+    const standaloneFileMatch =
+      !bulletWithFile && !actualFileListMatch
+        ? trimmedLine.match(/^(?:\\?`|`)([^`]+)(?:\\?`|`)\s*(.*)$/)
+        : null;
+
+    // Check if the line is a file reference
+    const isFileReference = actualFileListMatch || standaloneFileMatch;
+
+    // Extract filename and description from either match
+    let filename = "";
+    let description = "";
+    if (actualFileListMatch) {
+      [, filename, description] = actualFileListMatch;
+    } else if (standaloneFileMatch) {
+      [, filename, description] = standaloneFileMatch;
+    }
 
     if (numberedMatch) {
       const [_, number, text] = numberedMatch;
@@ -95,9 +208,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
           <div className="flex-1">{text}</div>
         </motion.div>
       );
-    } else if (fileListMatch) {
-      const [_, filename, description] = fileListMatch;
-
+    } else if (isFileReference) {
       // If this is the first file item, start a new file list
       if (!inFileList) {
         inFileList = true;
@@ -134,15 +245,17 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
             duration: 0.3,
             delay: animate ? 0.1 * fileItems.length : 0,
           }}
-          className="flex items-center gap-2 mb-2 border border-zinc-800 rounded-md p-2 bg-zinc-900/50"
+          className="flex items-center gap-3 mb-3 border rounded-md p-3 transition-colors bg-transparent"
         >
-          <div className="text-zinc-400">{fileIcon}</div>
-          <div>
-            <code className="text-sm font-mono text-emerald-300">
+          <div className="flex-shrink-0 bg-gradient-to-r from-blue-500/50 to-purple-500/50 p-2 rounded-md flex items-center justify-center w-10 h-10">
+            {fileIcon}
+          </div>
+          <div className="flex-1">
+            <code className="text-sm font-mono text-emerald-300 font-semibold">
               {filename}
             </code>
             {description && (
-              <p className="text-xs text-zinc-400">{description}</p>
+              <p className="text-xs text-zinc-400 mt-1">{description}</p>
             )}
           </div>
         </motion.div>
@@ -230,30 +343,4 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
   }
 
   return parsedElements;
-};
-
-// Helper to get appropriate icon for file type
-const getFileIcon = (filename: string) => {
-  if (filename.endsWith("package.json")) {
-    return <PackageIcon size={16} />;
-  } else if (
-    filename.endsWith(".js") ||
-    filename.endsWith(".ts") ||
-    filename.endsWith(".tsx") ||
-    filename.endsWith(".jsx")
-  ) {
-    return <CodeIcon size={16} />;
-  } else if (
-    filename.endsWith(".css") ||
-    filename.endsWith(".scss") ||
-    filename.endsWith(".less")
-  ) {
-    return <FileIcon size={16} />;
-  } else if (filename.endsWith(".html")) {
-    return <FileIcon size={16} />;
-  } else if (filename.endsWith(".json")) {
-    return <FileIcon size={16} />;
-  } else {
-    return <FileIcon size={16} />;
-  }
 };

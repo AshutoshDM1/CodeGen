@@ -21,7 +21,8 @@ import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button
 import { defaultProjectFiles } from "@/store/chatStore";
 import { useParams } from "next/navigation";
 import JSZip from "jszip";
-
+import { FollowerPointerCard } from "@/components/ui/following-pointer";
+import Image from "next/image";
 const Dashboard = () => {
   const { fullPreview, setFullPreview } = useFullPreview();
   const { webcontainer, loading: webcontainerLoading } = useWebContainer();
@@ -61,7 +62,16 @@ const Dashboard = () => {
           {
             role: "assistant",
             content: {
-              startingContent: `Okay, I will create a beautiful food website landing page using React, Tailwind CSS, and Framer Motion. 1. Greetings! 2. The following files will be created or modified: * \`package.json\` (Ensure dependencies are up-to-date) * \`tailwind.config.js\` (Extend theme for custom styles) * \`index.html\` (Update page title) * \`src/App.tsx\` (Implement the landing page structure and content) * \`src/index.css\` (Add base styles and custom fonts if needed) 3. This landing page will feature a stunning hero section, a display of popular dishes, customer testimonials, and a call to action, all enhanced with smooth animations.`,
+              startingContent: `I'll create a beautiful food website landing page using React, Tailwind CSS, and Framer Motion.
+
+1. Let's start with the project structure!
+2. The following files will be created or modified:
+\`src/App.tsx\` (Ensure dependencies are up-to-date)
+\`tailwind.config.js\` (Extend theme for custom styles)
+\`index.html\` (Update page title)
+\`src/App.tsx\` (Implement the landing page structure and content)
+\`src/index.css\` (Add base styles and custom fonts if needed)
+3. This landing page will feature a stunning hero section, a display of popular dishes, customer testimonials, and a call to action, all enhanced with smooth animations.`,
               projectFiles: defaultProjectFiles,
               endingContent: "Let me know if you need anything else.",
             },

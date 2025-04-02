@@ -38,6 +38,8 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const { project, setProject } = useProjectStore((state) => state);
   const { setCode } = useEditorCode((state) => state);
   const { workspaceId } = useParams();
+  const { setIsLoadingWebContainer } =
+    useTerminalStore((state) => state);
   const startDevServer = useCallback(
     async (container: WebContainer) => {
       if (!container) return;
@@ -80,7 +82,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
   // Function to remount files
   const remountFiles = useCallback(async () => {
     if (!webcontainer) return;
-
     try {
       console.log("Remounting files...");
       addCommand("> 📦 Remounting files...");
@@ -109,6 +110,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       // Restart the dev server
       await startDevServer(webcontainer);
       addCommand("> 🚀 Restarting development server...");
+      setIsLoadingWebContainer(false);
     } catch (error) {
       console.error("Remount failed:", error);
       addCommand("> ❌ Error remounting files: " + (error as Error).message);

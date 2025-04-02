@@ -27,11 +27,11 @@ export default function AIParserDemo() {
 
 1. First, we'll set up the basic project scaffold.
 2. Then we'll implement the following components:
-* \`components/Auth/Login.tsx\` (Login form with email/password)
-* \`components/Auth/Register.tsx\` (Sign up form for new users)
-* \`components/Todo/TodoList.tsx\` (Main component to display all todos)
-* \`components/Todo/TodoItem.tsx\` (Individual todo item with edit/delete)
-* \`components/Todo/AddTodo.tsx\` (Form to add new todos)
+\`components/Auth/Login.tsx\` (Login form with email/password)
+\`components/Auth/Register.tsx\` (Sign up form for new users)
+\`components/Todo/TodoList.tsx\` (Main component to display all todos)
+\`components/Todo/TodoItem.tsx\` (Individual todo item with edit/delete)
+\`components/Todo/AddTodo.tsx\` (Form to add new todos)
 3. Next, we'll set up Firebase authentication and Firestore for data storage.
 4. Finally, we'll add proper styling with Tailwind CSS and ensure the app is responsive.`,
 
@@ -40,9 +40,9 @@ export default function AIParserDemo() {
 1. Let's structure our application into components.
 2. We need to use these libraries:
 * \`axios\` (For API requests)
-* \`react-query\` (For data fetching and caching)
+\`react-query\` (For data fetching and caching)
 * \`tailwind-css\` (For styling)
-* \`react-icons\` (For weather icons)
+\`react-icons\` (For weather icons)
 3. The application will have:
 * Current weather display with temperature, conditions, and location
 * 5-day forecast with daily highs and lows
@@ -97,8 +97,11 @@ export default function AIParserDemo() {
         <ul className="list-disc pl-6 space-y-2 text-zinc-300">
           <li>Numbered lists (e.g., "1. First item")</li>
           <li>
-            File references with descriptions (e.g., "* `filename.js`
-            (description)")
+            File references with descriptions in two formats:
+            <ul className="ml-4 mt-2 space-y-1">
+              <li>With asterisk: * \`filename.js\` (description)</li>
+              <li>Without asterisk: \`filename.js\` (description)</li>
+            </ul>
           </li>
           <li>Regular paragraphs</li>
         </ul>

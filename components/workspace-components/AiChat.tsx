@@ -12,19 +12,36 @@ import { TypewriterEffectSmooth } from "../ui/typewriter-effect";
 import { MorphingText } from "../magicui/morphing-text";
 import { AIMarkdownParser } from "../ui/ai-markdown-parser";
 import { Switch } from "../ui/switch";
+import AIParserDemo from "../ai-parser-demo";
+import { Button } from "../ui/button";
+import { Loader2, Plus } from "lucide-react";
+import { FileUpdateIndicator } from "../ui/file-update-indicator";
 
 const AiChat = ({ projectId }: { projectId: string | null }) => {
   const { messages } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showTypewriter, setShowTypewriter] = useState(true);
   const [useCustomParser, setUseCustomParser] = useState(true);
+  const [updatingFiles, setUpdatingFiles] = useState<
+    Array<{ action: string; filePath: string }>
+  >([]);
 
-  // Function to scroll to bottom
+  // Add an effect to clear the updatingFiles state after a certain time
+  useEffect(() => {
+    if (updatingFiles.length > 0) {
+      // Clear the updatingFiles state after 10 seconds
+      const timer = setTimeout(() => {
+        setUpdatingFiles([]);
+      }, 10000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [updatingFiles]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -36,7 +53,7 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="text-sm text-zinc-100 mt-3 whitespace-pre-wrap"
+          className="text-sm text-zinc-100 mt-3 whitespace-pre-wrap normal-case "
         >
           {typeof message.content === "string"
             ? message.content
@@ -51,15 +68,30 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
         {content.startingContent && (
           <div className="prose prose-invert">
             {useCustomParser ? (
-              <AIMarkdownParser
-                content={content.startingContent}
-                animate={showTypewriter}
-              />
+              <>
+                <AIMarkdownParser
+                  content={content.startingContent}
+                  animate={showTypewriter}
+                  updatingFiles={updatingFiles}
+                />
+              </>
             ) : (
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {content.startingContent}
               </ReactMarkdown>
             )}
+          </div>
+        )}
+        {updatingFiles.length > 0 && (
+          <div className="flex flex-col justify-start items-start gap-2 my-3 p-2 bg-zinc-800/30 rounded-md">
+            <p className="text-xs text-zinc-400 mb-1">Updating files:</p>
+            {updatingFiles.map((file) => (
+              <FileUpdateIndicator
+                key={file.filePath}
+                filePath={file.filePath}
+                message={file.action}
+              />
+            ))}
           </div>
         )}
 
@@ -110,7 +142,7 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
               <NavbarAiChat projectId={projectId} />
 
               {/* Display options */}
-              <div className="flex items-center gap-4">
+              <div className="items-center gap-4 hidden ">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="custom-parser"
@@ -132,22 +164,25 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
                 </div>
               </div>
             </div>
-
-            <div className="h-full w-full flex flex-col text-white justify-center overflow-y-auto pr-5 ai-chat-scrollbar">
+            <div
+              className={`h-full w-full flex flex-col text-white ${
+                projectId === null ? "justify-center" : "justify-between"
+              } overflow-y-auto pr-5 ai-chat-scrollbar`}
+            >
               {projectId === null ? (
                 <motion.div
                   key="welcome-screen"
                   className="flex flex-col items-center justify-center"
                 >
                   <TypewriterEffectSmooth words={words} />
-                  <MorphingText texts={["Codegen AI", "Your AI assistant"]} />
+                  <MorphingText texts={["Your AI assistant", "Codegen AI"]} />
                 </motion.div>
               ) : null}
 
               <div
                 className={`${
                   projectId === null ? "hidden" : ""
-                }  space-y-4 mt-5`}
+                }  space-y-4 mt-5 re`}
               >
                 {messages.map((message, index) => (
                   <motion.div
@@ -186,7 +221,10 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
                 {/* This empty div is used as a reference to scroll to */}
                 <div ref={messagesEndRef} />
               </div>
-              <ChatInput projectId={projectId} />
+              <ChatInput
+                projectId={projectId}
+                setUpdatingFiles={setUpdatingFiles}
+              />
             </div>
           </div>
         </ResizablePanel>

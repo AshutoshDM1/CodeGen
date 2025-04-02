@@ -15,7 +15,8 @@ export const cleanTerminalOutput = (output: string): string => {
 
 const WebContainer = () => {
   const { url } = useTerminalStore();
-  const isLoading = useTerminalStore((state) => state.isLoadingWebContainer);
+  const { isLoadingWebContainer, isLoadingWebContainerMessage } =
+    useTerminalStore((state) => state);
   const { setFullPreview } = useFullPreview();
 
   return (
@@ -33,8 +34,11 @@ const WebContainer = () => {
         className="h-full w-full relative"
       >
         <AnimatePresence mode="wait">
-          {isLoading ? (
-            <WebContainerLoading key="loading" />
+          {isLoadingWebContainer ? (
+            <WebContainerLoading
+              key="loading"
+              message={isLoadingWebContainerMessage}
+            />
           ) : url ? (
             <motion.div
               key="preview"

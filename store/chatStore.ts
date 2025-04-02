@@ -865,6 +865,10 @@ interface TerminalStore {
   setUrl: (url: string) => void;
   isLoadingWebContainer: boolean;
   setIsLoadingWebContainer: (isLoadingWebContainer: boolean) => void;
+  isLoadingWebContainerMessage: string;
+  setIsLoadingWebContainerMessage: (
+    isLoadingWebContainerMessage: string
+  ) => void;
   isSavingFiles: boolean;
   setIsSavingFiles: (isSavingFiles: boolean) => void;
 }
@@ -883,8 +887,11 @@ export const useTerminalStore = create<TerminalStore>((set) => ({
   isSavingFiles: false,
   setIsSavingFiles: (isSavingFiles: boolean) => set({ isSavingFiles }),
   isLoadingWebContainer: true,
+  isLoadingWebContainerMessage: "Building the Web Container...",
   setIsLoadingWebContainer: (isLoadingWebContainer) =>
     set({ isLoadingWebContainer }),
+  setIsLoadingWebContainerMessage: (isLoadingWebContainerMessage) =>
+    set({ isLoadingWebContainerMessage }),
   showTerminalInput: true,
   url: "",
   terminal: ["Welcome to the terminal"],

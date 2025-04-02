@@ -1,11 +1,17 @@
 import axios from "axios";
 
-export const exampleBefoer =
-  'Okay, I will create a simple todo list application using React and Tailwind CSS.\n\n1.  Greetings! \n2.  The following files will be created or modified:\n    *   `src/App.tsx`\n    *   `src/components/TodoList.tsx`\n    *   `src/components/TodoItem.tsx`\n    *   `src/components/AddTodo.tsx`\n3.  This application will allow you to add, remove, and mark todos as complete.\n\n<boltArtifact id="simple-todo-list" title="Simple Todo List App">\n\nI have completed the task. You can now view the todo list application in the preview.\n \n ';
+export const exampleBefoer = `'I'll create a beautiful food website landing page using React, Tailwind CSS, and Framer Motion.
+1. Let's start with the project structure!
+2. The following files will be created or modified:
+\`package.json\` (Ensure dependencies are up-to-date)
+\`tailwind.config.js\` (Extend theme for custom styles)
+\`index.html\` (Update page title)
+\`src/App.tsx\` (Implement the landing page structure and content)
+\`src/index.css\` (Add base styles and custom fonts if needed)
+3. This landing page will feature a stunning hero section, a display of popular dishes, customer testimonials, and a call to action, all enhanced with smooth animations.`;
 
 export const exampleAfter =
   "\n \n I have completed the task. You can now view the todo list application in the preview. \n \n";
-
 
 export const messageuser = {
   messages: [
@@ -27,7 +33,7 @@ export const messageuser = {
     {
       role: "user",
       content: `1. use frame-motion and good styling 2. Keeping in mind the project is already have boilerplate code which is created by vite Having ts as language and tsx files and tailwind css as styling language which is already installed in the project 3. dont forget to update the package.json file otherwise it will not work in webcontainer.`,
-    }
+    },
   ],
 };
 
@@ -37,5 +43,3 @@ export const enhancePromptAPI = async (prompt: string) => {
   });
   return response.data;
 };
-
-
