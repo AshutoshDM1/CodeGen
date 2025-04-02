@@ -5,13 +5,9 @@ import {
   CodeIcon,
   FileTextIcon,
   FileJsonIcon,
-  FileTypeIcon,
   FileCogIcon,
   ImageIcon,
-  FileArchiveIcon,
-  FileSpreadsheetIcon,
   BookIcon,
-  VideoIcon,
 } from "lucide-react";
 
 /**

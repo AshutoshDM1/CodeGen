@@ -3,7 +3,12 @@ import { ResizableHandle, ResizablePanel } from "../ui/resizable";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
-import { useChatStore, Message, AIResponse } from "@/store/chatStore";
+import {
+  useChatStore,
+  Message,
+  AIResponse,
+  useUpdatingFiles,
+} from "@/store/chatStore";
 import NavbarAiChat from "./aiChat-components/Navbar.aiChat";
 import ChatInput from "./aiChat-components/chat-input";
 import { AnimatePresence, motion } from "framer-motion";
@@ -12,9 +17,6 @@ import { TypewriterEffectSmooth } from "../ui/typewriter-effect";
 import { MorphingText } from "../magicui/morphing-text";
 import { AIMarkdownParser } from "../ui/ai-markdown-parser";
 import { Switch } from "../ui/switch";
-import AIParserDemo from "../ai-parser-demo";
-import { Button } from "../ui/button";
-import { Loader2, Plus } from "lucide-react";
 import { FileUpdateIndicator } from "../ui/file-update-indicator";
 
 const AiChat = ({ projectId }: { projectId: string | null }) => {
@@ -22,22 +24,7 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showTypewriter, setShowTypewriter] = useState(true);
   const [useCustomParser, setUseCustomParser] = useState(true);
-  const [updatingFiles, setUpdatingFiles] = useState<
-    Array<{ action: string; filePath: string }>
-  >([]);
-
-  // Add an effect to clear the updatingFiles state after a certain time
-  useEffect(() => {
-    if (updatingFiles.length > 0) {
-      // Clear the updatingFiles state after 10 seconds
-      const timer = setTimeout(() => {
-        setUpdatingFiles([]);
-      }, 10000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [updatingFiles]);
-
+  const { updatingFiles, aiThinking } = useUpdatingFiles();
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -49,16 +36,41 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
   const renderContent = (message: Message) => {
     if (message.role === "user") {
       return (
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="text-sm text-zinc-100 mt-3 whitespace-pre-wrap normal-case "
-        >
-          {typeof message.content === "string"
-            ? message.content
-            : JSON.stringify(message.content)}
-        </motion.p>
+        <>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="text-sm text-zinc-100 mt-3 whitespace-pre-wrap normal-case "
+          >
+            {typeof message.content === "string"
+              ? message.content
+              : JSON.stringify(message.content)}
+          </motion.p>
+          <div className="max-w-[30vh] mx-auto flex flex-col justify-center ml-8 gap-2 my-3">
+            {aiThinking && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="relative w-6 h-6">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_infinite]" />
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_0.2s_infinite] ml-1" />
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_0.4s_infinite] ml-1" />
+                    </div>
+                  </div>
+                  <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient_2s_linear_infinite] font-semibold">
+                    Codegen AI is thinking...
+                  </span>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </>
       );
     }
 
@@ -72,7 +84,6 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
                 <AIMarkdownParser
                   content={content.startingContent}
                   animate={showTypewriter}
-                  updatingFiles={updatingFiles}
                 />
               </>
             ) : (
@@ -83,13 +94,23 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
           </div>
         )}
         {updatingFiles.length > 0 && (
-          <div className="flex flex-col justify-start items-start gap-2 my-3 p-2 bg-zinc-800/30 rounded-md">
-            <p className="text-xs text-zinc-400 mb-1">Updating files:</p>
-            {updatingFiles.map((file) => (
+          <div className="flex flex-col justify-center ml-8 gap-2 my-3">
+            {/* leave the last one element out */}
+            {updatingFiles.slice(0, -1).map((file, index) => (
               <FileUpdateIndicator
-                key={file.filePath}
+                key={index}
                 filePath={file.filePath}
                 message={file.action}
+                loading={false}
+              />
+            ))}
+            {/*only show the last one element */}
+            {updatingFiles.slice(-1).map((file, index) => (
+              <FileUpdateIndicator
+                key={index}
+                filePath={file.filePath}
+                message={file.action}
+                loading={true}
               />
             ))}
           </div>
@@ -223,7 +244,7 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
               </div>
               <ChatInput
                 projectId={projectId}
-                setUpdatingFiles={setUpdatingFiles}
+                // setUpdatingFiles={setUpdatingFiles}
               />
             </div>
           </div>

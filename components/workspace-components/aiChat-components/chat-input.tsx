@@ -11,8 +11,8 @@ import {
   useFileExplorer,
   findFileContent,
   useShowPreview,
-  Show,
   useTerminalStore,
+  useUpdatingFiles,
 } from "@/store/chatStore";
 import { useState } from "react";
 import { ShinyButton } from "@/components/magicui/shiny-button";
@@ -36,19 +36,7 @@ interface AIMessage {
   afterMsg: string;
 }
 
-export default function ChatInput({
-  projectId,
-  setUpdatingFiles,
-}: {
-  projectId: string | null;
-  setUpdatingFiles: (
-    files:
-      | Array<{ action: string; filePath: string }>
-      | ((
-          prev: Array<{ action: string; filePath: string }>
-        ) => Array<{ action: string; filePath: string }>)
-  ) => void;
-}) {
+export default function ChatInput({ projectId }: { projectId: string | null }) {
   const router = useRouter();
   const { setFileupdating } = useFilePaths();
   const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } =
@@ -57,10 +45,11 @@ export default function ChatInput({
   const [inputValue, setInputValue] = useState("");
   const { setFilePaths } = useFilePaths();
   const { addFileByAI } = useFileExplorer();
-  const { setShowWorkspace, setShowCode, setShowTerminal, setShowPreview } =
+  const { setShowWorkspace, setShowCode, setShowPreview } =
     useShowPreview();
   const { setIsLoadingWebContainerMessage, setIsLoadingWebContainer } =
     useTerminalStore((state) => state);
+  const { setUpdatingFiles, setAiThinking } = useUpdatingFiles();
   let buffer = "";
   let buferAfter = "";
   const fetchData = async () => {
@@ -120,7 +109,7 @@ export default function ChatInput({
       };
       let currentShellAction = { type: "shell" as const, content: "" };
       let accumulatedContent = "";
-
+      setAiThinking(false);
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -169,22 +158,20 @@ export default function ChatInput({
               // Set the current file path
               setFilePaths(currentFileAction.filePath);
               console.log(currentFileAction.filePath);
-              // Update the files being updated list to show in UI
-              setUpdatingFiles((prev) => [
-                ...prev,
-                {
-                  action: "Updating",
-                  filePath: currentFileAction.filePath,
-                },
-              ]);
             }
 
             // Initialize with empty content
             if (currentFileAction.filePath) {
               setFilePaths(currentFileAction.filePath);
               setEditorCode(currentFileAction.filePath, "");
+              console.log(currentFileAction.filePath);
+              setUpdatingFiles([
+                {
+                  action: "Updating",
+                  filePath: currentFileAction.filePath,
+                },
+              ]);
             }
-
             buffer = buffer.substring(buffer.indexOf(">") + 1);
           }
         }
@@ -262,14 +249,10 @@ export default function ChatInput({
       setIsLoading(false);
       setIsLoadingWebContainerMessage("Compiling the project...");
       setIsLoadingWebContainer(true);
+      setUpdatingFiles([]);
       const event = new CustomEvent("remount-webcontainer");
       window.dispatchEvent(event);
       setShowPreview();
-
-      // Don't clear the updating files state immediately
-      // We'll let the parent component handle that after rendering
-      // setUpdatingFiles([]);
-
       return message;
     } catch (err) {
       throw err;
@@ -279,6 +262,7 @@ export default function ChatInput({
   const handleSubmit = async () => {
     if (!inputValue.trim()) return;
     setIsLoading(true);
+    setAiThinking(true);
     // Clear the updating files when starting a new submission
     setUpdatingFiles([]);
     await new Promise((resolve) => setTimeout(resolve, 1000));

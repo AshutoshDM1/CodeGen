@@ -1,32 +1,24 @@
 "use client";
-import {
-  useChatStore,
-  useFullPreview,
-  useProjectStore,
-} from "@/store/chatStore";
+import { useFullPreview } from "@/store/chatStore";
 import { useEffect, useCallback, ReactNode, useRef } from "react";
 import { useWebContainer } from "@/hooks/useWebContainer";
 import { useEditorCode } from "@/store/chatStore";
 import { useTerminalStore } from "@/store/chatStore";
-import { useShowPreview } from "@/store/chatStore";
 import { FileSystemTree, WebContainer } from "@webcontainer/api";
 import { cleanTerminalOutput } from "@/components/workspace-components/webContainer";
-import { useParams } from "next/navigation";
 import JSZip from "jszip";
 import SidebarMain from "@/components/workspace-components/SidebarMain";
 import AnimatedGradientBackground from "@/components/ui/animated-gradient-background";
 
 const Layout = ({ children }: { children: ReactNode }) => {
-  const { fullPreview, setFullPreview } = useFullPreview();
+  const { fullPreview } = useFullPreview();
   const { webcontainer, loading: webcontainerLoading } = useWebContainer();
-  const { url, setUrl, setIsSavingFiles } = useTerminalStore();
+  const { setUrl, setIsSavingFiles } = useTerminalStore();
   const setIsLoading = useTerminalStore(
     (state) => state.setIsLoadingWebContainer
   );
   const { EditorCode } = useEditorCode();
   const addCommand = useTerminalStore((state) => state.addCommand);
-  const { showWorkspace, setShowWorkspace } = useShowPreview();
-  const { setMessages } = useChatStore();
   const isInitialized = useRef(false);
   const prevEditorCode = useRef(EditorCode);
   const devProcessRef = useRef<{
@@ -35,11 +27,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
     exit: Promise<number>;
   } | null>(null);
   const serverReadyRef = useRef(false);
-  const { project, setProject } = useProjectStore((state) => state);
-  const { setCode } = useEditorCode((state) => state);
-  const { workspaceId } = useParams();
-  const { setIsLoadingWebContainer } =
-    useTerminalStore((state) => state);
+  const { setIsLoadingWebContainer } = useTerminalStore((state) => state);
   const startDevServer = useCallback(
     async (container: WebContainer) => {
       if (!container) return;

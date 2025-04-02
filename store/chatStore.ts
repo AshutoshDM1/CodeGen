@@ -1336,3 +1336,21 @@ export const useFileExplorerState = create<FileExplorerState>((set) => ({
       return { openFolders: newOpenFolders };
     }),
 }));
+
+interface UpdatingFiles {
+  updatingFiles: Array<{ action: string; filePath: string }>;
+  setUpdatingFiles: (
+    files: Array<{ action: string; filePath: string }>
+  ) => void;
+  aiThinking: boolean;
+  setAiThinking: (aiThinking: boolean) => void;
+}
+
+export const useUpdatingFiles = create<UpdatingFiles>((set) => ({
+  aiThinking: false,
+  updatingFiles: [],
+  setAiThinking: (aiThinking: boolean) => set({ aiThinking }),
+  setUpdatingFiles: (files) => set({ updatingFiles: files }),
+  addUpdatingFile: (files: Array<{ action: string; filePath: string }>) =>
+    set((state) => ({ updatingFiles: [...state.updatingFiles, ...files] })),
+}));

@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getFileIcon } from "@/lib/file-utils";
-import { FileUpdateIndicator } from "@/components/ui/file-update-indicator";
 
 interface AIMarkdownParserProps {
   content: string;
@@ -16,7 +15,6 @@ interface AIMarkdownParserProps {
 export const AIMarkdownParser = ({
   content,
   animate = true,
-  updatingFiles = [],
 }: AIMarkdownParserProps) => {
   const [parsedContent, setParsedContent] = useState<JSX.Element[]>([]);
 
@@ -54,7 +52,6 @@ export const AIMarkdownParser = ({
           .filter(Boolean);
 
         if (extractedFiles.length > 0) {
-          console.log("Extracted files from AI format:", extractedFiles);
         }
       }
     }
@@ -63,32 +60,6 @@ export const AIMarkdownParser = ({
   return (
     <div className="ai-markdown-parser prose prose-invert max-w-none">
       {parsedContent}
-      {Array.isArray(updatingFiles) && updatingFiles.length > 0 && (
-        <div className="flex flex-col items-start gap-2 mt-4">
-          {updatingFiles.map((file) => {
-            if (typeof file === "string") {
-              return <FileUpdateIndicator key={file} filePath={file} />;
-            } else if ("filePath" in file) {
-              return (
-                <FileUpdateIndicator
-                  key={file.filePath}
-                  filePath={file.filePath}
-                  message={file.action}
-                />
-              );
-            } else if ("filename" in file) {
-              return (
-                <FileUpdateIndicator
-                  key={file.filename}
-                  filePath={file.filename}
-                  message={file.action}
-                />
-              );
-            }
-            return null;
-          })}
-        </div>
-      )}
     </div>
   );
 };
@@ -103,17 +74,6 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
   let listItems: JSX.Element[] = [];
   let fileItems: JSX.Element[] = [];
   let currentIndex = 0;
-
-  // Check if this content contains a file list section
-  const hasFileListing = lines.some((line) => {
-    const trimmed = line.trim();
-    return (
-      trimmed.startsWith("*") &&
-      (trimmed.includes("`") || trimmed.includes("```")) &&
-      !trimmed.includes("```js") &&
-      !trimmed.includes("```ts")
-    );
-  });
 
   // Process each line
   lines.forEach((line, index) => {
@@ -162,7 +122,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
     }
 
     if (numberedMatch) {
-      const [_, number, text] = numberedMatch;
+      const [, number, text] = numberedMatch;
 
       // If this is the first numbered item, start a new list
       if (!inNumberedList) {

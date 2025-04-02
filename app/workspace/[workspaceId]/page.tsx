@@ -8,40 +8,20 @@ import {
   useFullPreview,
   useProjectStore,
 } from "@/store/chatStore";
-import { useEffect, useCallback } from "react";
-import { useWebContainer } from "@/hooks/useWebContainer";
+import { useEffect } from "react"
 import { useEditorCode } from "@/store/chatStore";
 import { useTerminalStore } from "@/store/chatStore";
 import { useShowPreview } from "@/store/chatStore";
-import { useRef } from "react";
-import { FileSystemTree, WebContainer } from "@webcontainer/api";
-import { cleanTerminalOutput } from "@/components/workspace-components/webContainer";
 import { AnimatePresence, motion } from "framer-motion";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { defaultProjectFiles } from "@/store/chatStore";
 import { useParams } from "next/navigation";
-import JSZip from "jszip";
-import { FollowerPointerCard } from "@/components/ui/following-pointer";
-import Image from "next/image";
+
 const Dashboard = () => {
   const { fullPreview, setFullPreview } = useFullPreview();
-  const { webcontainer, loading: webcontainerLoading } = useWebContainer();
-  const { url, setUrl, setIsSavingFiles } = useTerminalStore();
-  const setIsLoading = useTerminalStore(
-    (state) => state.setIsLoadingWebContainer
-  );
-  const { EditorCode } = useEditorCode();
-  const addCommand = useTerminalStore((state) => state.addCommand);
+  const { url } = useTerminalStore();
   const { showWorkspace, setShowWorkspace } = useShowPreview();
   const { setMessages } = useChatStore();
-  const isInitialized = useRef(false);
-  const prevEditorCode = useRef(EditorCode);
-  const devProcessRef = useRef<{
-    kill: () => void;
-    output: ReadableStream<string>;
-    exit: Promise<number>;
-  } | null>(null);
-  const serverReadyRef = useRef(false);
   const { project, setProject } = useProjectStore((state) => state);
   const { setCode } = useEditorCode((state) => state);
   const { workspaceId } = useParams();
