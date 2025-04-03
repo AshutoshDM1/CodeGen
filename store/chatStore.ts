@@ -633,9 +633,7 @@ export const useEditorCode = create<{
 
       const parts = filePath.split("/");
       let current = { ...state.EditorCode };
-      console.log("setEditorCode called ");
 
-      // Handle nested paths
       if (parts.length > 1) {
         let parentObj = current;
 
@@ -690,12 +688,7 @@ export interface AIResponse {
   startingContent?: string;
   projectFiles: projectFiles;
   endingContent?: string;
-}
-
-interface AIMessage {
-  startingContent: string;
-  projectFiles: projectFiles;
-  endingContent: string;
+  updatedFiles?: Array<{ action: string; filePath: string }>;
 }
 
 interface ChatStore {
@@ -708,6 +701,9 @@ interface ChatStore {
   setIsLoading: (loading: boolean) => void;
   addAIbeforeMsg: (chunk: string) => void;
   addAIafterMsg: (chunk: string) => void;
+  setUpdatedFilesChat: (
+    updatedFiles: Array<{ action: string; filePath: string }>
+  ) => void;
 }
 
 type project = {
@@ -721,17 +717,36 @@ type project = {
 interface projectStore {
   project: project | null;
   setProject: (project: project) => void;
+  setProjectNull: () => void;
 }
 
 export const useProjectStore = create<projectStore>((set) => ({
   project: null,
   setProject: (project) => set({ project }),
+  setProjectNull: () => set({ project: null }),
 }));
 
 export const useChatStore = create<ChatStore>((set) => ({
   messages: [],
   isLoading: false,
   setMessages: (messages) => set({ messages }),
+  setUpdatedFilesChat: (
+    updatedFiles: Array<{ action: string; filePath: string }>
+  ) =>
+    set((state) => {
+      console.log(updatedFiles);
+      const messages = [...state.messages];
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.role === "assistant") {
+        if (typeof lastMessage.content === "object") {
+          lastMessage.content = {
+            ...lastMessage.content,
+            updatedFiles: [...updatedFiles],
+          };
+        }
+      }
+      return { messages };
+    }),
   addAIbeforeMsg: (chunk: string) =>
     set((state) => {
       const messages = [...state.messages];
@@ -1324,7 +1339,7 @@ interface FileExplorerState {
 }
 
 export const useFileExplorerState = create<FileExplorerState>((set) => ({
-  openFolders: new Set<string>(),
+  openFolders: new Set<string>(["src"]),
   setOpenFolder: (path: string, isOpen: boolean) =>
     set((state) => {
       const newOpenFolders = new Set(state.openFolders);
@@ -1344,6 +1359,9 @@ interface UpdatingFiles {
   ) => void;
   aiThinking: boolean;
   setAiThinking: (aiThinking: boolean) => void;
+  addUpdatingFiles: (
+    files: Array<{ action: string; filePath: string }>
+  ) => void;
 }
 
 export const useUpdatingFiles = create<UpdatingFiles>((set) => ({
@@ -1351,6 +1369,17 @@ export const useUpdatingFiles = create<UpdatingFiles>((set) => ({
   updatingFiles: [],
   setAiThinking: (aiThinking: boolean) => set({ aiThinking }),
   setUpdatingFiles: (files) => set({ updatingFiles: files }),
-  addUpdatingFile: (files: Array<{ action: string; filePath: string }>) =>
-    set((state) => ({ updatingFiles: [...state.updatingFiles, ...files] })),
+  addUpdatingFiles: (files: Array<{ action: string; filePath: string }>) =>
+    set((state) => {
+      // Filter out any files that already exist with same path and action
+      const newFiles = files.filter(
+        (newFile) =>
+          !state.updatingFiles.some(
+            (existingFile) =>
+              existingFile.filePath === newFile.filePath &&
+              existingFile.action === newFile.action
+          )
+      );
+      return { updatingFiles: [...state.updatingFiles, ...newFiles] };
+    }),
 }));

@@ -259,6 +259,7 @@ pre[class*="language-"] {
 
 .ai-chat-scrollbar::-webkit-scrollbar {
   width: 9px;
+  margin-right: 2px;
 }
 
 .ai-chat-scrollbar::-webkit-scrollbar-track {

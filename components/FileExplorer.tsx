@@ -119,7 +119,7 @@ const FileExplorer = () => {
   return (
     <div className="text-white h-full select-none">
       <div className="py-3 px-3  text-neutral-200 border-b-[1.5px] border-border font-[inherit] mb-2 ">
-        <h1 className="text-md tracking-[1px]">File Explorer</h1>
+        <h1 className="text-sm tracking-[1px]">File Explorer</h1>
       </div>
       {sortItems(fileExplorer).map((item, index) => (
         <FileTree key={index} item={item} onFileClick={onFileClick} />

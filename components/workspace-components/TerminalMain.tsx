@@ -102,7 +102,7 @@ const TerminalMain = () => {
         </div>
 
         {/* Terminal input */}
-        {showTerminalInput && (
+        {!showTerminalInput && (
           <div className="flex-none flex items-center gap-2 p-2 border-t border-border bg-black">
             <h1 className="min-w-fit text-white">Codegen $</h1>
             <Input

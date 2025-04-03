@@ -1,5 +1,9 @@
 "use client";
-import { useFullPreview } from "@/store/chatStore";
+import {
+  useChatStore,
+  useFullPreview,
+  useUpdatingFiles,
+} from "@/store/chatStore";
 import { useEffect, useCallback, ReactNode, useRef } from "react";
 import { useWebContainer } from "@/hooks/useWebContainer";
 import { useEditorCode } from "@/store/chatStore";
@@ -11,6 +15,8 @@ import SidebarMain from "@/components/workspace-components/SidebarMain";
 import AnimatedGradientBackground from "@/components/ui/animated-gradient-background";
 
 const Layout = ({ children }: { children: ReactNode }) => {
+  const { updatingFiles } = useUpdatingFiles();
+  const { setUpdatedFilesChat } = useChatStore();
   const { fullPreview } = useFullPreview();
   const { webcontainer, loading: webcontainerLoading } = useWebContainer();
   const { setUrl, setIsSavingFiles } = useTerminalStore();
@@ -27,12 +33,12 @@ const Layout = ({ children }: { children: ReactNode }) => {
     exit: Promise<number>;
   } | null>(null);
   const serverReadyRef = useRef(false);
-  const { setIsLoadingWebContainer } = useTerminalStore((state) => state);
+  const { setIsLoadingWebContainer, setIsLoadingWebContainerMessage } =
+    useTerminalStore((state) => state);
   const startDevServer = useCallback(
     async (container: WebContainer) => {
       if (!container) return;
 
-      console.log("Starting dev server...");
       const devProcess = await container.spawn("npm", ["run", "dev"]);
       devProcessRef.current = devProcess;
 
@@ -40,7 +46,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
       if (!serverReadyRef.current) {
         container.on("server-ready", (port: number, serverUrl: string) => {
           const cleanUrl = `Server is ready at: ${serverUrl}`;
-          console.log("Server ready at port:", port);
           addCommand(cleanUrl);
           setUrl(serverUrl);
           setIsLoading(false);
@@ -71,7 +76,8 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const remountFiles = useCallback(async () => {
     if (!webcontainer) return;
     try {
-      console.log("Remounting files...");
+      setIsLoadingWebContainerMessage("Recompiling files...");
+      setIsLoadingWebContainer(true);
       addCommand("> 📦 Remounting files...");
 
       // Kill the current dev server if it exists
@@ -89,9 +95,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
       const installProcess = await webcontainer.spawn("npm", ["install"]);
       const installExitCode = await installProcess.exit;
-      console.log("Install exit code:", installExitCode);
-      console.log("hi ");
-      console.log("Mounted files:", Object.keys(files).join(", "));
       if (installExitCode !== 0) {
         throw new Error("Installation failed");
       }
@@ -104,8 +107,14 @@ const Layout = ({ children }: { children: ReactNode }) => {
       addCommand("> ❌ Error remounting files: " + (error as Error).message);
       setIsLoading(false);
       setIsSavingFiles(false);
+    } finally {
+      setTimeout(() => {
+        setIsLoadingWebContainer(false);
+      }, 2000);
     }
   }, [
+    setIsLoadingWebContainer,
+    setIsLoadingWebContainerMessage,
     EditorCode,
     addCommand,
     setIsLoading,
@@ -155,7 +164,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
       if (!webcontainer || isInitialized.current) return;
 
       try {
-        console.log("Initial WebContainer setup...");
         setIsLoading(true);
 
         const files = EditorCode as unknown as FileSystemTree;
@@ -237,7 +245,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
         compressionOptions: { level: 6 },
       });
 
-      console.log("Exporting project without node_modules...");
       addCommand("> ✅ Project export successful (without node_modules)");
       addCommand(
         "> 💡 Run 'npm install' after extracting to install dependencies"
@@ -265,6 +272,59 @@ const Layout = ({ children }: { children: ReactNode }) => {
     }
   }, [webcontainer, addCommand]);
 
+  const handleWebContainerReload = useCallback(async () => {
+    if (!webcontainer) return;
+    try {
+      // Kill current dev process if running
+      if (devProcessRef.current) {
+        devProcessRef.current.kill();
+      }
+      setIsLoading(true);
+      setIsLoadingWebContainer(true);
+      setIsLoadingWebContainerMessage("Rebuilding WebContainer...");
+      addCommand("> 🔄 Destroying current WebContainer...");
+      await webcontainer.teardown(); // Completely destroy the current WebContainer instance
+
+      // Reset states
+      serverReadyRef.current = false;
+      setIsLoadingWebContainer(true);
+
+      // Create new WebContainer instance
+      addCommand("> 🏗️ Creating new WebContainer instance...");
+      const newContainer = await WebContainer.boot();
+
+      // Remount all files
+      addCommand("> 📂 Remounting files...");
+      await remountFiles();
+      addCommand("> ✅ Files remounted successfully");
+
+      // Install dependencies
+      addCommand("> 📦 Installing dependencies...");
+      await npmInstall();
+      addCommand("> ✅ Dependencies installed");
+
+      // Start dev server
+      addCommand("> 🚀 Starting development server...");
+      await startDevServer(newContainer);
+
+      addCommand("> ✅ WebContainer rebuilt and restarted successfully");
+    } catch (error) {
+      console.error("Reload failed:", error);
+      addCommand(`> ❌ Rebuild failed: ${(error as Error).message}`);
+    } finally {
+      setIsLoading(false);
+      setIsLoadingWebContainer(false);
+      setIsLoadingWebContainerMessage("Reloading WebContainer...");
+    }
+  }, [
+    webcontainer,
+    remountFiles,
+    npmInstall,
+    startDevServer,
+    addCommand,
+    setIsLoadingWebContainer,
+  ]);
+
   // Listen for remount events
   useEffect(() => {
     const handleRemount = () => {
@@ -278,6 +338,9 @@ const Layout = ({ children }: { children: ReactNode }) => {
     };
     const handleExportZip = () => {
       handleExport();
+    };
+    const handleUpdatedFiles = () => {
+      setUpdatedFilesChat(updatingFiles);
     };
     // Simple export fallback if the main export fails
     const handleSimpleExport = async () => {
@@ -319,15 +382,22 @@ const Layout = ({ children }: { children: ReactNode }) => {
     window.addEventListener("export-project", handleExportZip);
     window.addEventListener("simple-export", handleSimpleExport);
     window.addEventListener("remount-webcontainer", handleRemount);
+    window.addEventListener("reload-webcontainer", handleWebContainerReload);
     window.addEventListener("npm-run-dev", handleNpmRunDev);
     window.addEventListener("npm-install", handleNpmInstall);
+    window.addEventListener("updated-files", handleUpdatedFiles);
 
     return () => {
       window.removeEventListener("remount-webcontainer", handleRemount);
+      window.removeEventListener(
+        "reload-webcontainer",
+        handleWebContainerReload
+      );
       window.removeEventListener("npm-run-dev", handleNpmRunDev);
       window.removeEventListener("npm-install", handleNpmInstall);
       window.removeEventListener("export-project", handleExportZip);
       window.removeEventListener("simple-export", handleSimpleExport);
+      window.removeEventListener("updated-files", handleUpdatedFiles);
     };
   }, [
     webcontainer,
@@ -342,7 +412,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     return () => {
       if (devProcessRef.current) {
-        console.log("Cleaning up dev server...");
         devProcessRef.current.kill();
       }
     };

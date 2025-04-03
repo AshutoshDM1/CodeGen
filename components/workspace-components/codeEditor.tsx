@@ -389,8 +389,10 @@ const CodeEditor = () => {
                         defaultSize={80}
                       >
                         <div className="py-2 px-3 text- text-neutral-200 border-b-[1.5px] border-border font-[inherit]  flex items-center justify-between">
-                          <h1 className="text-md">{filePaths}</h1>
-                          <button
+                          <h1 className="text-sm">{filePaths}</h1>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             disabled={isSavingFiles}
                             onClick={() => {
                               setIsSavingFiles(true);
@@ -402,17 +404,21 @@ const CodeEditor = () => {
                               );
                               window.dispatchEvent(event);
                             }}
-                            className="py-1 px-3 rounded-md bg-gradient-to-r from-emerald-700 to-cyan-500 text-white duration-&lsqb;300ms&rsqb; hover:shadow-lg hover:from-emerald-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center gap-2"
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
                           >
-                            <h1 className="text-md">Save</h1>
                             {isSavingFiles ? (
-                              <>
+                              <div className="min-w-16 flex justify-center items-center gap-2">
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                              </>
+                              </div>
                             ) : (
-                              <Save className="h-4 w-4" />
+                              <>
+                                <div className="min-w-16 flex items-center gap-2">
+                                  <Save className="h-4 w-4" />
+                                  Save
+                                </div>
+                              </>
                             )}
-                          </button>
+                          </motion.button>
                         </div>
                         <Editor
                           className={GeistMono.className}

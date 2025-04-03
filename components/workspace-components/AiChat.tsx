@@ -12,26 +12,30 @@ import {
 import NavbarAiChat from "./aiChat-components/Navbar.aiChat";
 import ChatInput from "./aiChat-components/chat-input";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { TypewriterEffectSmooth } from "../ui/typewriter-effect";
 import { MorphingText } from "../magicui/morphing-text";
 import { AIMarkdownParser } from "../ui/ai-markdown-parser";
 import { Switch } from "../ui/switch";
 import { FileUpdateIndicator } from "../ui/file-update-indicator";
 
-const AiChat = ({ projectId }: { projectId: string | null }) => {
+const AiChat = ({
+  projectId,
+  messagesEndRef,
+}: {
+  projectId: string | null;
+  messagesEndRef?: React.RefObject<HTMLDivElement>;
+}) => {
   const { messages } = useChatStore();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showTypewriter, setShowTypewriter] = useState(true);
   const [useCustomParser, setUseCustomParser] = useState(true);
   const { updatingFiles, aiThinking } = useUpdatingFiles();
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (messagesEndRef && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, messagesEndRef]);
 
   const renderContent = (message: Message) => {
     if (message.role === "user") {
@@ -47,29 +51,6 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
               ? message.content
               : JSON.stringify(message.content)}
           </motion.p>
-          <div className="max-w-[30vh] mx-auto flex flex-col justify-center ml-8 gap-2 my-3">
-            {aiThinking && (
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="relative w-6 h-6">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_infinite]" />
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_0.2s_infinite] ml-1" />
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_0.4s_infinite] ml-1" />
-                    </div>
-                  </div>
-                  <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient_2s_linear_infinite] font-semibold">
-                    Codegen AI is thinking...
-                  </span>
-                </div>
-              </motion.div>
-            )}
-          </div>
         </>
       );
     }
@@ -93,6 +74,19 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
             )}
           </div>
         )}
+        {content.updatedFiles?.map(
+          (file, index) => (
+            console.log(file),
+            (
+              <FileUpdateIndicator
+                key={index}
+                filePath={file.filePath}
+                message={"Updated"}
+                loading={false}
+              />
+            )
+          )
+        )}
         {updatingFiles.length > 0 && (
           <div className="flex flex-col justify-center ml-8 gap-2 my-3">
             {/* leave the last one element out */}
@@ -100,7 +94,7 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
               <FileUpdateIndicator
                 key={index}
                 filePath={file.filePath}
-                message={file.action}
+                message={"Updated"}
                 loading={false}
               />
             ))}
@@ -158,10 +152,9 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
           maxSize={67}
           key="resizable-panel"
         >
-          <div className="flex flex-col h-full items-center px-6 py-4 ease-in-out duration-300 overflow-x-hidden">
-            <div className="w-full flex items-center justify-between">
+          <div className="flex flex-col h-full items-center px-6 py-4 ease-in-out duration-300 overflow-x-hidden ai-chat-scrollbar ">
+            <div className="w-full flex items-center justify-between ">
               <NavbarAiChat projectId={projectId} />
-
               {/* Display options */}
               <div className="items-center gap-4 hidden ">
                 <div className="flex items-center space-x-2">
@@ -186,9 +179,9 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
               </div>
             </div>
             <div
-              className={`h-full w-full flex flex-col text-white ${
+              className={`h-full w-full max-w-4xl mx-auto flex flex-col text-white ${
                 projectId === null ? "justify-center" : "justify-between"
-              } overflow-y-auto pr-5 ai-chat-scrollbar`}
+              } pr-5 ai-chat-scrollbar`}
             >
               {projectId === null ? (
                 <motion.div
@@ -239,13 +232,36 @@ const AiChat = ({ projectId }: { projectId: string | null }) => {
                     </div>
                   </motion.div>
                 ))}
-                {/* This empty div is used as a reference to scroll to */}
-                <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} className="h-[10px]" />
               </div>
-              <ChatInput
-                projectId={projectId}
-                // setUpdatingFiles={setUpdatingFiles}
-              />
+              <div
+                className={`${
+                  projectId === null ? "hidden" : ""
+                } w-full mx-auto flex flex-col items-center justify-center ml-8 gap-2 my-3`}
+              >
+                {aiThinking && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="flex items-center justify-center self-center gap-3 px-4 py-2.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-6 h-6">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_infinite]" />
+                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_0.2s_infinite] ml-1" />
+                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-[pulse_1s_ease-in-out_0.4s_infinite] ml-1" />
+                        </div>
+                      </div>
+                      <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient_2s_linear_infinite] font-semibold">
+                        Codegen AI is thinking...
+                      </span>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+              <ChatInput projectId={projectId} />
             </div>
           </div>
         </ResizablePanel>

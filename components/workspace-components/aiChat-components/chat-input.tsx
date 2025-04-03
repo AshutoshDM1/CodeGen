@@ -45,11 +45,11 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
   const [inputValue, setInputValue] = useState("");
   const { setFilePaths } = useFilePaths();
   const { addFileByAI } = useFileExplorer();
-  const { setShowWorkspace, setShowCode, setShowPreview } =
-    useShowPreview();
+  const { setShowWorkspace, setShowCode, setShowPreview } = useShowPreview();
   const { setIsLoadingWebContainerMessage, setIsLoadingWebContainer } =
     useTerminalStore((state) => state);
-  const { setUpdatingFiles, setAiThinking } = useUpdatingFiles();
+  const { addUpdatingFiles, setUpdatingFiles, setAiThinking } =
+    useUpdatingFiles();
   let buffer = "";
   let buferAfter = "";
   const fetchData = async () => {
@@ -157,7 +157,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
               addFileByAI(currentFileAction.filePath, filename);
               // Set the current file path
               setFilePaths(currentFileAction.filePath);
-              console.log(currentFileAction.filePath);
             }
 
             // Initialize with empty content
@@ -165,7 +164,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
               setFilePaths(currentFileAction.filePath);
               setEditorCode(currentFileAction.filePath, "");
               console.log(currentFileAction.filePath);
-              setUpdatingFiles([
+              addUpdatingFiles([
                 {
                   action: "Updating",
                   filePath: currentFileAction.filePath,
@@ -246,16 +245,19 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           }
         }
       }
-      setIsLoading(false);
-      setIsLoadingWebContainerMessage("Compiling the project...");
-      setIsLoadingWebContainer(true);
-      setUpdatingFiles([]);
-      const event = new CustomEvent("remount-webcontainer");
-      window.dispatchEvent(event);
-      setShowPreview();
       return message;
     } catch (err) {
       throw err;
+    } finally {
+      setIsLoading(false);
+      setIsLoadingWebContainerMessage("Compiling the project...");
+      setIsLoadingWebContainer(true);
+      const event1 = new CustomEvent("updated-files");
+      await window.dispatchEvent(event1);
+      setUpdatingFiles([]);
+      const event2 = new CustomEvent("remount-webcontainer");
+      window.dispatchEvent(event2);
+      setShowPreview();
     }
   };
 
@@ -263,8 +265,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
     if (!inputValue.trim()) return;
     setIsLoading(true);
     setAiThinking(true);
-    // Clear the updating files when starting a new submission
-    setUpdatingFiles([]);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (projectId === null) {
       const newId = uuidv4();
@@ -323,7 +323,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           damping: 30,
           duration: 1,
         }}
-        className={`mt-10 w-full ${
+        className={`w-full ${
           projectId === null ? "max-w-3xl self-center" : ""
         } border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 `}
       >

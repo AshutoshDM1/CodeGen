@@ -8,7 +8,7 @@ import {
   useFullPreview,
   useProjectStore,
 } from "@/store/chatStore";
-import { useEffect } from "react"
+import { useEffect, useRef } from "react";
 import { useEditorCode } from "@/store/chatStore";
 import { useTerminalStore } from "@/store/chatStore";
 import { useShowPreview } from "@/store/chatStore";
@@ -22,45 +22,28 @@ const Dashboard = () => {
   const { url } = useTerminalStore();
   const { showWorkspace, setShowWorkspace } = useShowPreview();
   const { setMessages } = useChatStore();
-  const { project, setProject } = useProjectStore((state) => state);
+  const { project, setProjectNull } = useProjectStore();
   const { setCode } = useEditorCode((state) => state);
   const { workspaceId } = useParams();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { messages } = useChatStore();
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+  };
 
   useEffect(() => {
-    if (workspaceId === "default") {
-      setProject({
-        projectName: "Demo Project",
-        projectDescription: "This is a demo project",
-        projectId: "Demo123",
-        lastUpdatedCode: defaultProjectFiles,
-        messages: [
-          {
-            role: "user",
-            content:
-              "Adapt the current landing page's content and theme to represent my Codegen application",
-          },
-          {
-            role: "assistant",
-            content: {
-              startingContent: `I'll create a beautiful food website landing page using React, Tailwind CSS, and Framer Motion.
-
-1. Let's start with the project structure!
-2. The following files will be created or modified:
-\`src/App.tsx\` (Ensure dependencies are up-to-date)
-\`tailwind.config.js\` (Extend theme for custom styles)
-\`index.html\` (Update page title)
-\`src/App.tsx\` (Implement the landing page structure and content)
-\`src/index.css\` (Add base styles and custom fonts if needed)
-3. This landing page will feature a stunning hero section, a display of popular dishes, customer testimonials, and a call to action, all enhanced with smooth animations.`,
-              projectFiles: defaultProjectFiles,
-              endingContent: "Let me know if you need anything else.",
-            },
-          },
-        ],
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspaceId, setProject]);
+    scrollToBottom();
+  }, [messages]);
+  
+  useEffect(() => {
+    setMessages([]);
+    setProjectNull();
+    setCode(defaultProjectFiles);
+  }, []);
 
   useEffect(() => {
     if (project) {
@@ -75,13 +58,13 @@ const Dashboard = () => {
     <>
       <AnimatePresence mode="wait" initial={false}>
         {fullPreview ? (
-          <div className="h-screen w-full" key="fullPreview">
+          <div className="w-full h-full" key="fullPreview">
             <motion.div
               key="preview"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="h-full w-full "
+              className="h-full w-full fixed top-0 pb-12"
             >
               <motion.div
                 initial={{ y: -20, opacity: 0 }}
@@ -175,6 +158,7 @@ const Dashboard = () => {
               </motion.div>
               <div className="h-full w-full overflow-y-auto ai-chat-scrollbar">
                 <motion.iframe
+                  className="ai-chat-scrollbar"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -194,11 +178,14 @@ const Dashboard = () => {
               direction="horizontal"
               className="min-h-screen"
             >
-              <AiChat projectId={workspaceId as string} />
+              <AiChat
+                projectId={workspaceId as string}
+                messagesEndRef={messagesEndRef}
+              />
               {showWorkspace === true ? (
                 <CodeEditor />
               ) : (
-                <div className="absolute w-fit top-2 right-14 flex items-center justify-center">
+                <div className="absolute w-fit top-2 right-14 flex items-center justify-center ai-chat-scrollbar">
                   <InteractiveHoverButton
                     content="Show Workspace"
                     className="w-[222px] gap-10  flex items-center justify-center px-4 font-medium"
