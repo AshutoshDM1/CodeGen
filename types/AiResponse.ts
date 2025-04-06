@@ -1,4 +1,4 @@
-// This file is used to define the types of the AI response which is used in Chat-Input.tsx file 
+// This file is used to define the types of the AI response which is used in Chat-Input.tsx file
 // Its for Pracer the data from the AI response.
 
 export interface AIMessage {

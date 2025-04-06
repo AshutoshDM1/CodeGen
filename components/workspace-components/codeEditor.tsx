@@ -32,7 +32,6 @@ import { findFileContent } from '@/lib/findFileContent';
 import { toast } from 'sonner';
 import { projectFiles } from '@/types/webContainerFiles';
 
-
 const CodeEditor = () => {
   const { filePaths, fileupdating } = useFilePaths();
   const { openFolders } = useFileExplorerOpenStates();

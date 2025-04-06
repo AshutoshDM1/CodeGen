@@ -17,7 +17,6 @@ export type command = {
   content: string;
 };
 
-
 export const fileStructure: FileItem[] = [
   {
     name: 'src',
