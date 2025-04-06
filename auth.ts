@@ -1,36 +1,34 @@
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/db";
-import bcrypt from "bcryptjs";
-import Google from "next-auth/providers/google";
-import Github from "next-auth/providers/github";
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { prisma } from '@/lib/db';
+import bcrypt from 'bcryptjs';
+import Google from 'next-auth/providers/google';
+import Github from 'next-auth/providers/github';
 
 export const handler = NextAuth({
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        name: { label: "Name", type: "text" },
-        password: { label: "Password", type: "password" },
-        action: { label: "Action", type: "text" },
+        email: { label: 'Email', type: 'email' },
+        name: { label: 'Name', type: 'text' },
+        password: { label: 'Password', type: 'password' },
+        action: { label: 'Action', type: 'text' },
       },
       async authorize(
-        credentials:
-          | Record<"email" | "password" | "name" | "action", string>
-          | undefined
+        credentials: Record<'email' | 'password' | 'name' | 'action', string> | undefined,
       ) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing fields");
+          throw new Error('Missing fields');
         }
 
-        if (credentials.action === "signup") {
+        if (credentials.action === 'signup') {
           const existingUser = await prisma.user.findUnique({
             where: { email: credentials.email },
           });
 
           if (existingUser) {
-            throw new Error("Email already exists");
+            throw new Error('Email already exists');
           }
 
           const hashedPassword = await bcrypt.hash(credentials.password, 10);
@@ -38,7 +36,7 @@ export const handler = NextAuth({
           const user = await prisma.user.create({
             data: {
               email: credentials.email,
-              name: credentials.name || "",
+              name: credentials.name || '',
               password: hashedPassword,
             },
           });
@@ -55,16 +53,13 @@ export const handler = NextAuth({
         });
 
         if (!user || !user.password) {
-          throw new Error("No user found");
+          throw new Error('No user found');
         }
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
         if (!isPasswordValid) {
-          throw new Error("Invalid password");
+          throw new Error('Invalid password');
         }
 
         return {
@@ -98,10 +93,10 @@ export const handler = NextAuth({
     },
   },
   pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
+    signIn: '/auth/signin',
+    error: '/auth/error',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
 });

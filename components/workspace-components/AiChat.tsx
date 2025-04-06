@@ -1,23 +1,19 @@
-"use client";
-import { ResizableHandle, ResizablePanel } from "../ui/resizable";
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import remarkGfm from "remark-gfm";
-import ReactMarkdown from "react-markdown";
-import {
-  useChatStore,
-  Message,
-  AIResponse,
-  useUpdatingFiles,
-} from "@/store/chatStore";
-import NavbarAiChat from "./aiChat-components/Navbar.aiChat";
-import ChatInput from "./aiChat-components/chat-input";
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { TypewriterEffectSmooth } from "../ui/typewriter-effect";
-import { MorphingText } from "../magicui/morphing-text";
-import { AIMarkdownParser } from "../ui/ai-markdown-parser";
-import { Switch } from "../ui/switch";
-import { FileUpdateIndicator } from "../ui/file-update-indicator";
+'use client';
+import { ResizableHandle, ResizablePanel } from '../ui/resizable';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import remarkGfm from 'remark-gfm';
+import ReactMarkdown from 'react-markdown';
+import { useChatStore, Message, AIResponse } from '@/store/chatStore';
+import NavbarAiChat from './aiChat-components/Navbar.aiChat';
+import ChatInput from './aiChat-components/chat-input';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { TypewriterEffectSmooth } from '../ui/typewriter-effect';
+import { MorphingText } from '../magicui/morphing-text';
+import { AIMarkdownParser } from '../ui/ai-markdown-parser';
+import { Switch } from '../ui/switch';
+import { FileUpdateIndicator } from '../ui/file-update-indicator';
+import { useUpdatingFiles } from '@/store/fileExplorerStore';
 
 const AiChat = ({
   projectId,
@@ -30,15 +26,15 @@ const AiChat = ({
   const [showTypewriter, setShowTypewriter] = useState(true);
   const [useCustomParser, setUseCustomParser] = useState(true);
   const { updatingFiles, aiThinking } = useUpdatingFiles();
-
+  // console.log(messages);
   useEffect(() => {
     if (messagesEndRef && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, messagesEndRef]);
 
   const renderContent = (message: Message) => {
-    if (message.role === "user") {
+    if (message.role === 'user') {
       return (
         <>
           <motion.p
@@ -47,7 +43,7 @@ const AiChat = ({
             transition={{ duration: 0.3 }}
             className="text-sm text-zinc-100 mt-3 whitespace-pre-wrap normal-case "
           >
-            {typeof message.content === "string"
+            {typeof message.content === 'string'
               ? message.content
               : JSON.stringify(message.content)}
           </motion.p>
@@ -62,31 +58,21 @@ const AiChat = ({
           <div className="prose prose-invert">
             {useCustomParser ? (
               <>
-                <AIMarkdownParser
-                  content={content.startingContent}
-                  animate={showTypewriter}
-                />
+                <AIMarkdownParser content={content.startingContent} animate={showTypewriter} />
               </>
             ) : (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {content.startingContent}
-              </ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content.startingContent}</ReactMarkdown>
             )}
           </div>
         )}
-        {content.updatedFiles?.map(
-          (file, index) => (
-            console.log(file),
-            (
-              <FileUpdateIndicator
-                key={index}
-                filePath={file.filePath}
-                message={"Updated"}
-                loading={false}
-              />
-            )
-          )
-        )}
+        {content.updatedFiles?.map((file, index) => (
+          <FileUpdateIndicator
+            key={index}
+            filePath={file.filePath}
+            message={'Updated'}
+            loading={false}
+          />
+        ))}
         {updatingFiles.length > 0 && (
           <div className="flex flex-col justify-center ml-8 gap-2 my-3">
             {/* leave the last one element out */}
@@ -94,7 +80,7 @@ const AiChat = ({
               <FileUpdateIndicator
                 key={index}
                 filePath={file.filePath}
-                message={"Updated"}
+                message={'Updated'}
                 loading={false}
               />
             ))}
@@ -113,14 +99,9 @@ const AiChat = ({
         {content.endingContent && (
           <div className="prose prose-invert max-w-none mt-4">
             {useCustomParser ? (
-              <AIMarkdownParser
-                content={content.endingContent}
-                animate={showTypewriter}
-              />
+              <AIMarkdownParser content={content.endingContent} animate={showTypewriter} />
             ) : (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {content.endingContent}
-              </ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content.endingContent}</ReactMarkdown>
             )}
           </div>
         )}
@@ -130,28 +111,23 @@ const AiChat = ({
 
   const words = [
     {
-      text: "Start",
+      text: 'Start',
     },
     {
-      text: "the",
+      text: 'the',
     },
     {
-      text: "conversation",
+      text: 'conversation',
     },
     {
-      text: "with",
+      text: 'with',
     },
   ];
 
   return (
     <>
       <AnimatePresence mode="wait" initial={true}>
-        <ResizablePanel
-          defaultSize={47}
-          minSize={27}
-          maxSize={67}
-          key="resizable-panel"
-        >
+        <ResizablePanel defaultSize={47} minSize={27} maxSize={67} key="resizable-panel">
           <div className="flex flex-col h-full items-center px-6 py-4 ease-in-out duration-300 overflow-x-hidden ai-chat-scrollbar ">
             <div className="w-full flex items-center justify-between ">
               <NavbarAiChat projectId={projectId} />
@@ -180,7 +156,7 @@ const AiChat = ({
             </div>
             <div
               className={`h-full w-full max-w-4xl mx-auto flex flex-col text-white ${
-                projectId === null ? "justify-center" : "justify-between"
+                projectId === null ? 'justify-center' : 'justify-between'
               } pr-5 ai-chat-scrollbar`}
             >
               {projectId === null ? (
@@ -189,15 +165,11 @@ const AiChat = ({
                   className="flex flex-col items-center justify-center"
                 >
                   <TypewriterEffectSmooth words={words} />
-                  <MorphingText texts={["Your AI assistant", "Codegen AI"]} />
+                  <MorphingText texts={['Your AI assistant', 'Codegen AI']} />
                 </motion.div>
               ) : null}
 
-              <div
-                className={`${
-                  projectId === null ? "hidden" : ""
-                }  space-y-4 mt-5 re`}
-              >
+              <div className={`${projectId === null ? 'hidden' : ''}  space-y-4 mt-5 re`}>
                 {messages.map((message, index) => (
                   <motion.div
                     key={`message-${index}-${message.role}`}
@@ -205,38 +177,30 @@ const AiChat = ({
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
                     transition={{
-                      type: "spring",
+                      type: 'spring',
                       stiffness: 300,
                       damping: 30,
                     }}
                     className={`flex items-start gap-5 p-5 rounded-lg ${
-                      message.role === "assistant"
-                        ? "backdrop-blur-md bg-zinc-900/20"
-                        : ""
+                      message.role === 'assistant' ? 'backdrop-blur-md bg-zinc-900/20' : ''
                     }`}
                   >
                     <Avatar>
                       <AvatarImage
                         className="rounded-full h-8 w-9"
-                        src={
-                          message.role === "user" ? "/user.jpg" : "/codegen.png"
-                        }
+                        src={message.role === 'user' ? '/user.jpg' : '/codegen.png'}
                         alt={message.role}
                       />
-                      <AvatarFallback>
-                        {message.role === "user" ? "CN" : "AI"}
-                      </AvatarFallback>
+                      <AvatarFallback>{message.role === 'user' ? 'CN' : 'AI'}</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0 text-sm">
-                      {renderContent(message)}
-                    </div>
+                    <div className="flex-1 min-w-0 text-sm">{renderContent(message)}</div>
                   </motion.div>
                 ))}
                 <div ref={messagesEndRef} className="h-[10px]" />
               </div>
               <div
                 className={`${
-                  projectId === null ? "hidden" : ""
+                  projectId === null ? 'hidden' : ''
                 } w-full mx-auto flex flex-col items-center justify-center ml-8 gap-2 my-3`}
               >
                 {aiThinking && (

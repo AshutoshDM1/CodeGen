@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Providers } from "./providers";
+import type { Metadata } from 'next';
+import './globals.css';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: "CodeGen",
+  title: 'CodeGen',
   description:
-    "CodeGen is a Modern Web Based Coding Platform which use make you code less and develop fast",
+    'CodeGen is a Modern Web Based Coding Platform which use make you code less and develop fast',
   icons: {
     icon: '/codegen.png',
   },

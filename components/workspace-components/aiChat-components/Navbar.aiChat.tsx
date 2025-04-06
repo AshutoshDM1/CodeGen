@@ -5,12 +5,12 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from '@/components/ui/breadcrumb';
 
 const NavbarAiChat = ({ projectId }: { projectId: string | null }) => {
   return (
     <>
-      <div className={`h-fit flex w-full ${projectId ? "" : ""}`}>
+      <div className={`h-fit flex w-full ${projectId ? '' : ''}`}>
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>

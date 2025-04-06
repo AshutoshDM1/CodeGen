@@ -1,8 +1,8 @@
-"use client";
-import { ResizablePanelGroup } from "@/components/ui/resizable";
-import Alert from "@/components/workspace-components/Alert";
-import AiChat from "@/components/workspace-components/AiChat";
-import { motion } from "framer-motion";
+'use client';
+import { ResizablePanelGroup } from '@/components/ui/resizable';
+import Alert from '@/components/workspace-components/Alert';
+import AiChat from '@/components/workspace-components/AiChat';
+import { motion } from 'framer-motion';
 
 const Dashboard = () => {
   return (
@@ -11,10 +11,7 @@ const Dashboard = () => {
       exit={{ opacity: 0, x: -100 }}
       className="h-screen w-full overflow-hidden"
     >
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="h-screen overflow-hidden"
-      >
+      <ResizablePanelGroup direction="horizontal" className="h-screen overflow-hidden">
         <Alert />
         <AiChat projectId={null} />
       </ResizablePanelGroup>

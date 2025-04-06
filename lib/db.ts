@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
 // Disable ESLint's no-var rule only for the global declaration
 /* eslint-disable no-var */
@@ -10,7 +10,7 @@ declare global {
 // Check if Prisma is already in the global object
 let prismaMain: PrismaClient;
 
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === 'production') {
   prismaMain = new PrismaClient();
 } else {
   if (!globalThis.prisma) {

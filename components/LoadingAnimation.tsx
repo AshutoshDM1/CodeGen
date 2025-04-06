@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import { motion } from "framer-motion";
+import React from 'react';
+import { motion } from 'framer-motion';
 
 interface LoadingAnimationProps {
   size?: number;
@@ -13,10 +13,10 @@ interface LoadingAnimationProps {
 
 const LoadingAnimation = ({
   size = 80,
-  primaryColor = "#06B6D4", // cyan-500
-  secondaryColor = "#22C55E", // green-500
-  tertiaryColor = "#FFFFFF", // white
-  text = "Loading",
+  primaryColor = '#06B6D4', // cyan-500
+  secondaryColor = '#22C55E', // green-500
+  tertiaryColor = '#FFFFFF', // white
+  text = 'Loading',
 }: LoadingAnimationProps) => {
   const center = size / 2;
   const strokeWidth = size * 0.05;
@@ -30,7 +30,7 @@ const LoadingAnimation = ({
       rotate: 360,
       transition: {
         duration: 3,
-        ease: "linear",
+        ease: 'linear',
         repeat: Infinity,
       },
     },
@@ -41,7 +41,7 @@ const LoadingAnimation = ({
       rotate: -360,
       transition: {
         duration: 4,
-        ease: "linear",
+        ease: 'linear',
         repeat: Infinity,
       },
     },
@@ -52,7 +52,7 @@ const LoadingAnimation = ({
       rotate: 360,
       transition: {
         duration: 2.5,
-        ease: "linear",
+        ease: 'linear',
         repeat: Infinity,
       },
     },
@@ -65,7 +65,7 @@ const LoadingAnimation = ({
       transition: {
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut",
+        ease: 'easeInOut',
       },
     },
   };
@@ -85,7 +85,7 @@ const LoadingAnimation = ({
             strokeDasharray={`${outerRadius * 0.8} ${outerRadius * 0.3}`}
             variants={outerCircleVariants}
             animate="animate"
-            style={{ transformOrigin: "center" }}
+            style={{ transformOrigin: 'center' }}
           />
 
           {/* Middle animated circle */}
@@ -99,7 +99,7 @@ const LoadingAnimation = ({
             strokeDasharray={`${middleRadius * 0.6} ${middleRadius * 0.4}`}
             variants={middleCircleVariants}
             animate="animate"
-            style={{ transformOrigin: "center" }}
+            style={{ transformOrigin: 'center' }}
           />
 
           {/* Inner animated circle */}
@@ -114,7 +114,7 @@ const LoadingAnimation = ({
             strokeLinecap="round"
             variants={innerCircleVariants}
             animate="animate"
-            style={{ transformOrigin: "center" }}
+            style={{ transformOrigin: 'center' }}
           />
 
           {/* Shimmering effect in the center */}
@@ -130,20 +130,13 @@ const LoadingAnimation = ({
             transition={{
               duration: 2,
               repeat: Infinity,
-              ease: "easeInOut",
+              ease: 'easeInOut',
             }}
           />
 
           {/* Gradient definition */}
           <defs>
-            <radialGradient
-              id={`gradient-${size}`}
-              cx="50%"
-              cy="50%"
-              r="50%"
-              fx="50%"
-              fy="50%"
-            >
+            <radialGradient id={`gradient-${size}`} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
               <stop offset="0%" stopColor={secondaryColor} stopOpacity="0.8" />
               <stop offset="80%" stopColor={primaryColor} stopOpacity="0.2" />
               <stop offset="100%" stopColor={primaryColor} stopOpacity="0" />
@@ -157,7 +150,7 @@ const LoadingAnimation = ({
           style={{
             width: 4,
             height: 4,
-            borderRadius: "50%",
+            borderRadius: '50%',
             backgroundColor: primaryColor,
             left: `calc(50% + ${outerRadius * 0.7}px)`,
             top: `calc(50% - ${outerRadius * 0.7}px)`,
@@ -169,7 +162,7 @@ const LoadingAnimation = ({
           transition={{
             duration: 2,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: 'easeInOut',
             delay: 0.5,
           }}
         />
@@ -179,7 +172,7 @@ const LoadingAnimation = ({
           style={{
             width: 6,
             height: 6,
-            borderRadius: "50%",
+            borderRadius: '50%',
             backgroundColor: secondaryColor,
             left: `calc(50% - ${outerRadius * 0.8}px)`,
             top: `calc(50% + ${outerRadius * 0.6}px)`,
@@ -191,7 +184,7 @@ const LoadingAnimation = ({
           transition={{
             duration: 1.8,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: 'easeInOut',
             delay: 0.2,
           }}
         />

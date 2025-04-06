@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // This middleware can be reused in other Next.js projects by:
 // 1. Copying this file to your project's root directory
@@ -11,17 +11,17 @@ export function middleware(request: NextRequest) {
 
   // Define public paths that don't require authentication
   // Customize these paths based on your project's auth routes
-  const isPublicPath = path === "/auth/login" || path === "/auth/register";
+  const isPublicPath = path === '/auth/login' || path === '/auth/register';
 
   // Get the token from cookies - handle both production and development environments
   const token =
-    request.cookies.get("next-auth.session-token")?.value ||
-    request.cookies.get("__Secure-next-auth.session-token")?.value ||
-    "";
+    request.cookies.get('next-auth.session-token')?.value ||
+    request.cookies.get('__Secure-next-auth.session-token')?.value ||
+    '';
 
   // Redirect authenticated users away from auth pages
   if (isPublicPath && token) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   // Allow access to public paths
@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
 
   // Redirect unauthenticated users to login
   if (!token) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
   // Allow authenticated users to access protected routes
@@ -41,10 +41,10 @@ export function middleware(request: NextRequest) {
 // Configure protected routes - customize for your project
 export const config = {
   matcher: [
-    "/workspace/:path*",
-    "/auth/login",
-    "/auth/register",
-    "/settings/:path*",
-    "/profile/:path*",
+    '/workspace/:path*',
+    '/auth/login',
+    '/auth/register',
+    '/settings/:path*',
+    '/profile/:path*',
   ],
 };

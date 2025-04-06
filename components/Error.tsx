@@ -1,10 +1,10 @@
-"use client";
-import { useSearchParams } from "next/dist/client/components/navigation";
-import Link from "next/link";
-import React from "react";
+'use client';
+import { useSearchParams } from 'next/dist/client/components/navigation';
+import Link from 'next/link';
+import React from 'react';
 
 const ErrorComponent = () => {
-  const error = useSearchParams().get("error");
+  const error = useSearchParams().get('error');
   return (
     <div className="rounded-lg p-12 text-center backdrop-blur-[40px] border border-red-500/20 shadow-2xl shadow-red-500/20">
       <div className="mb-6  animate-pulse">
@@ -26,7 +26,7 @@ const ErrorComponent = () => {
         Authentication Error
       </h1>
       <p className="text-gray-300 pb-8 text-lg">
-        {error || "An error occurred during authentication"}
+        {error || 'An error occurred during authentication'}
       </p>
       <Link
         className="px-6 py-3 text-white font-medium bg-gradient-to-r from-red-500 to-pink-500 rounded-full hover:opacity-90 transition-opacity"

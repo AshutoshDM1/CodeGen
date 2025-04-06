@@ -1,22 +1,13 @@
-import { useFullPreview, useTerminalStore } from "@/store/chatStore";
-import { motion, AnimatePresence } from "framer-motion";
-import WebContainerLoading from "./WebContainerLoading";
-
-// Helper function to clean terminal output
-export const cleanTerminalOutput = (output: string): string => {
-  return output
-    .replace(/\x1B\[[0-9;]*[JKmsu]/g, "") // Remove ANSI escape codes
-    .replace(/\[1;1H/g, "") // Remove cursor position codes
-    .replace(/\[0J/g, "") // Remove clear screen codes
-    .replace(/➜/g, ">") // Replace arrow with simple character
-    .replace(/\s+/g, " ") // Replace multiple spaces with single space
-    .trim(); // Remove leading/trailing whitespace
-};
+import { useFullPreview } from '@/store/showTabStore';
+import { useTerminalStore } from '@/store/terminalStore';
+import { motion, AnimatePresence } from 'framer-motion';
+import WebContainerLoading from './WebContainerLoading';
 
 const WebContainer = () => {
   const { url } = useTerminalStore();
-  const { isLoadingWebContainer, isLoadingWebContainerMessage } =
-    useTerminalStore((state) => state);
+  const { isLoadingWebContainer, isLoadingWebContainerMessage } = useTerminalStore(
+    (state) => state,
+  );
   const { setFullPreview } = useFullPreview();
 
   return (
@@ -27,7 +18,7 @@ const WebContainer = () => {
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -100 }}
         transition={{
-          type: "spring",
+          type: 'spring',
           stiffness: 300,
           damping: 30,
         }}
@@ -35,10 +26,7 @@ const WebContainer = () => {
       >
         <AnimatePresence mode="wait">
           {isLoadingWebContainer ? (
-            <WebContainerLoading
-              key="loading"
-              message={isLoadingWebContainerMessage}
-            />
+            <WebContainerLoading key="loading" message={isLoadingWebContainerMessage} />
           ) : url ? (
             <motion.div
               key="preview"
@@ -67,7 +55,7 @@ const WebContainer = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                      const event = new CustomEvent("reload-webcontainer");
+                      const event = new CustomEvent('reload-webcontainer');
                       window.dispatchEvent(event);
                     }}
                     className="hidden items-center gap-2 px-3 py-1.5 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
@@ -92,7 +80,7 @@ const WebContainer = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                      const event = new CustomEvent("remount-webcontainer");
+                      const event = new CustomEvent('remount-webcontainer');
                       window.dispatchEvent(event);
                     }}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
@@ -141,8 +129,8 @@ const WebContainer = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  height={"100%"}
-                  width={"100%"}
+                  height={'100%'}
+                  width={'100%'}
                   src={url}
                   allow="cross-origin-isolated"
                   sandbox="allow-same-origin allow-scripts allow-forms"

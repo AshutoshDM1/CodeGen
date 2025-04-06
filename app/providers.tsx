@@ -1,14 +1,11 @@
-"use client";
-import React from "react";
-import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/toaster";
+'use client';
+import React from 'react';
+import { SessionProvider } from 'next-auth/react';
+import { ThemeProvider } from 'next-themes';
+import { Toaster } from '@/components/ui/sonner';
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-    >
+    <ThemeProvider attribute="class" defaultTheme="dark">
       <Toaster />
       <SessionProvider>{children}</SessionProvider>
     </ThemeProvider>

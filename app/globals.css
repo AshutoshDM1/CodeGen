@@ -88,12 +88,12 @@ body {
 }
 
 /* First, reset Prism's default theme */
-code[class*="language-"],
-pre[class*="language-"] {
+code[class*='language-'],
+pre[class*='language-'] {
   color: #d4d4d4;
   background: none;
   text-shadow: none;
-  font-family: "Fira Code", Monaco, "Courier New", Courier, monospace;
+  font-family: 'Fira Code', Monaco, 'Courier New', Courier, monospace;
   font-size: 14px;
   text-align: left;
   white-space: pre;
@@ -249,9 +249,7 @@ pre[class*="language-"] {
   background: transparent;
 }
 
-
 /* scrollbar for ai chat */
-
 
 .ai-chat-scrollbar::-webkit-scrollbar {
   width: 8px;
@@ -281,8 +279,6 @@ pre[class*="language-"] {
 .ai-chat-scrollbar::-webkit-scrollbar-corner {
   background: transparent;
 }
-
-
 
 /* Fixed terminal styles for better scrolling */
 .terminal-main-container {

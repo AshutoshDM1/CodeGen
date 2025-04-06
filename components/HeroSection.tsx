@@ -1,7 +1,7 @@
-"use client";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+'use client';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const HeroSection: React.FC = () => {
   const router = useRouter();
@@ -9,10 +9,10 @@ const HeroSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const onClick = () => {
     setIsLoading(true);
-    if (session.status === "unauthenticated") {
-      router.push("/auth/login");
+    if (session.status === 'unauthenticated') {
+      router.push('/auth/login');
     } else {
-      router.push("/workspace");
+      router.push('/workspace');
     }
   };
 
@@ -21,14 +21,14 @@ const HeroSection: React.FC = () => {
       <div className="text-center font-bold text-[40px] md:text-[85px] mt-5 md:mt-0 flex flex-col justify-between items-center text-white ">
         <div className="py-12 space-y-2  px -4">
           <h1>
-            Your{" "}
+            Your{' '}
             <span className="bg-gradient-to-r from-cyan-500 to-green-500 text-transparent bg-clip-text">
               AI Powered
             </span>
           </h1>
           <h1>
             <span className="bg-gradient-to-r from-cyan-500 to-green-500 text-transparent bg-clip-text">
-              Coding{" "}
+              Coding{' '}
             </span>
             Workspace
           </h1>
@@ -39,8 +39,7 @@ const HeroSection: React.FC = () => {
             Experience the future of coding with our AI-powered platform.
           </p>
           <p className="text-start  font-sans font-light text-[20px] md:text-[23px] text-gray-200">
-            Write, deploy, and collaborate in real-time with integrated AI
-            assistance.
+            Write, deploy, and collaborate in real-time with integrated AI assistance.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mt-8">
@@ -51,7 +50,7 @@ const HeroSection: React.FC = () => {
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-[#121212] border-t-transparent rounded-full animate-spin" />
               ) : (
-                "Start Coding"
+                'Start Coding'
               )}
             </button>
 

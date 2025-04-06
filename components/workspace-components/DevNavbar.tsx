@@ -1,15 +1,14 @@
-import { Code2, Layout, Share, Terminal } from "lucide-react";
-import { Button } from "../ui/button";
-import { Show, useShowPreview } from "@/store/chatStore";
-import { ShimmerButton } from "../ui/shimmer-button";
+import { Code2, Layout, Share, Terminal } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Show, useShowTab } from '@/store/showTabStore';
+import { ShimmerButton } from '../ui/shimmer-button';
 
 const DevNavbar = ({
   setShowWorkspace,
 }: {
   setShowWorkspace: (showWorkspace: boolean) => void;
 }) => {
-  const { setShowPreview, setShowCode, setShowTerminal, showPreview } =
-    useShowPreview();
+  const { setShowPreview, setShowCode, setShowTerminal, showTab } = useShowTab();
   return (
     <div className="py-2 flex items-center justify-between px-4">
       <div className="flex items-center gap-1">
@@ -25,19 +24,19 @@ const DevNavbar = ({
 
         <div className="flex items-center gap-2 ml-2">
           <NavItem
-            active={showPreview === Show.PREVIEW}
+            active={showTab === Show.PREVIEW}
             onClick={setShowPreview}
             icon={<Layout size={16} />}
             label="Preview"
           />
           <NavItem
-            active={showPreview === Show.CODE}
+            active={showTab === Show.CODE}
             onClick={setShowCode}
             icon={<Code2 size={16} />}
             label="Code"
           />
           <NavItem
-            active={showPreview === Show.TERMINAL}
+            active={showTab === Show.TERMINAL}
             onClick={setShowTerminal}
             icon={<Terminal size={16} />}
             label="Terminal"
@@ -74,7 +73,7 @@ const NavItem = ({ icon, label, active, onClick }: NavItemProps) => {
       className={`
         hover:bg-foreground/10
         flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm
-        ${active ? " text-white" : "text-neutral-400 hover:text-white"}
+        ${active ? ' text-white' : 'text-neutral-400 hover:text-white'}
       `}
     >
       {icon}

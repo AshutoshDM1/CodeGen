@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { CheckCircle, Loader2 } from "lucide-react";
-import { getFileIcon } from "@/lib/file-utils";
+import { motion } from 'framer-motion';
+import { CheckCircle, Loader2 } from 'lucide-react';
+import { getFileIcon } from '@/lib/file-utils';
 
 interface FileUpdateIndicatorProps {
   message?: string;
-  variant?: "compact" | "full";
+  variant?: 'compact' | 'full';
   className?: string;
   filePath?: string;
   loading?: boolean;
 }
 
 const FileUpdateIndicator = ({
-  message = "Updating",
-  variant = "full",
-  className = "",
+  message = 'Updating',
+  variant = 'full',
+  className = '',
   filePath,
   loading,
 }: FileUpdateIndicatorProps) => {
   // Use the full path for the icon if available, otherwise use the filename
   const fileForIcon = filePath;
-  const fileIcon = getFileIcon(fileForIcon || "");
+  const fileIcon = getFileIcon(fileForIcon || '');
 
-  if (variant === "compact") {
+  if (variant === 'compact') {
     return (
       <motion.div
         initial={{ opacity: 0, y: 5 }}
@@ -36,9 +36,7 @@ const FileUpdateIndicator = ({
         ) : (
           <CheckCircle className="h-3 w-3 text-green-500" />
         )}
-        <span className="text-zinc-400 font-mono text-xs truncate">
-          {filePath}
-        </span>
+        <span className="text-zinc-400 font-mono text-xs truncate">{filePath}</span>
       </motion.div>
     );
   }

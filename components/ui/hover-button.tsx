@@ -1,10 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
-interface HoverButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface HoverButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
@@ -20,7 +19,7 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
         x: number;
         y: number;
         color: string;
-        fadeState: "in" | "out" | null;
+        fadeState: 'in' | 'out' | null;
       }>
     >([]);
     const lastAddedRef = React.useRef(0);
@@ -32,10 +31,7 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
         xPos * 100
       }%, var(--circle-end) ${xPos * 100}%)`;
 
-      setCircles((prev) => [
-        ...prev,
-        { id: Date.now(), x, y, color, fadeState: null },
-      ]);
+      setCircles((prev) => [...prev, { id: Date.now(), x, y, color, fadeState: null }]);
     }, []);
 
     const handlePointerMove = React.useCallback(
@@ -51,7 +47,7 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
           createCircle(x, y);
         }
       },
-      [isListening, createCircle]
+      [isListening, createCircle],
     );
 
     const handlePointerEnter = React.useCallback(() => {
@@ -67,17 +63,13 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
         if (!circle.fadeState) {
           setTimeout(() => {
             setCircles((prev) =>
-              prev.map((c) =>
-                c.id === circle.id ? { ...c, fadeState: "in" } : c
-              )
+              prev.map((c) => (c.id === circle.id ? { ...c, fadeState: 'in' } : c)),
             );
           }, 0);
 
           setTimeout(() => {
             setCircles((prev) =>
-              prev.map((c) =>
-                c.id === circle.id ? { ...c, fadeState: "out" } : c
-              )
+              prev.map((c) => (c.id === circle.id ? { ...c, fadeState: 'out' } : c)),
             );
           }, 1000);
 
@@ -91,18 +83,17 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
     // Sync refs when the local element changes
     React.useEffect(() => {
       if (localRef.current) {
-        if (typeof ref === "function") {
+        if (typeof ref === 'function') {
           ref(localRef.current);
         } else if (ref) {
           // Using a proper type for the mutable ref
-          (ref as React.MutableRefObject<HTMLButtonElement | null>).current =
-            localRef.current;
+          (ref as React.MutableRefObject<HTMLButtonElement | null>).current = localRef.current;
         }
       }
 
       // Cleanup when unmounting
       return () => {
-        if (typeof ref === "function") {
+        if (typeof ref === 'function') {
           ref(null);
         }
       };
@@ -112,17 +103,17 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
       <button
         ref={localRef}
         className={cn(
-          "relative isolate px-8 py-3 rounded-3xl",
-          "text-foreground font-medium text-base leading-6",
-          "backdrop-blur-lg bg-[rgba(43,55,80,0.1)]",
-          "cursor-pointer overflow-hidden",
+          'relative isolate px-8 py-3 rounded-3xl',
+          'text-foreground font-medium text-base leading-6',
+          'backdrop-blur-lg bg-[rgba(43,55,80,0.1)]',
+          'cursor-pointer overflow-hidden',
           "before:content-[''] before:absolute before:inset-0",
-          "before:rounded-[inherit] before:pointer-events-none",
-          "before:z-[1]",
-          "before:shadow-[inset_0_0_0_1px_rgba(170,202,255,0.2),inset_0_0_16px_0_rgba(170,202,255,0.1),inset_0_-3px_12px_0_rgba(170,202,255,0.15),0_1px_3px_0_rgba(0,0,0,0.50),0_4px_12px_0_rgba(0,0,0,0.45)]",
-          "before:mix-blend-multiply before:transition-transform before:duration-300",
-          "active:before:scale-[0.975]",
-          className
+          'before:rounded-[inherit] before:pointer-events-none',
+          'before:z-[1]',
+          'before:shadow-[inset_0_0_0_1px_rgba(170,202,255,0.2),inset_0_0_16px_0_rgba(170,202,255,0.1),inset_0_-3px_12px_0_rgba(170,202,255,0.15),0_1px_3px_0_rgba(0,0,0,0.50),0_4px_12px_0_rgba(0,0,0,0.45)]',
+          'before:mix-blend-multiply before:transition-transform before:duration-300',
+          'active:before:scale-[0.975]',
+          className,
         )}
         onPointerMove={handlePointerMove}
         onPointerEnter={handlePointerEnter}
@@ -130,8 +121,8 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
         {...props}
         style={
           {
-            "--circle-start": "var(--tw-gradient-from, #a0d9f8)",
-            "--circle-end": "var(--tw-gradient-to, #3a5bbf)",
+            '--circle-start': 'var(--tw-gradient-from, #a0d9f8)',
+            '--circle-end': 'var(--tw-gradient-to, #3a5bbf)',
           } as React.CSSProperties
         }
       >
@@ -139,11 +130,11 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
           <div
             key={id}
             className={cn(
-              "absolute w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full",
-              "blur-lg pointer-events-none z-[-1] transition-opacity duration-300",
-              fadeState === "in" && "opacity-75",
-              fadeState === "out" && "opacity-0 duration-&lsqb;1.2s&rsqb;",
-              !fadeState && "opacity-0"
+              'absolute w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full',
+              'blur-lg pointer-events-none z-[-1] transition-opacity duration-300',
+              fadeState === 'in' && 'opacity-75',
+              fadeState === 'out' && 'opacity-0 duration-&lsqb;1.2s&rsqb;',
+              !fadeState && 'opacity-0',
             )}
             style={{
               left: x,
@@ -155,9 +146,9 @@ const HoverButton = React.forwardRef<HTMLButtonElement, HoverButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
-HoverButton.displayName = "HoverButton";
+HoverButton.displayName = 'HoverButton';
 
 export { HoverButton };

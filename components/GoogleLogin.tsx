@@ -1,4 +1,4 @@
-import { signIn } from "next-auth/react";
+import { signIn } from 'next-auth/react';
 
 const GoogleLogin = () => {
   return (
@@ -7,7 +7,7 @@ const GoogleLogin = () => {
         type="button"
         className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-700 rounded-lg text-sm font-medium text-white hover:bg-white/10 transition"
         onClick={() => {
-          signIn("google", { callbackUrl: "/workspace" });
+          signIn('google', { callbackUrl: '/workspace' });
         }}
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@ const GoogleLogin = () => {
         type="button"
         className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-700 rounded-lg text-sm font-medium text-white hover:bg-white/10 transition"
         onClick={() => {
-          signIn("github", { callbackUrl: "/workspace" });
+          signIn('github', { callbackUrl: '/workspace' });
         }}
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">

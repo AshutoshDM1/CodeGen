@@ -1,26 +1,23 @@
-"use client";
-import { ResizablePanelGroup } from "@/components/ui/resizable";
-import Alert from "@/components/workspace-components/Alert";
-import AiChat from "@/components/workspace-components/AiChat";
-import CodeEditor from "@/components/workspace-components/codeEditor";
-import {
-  useChatStore,
-  useFullPreview,
-  useProjectStore,
-} from "@/store/chatStore";
-import { useEffect, useRef } from "react";
-import { useEditorCode } from "@/store/chatStore";
-import { useTerminalStore } from "@/store/chatStore";
-import { useShowPreview } from "@/store/chatStore";
-import { AnimatePresence, motion } from "framer-motion";
-import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
-import { defaultProjectFiles } from "@/store/chatStore";
-import { useParams } from "next/navigation";
+'use client';
+import { ResizablePanelGroup } from '@/components/ui/resizable';
+import Alert from '@/components/workspace-components/Alert';
+import AiChat from '@/components/workspace-components/AiChat';
+import CodeEditor from '@/components/workspace-components/codeEditor';
+import { useChatStore } from '@/store/chatStore';
+import { useEffect, useRef } from 'react';
+import { useEditorCode } from '@/store/editorStore';
+import { useTerminalStore } from '@/store/terminalStore';
+import { useFullPreview, useShowTab } from '@/store/showTabStore';
+import { AnimatePresence, motion } from 'framer-motion';
+import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
+import { defaultProjectFiles } from '@/helper/defaultProjectFiles';
+import { useParams } from 'next/navigation';
+import { useProjectStore } from '@/store/projectStore';
 
 const Dashboard = () => {
   const { fullPreview, setFullPreview } = useFullPreview();
   const { url } = useTerminalStore();
-  const { showWorkspace, setShowWorkspace } = useShowPreview();
+  const { showWorkspace, setShowWorkspace } = useShowTab();
   const { setMessages } = useChatStore();
   const { project, setProjectNull } = useProjectStore();
   const { setCode } = useEditorCode((state) => state);
@@ -30,7 +27,7 @@ const Dashboard = () => {
   const scrollToBottom = () => {
     setTimeout(() => {
       if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
       }
     }, 100);
   };
@@ -38,7 +35,7 @@ const Dashboard = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-  
+
   useEffect(() => {
     setMessages([]);
     setProjectNull();
@@ -86,7 +83,7 @@ const Dashboard = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                      const event = new CustomEvent("remount-webcontainer");
+                      const event = new CustomEvent('remount-webcontainer');
                       window.dispatchEvent(event);
                     }}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
@@ -111,7 +108,7 @@ const Dashboard = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                      const event = new CustomEvent("export-project");
+                      const event = new CustomEvent('export-project');
                       window.dispatchEvent(event);
                     }}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
@@ -162,8 +159,8 @@ const Dashboard = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  height={"100%"}
-                  width={"100%"}
+                  height={'100%'}
+                  width={'100%'}
                   src={url}
                   allow="cross-origin-isolated"
                   sandbox="allow-same-origin allow-scripts allow-forms"
@@ -174,14 +171,8 @@ const Dashboard = () => {
         ) : (
           <div key="workspaceView" className="h-screen w-full">
             <Alert />
-            <ResizablePanelGroup
-              direction="horizontal"
-              className="min-h-screen"
-            >
-              <AiChat
-                projectId={workspaceId as string}
-                messagesEndRef={messagesEndRef}
-              />
+            <ResizablePanelGroup direction="horizontal" className="min-h-screen">
+              <AiChat projectId={workspaceId as string} messagesEndRef={messagesEndRef} />
               {showWorkspace === true ? (
                 <CodeEditor />
               ) : (

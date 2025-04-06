@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import React from "react";
-import { motion } from "framer-motion";
-import { AnimatedSvg } from "../ui/animated-svg";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { AnimatedSvg } from '../ui/animated-svg';
 
 interface WebContainerLoadingProps {
   message?: string;
 }
 
 const WebContainerLoading = ({
-  message = "Building the Web Container...",
+  message = 'Building the Web Container...',
 }: WebContainerLoadingProps) => {
   return (
     <div className="flex items-center justify-center w-full h-full">
@@ -185,13 +185,13 @@ const WebContainerLoading = ({
         >
           <motion.div
             className="h-full bg-gradient-to-r from-cyan-400 to-green-400"
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
             transition={{
               duration: 8,
-              ease: "easeInOut",
+              ease: 'easeInOut',
               repeat: Infinity,
-              repeatType: "reverse",
+              repeatType: 'reverse',
             }}
           />
         </motion.div>
@@ -205,7 +205,7 @@ const WebContainerLoading = ({
           transition={{
             duration: 2,
             repeat: Infinity,
-            repeatType: "reverse",
+            repeatType: 'reverse',
           }}
         >
           Initializing environment...

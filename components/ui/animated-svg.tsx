@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import React, { useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface AnimatedSvgProps {
   className?: string;
   width?: number;
   height?: number;
-  variant?: "pulse" | "morph" | "wave" | "loader";
+  variant?: 'pulse' | 'morph' | 'wave' | 'loader';
   primaryColor?: string;
   secondaryColor?: string;
   duration?: number;
@@ -19,9 +19,9 @@ export const AnimatedSvg = ({
   className,
   width = 200,
   height = 120,
-  variant = "morph",
-  primaryColor = "rgba(0, 206, 209, 0.9)",
-  secondaryColor = "rgba(64, 224, 208, 0.5)",
+  variant = 'morph',
+  primaryColor = 'rgba(0, 206, 209, 0.9)',
+  secondaryColor = 'rgba(64, 224, 208, 0.5)',
   duration = 10,
   pathsCount = 3,
 }: AnimatedSvgProps) => {
@@ -39,10 +39,7 @@ export const AnimatedSvg = ({
 
       // Create a smooth wave-like path with random variations
       for (let x = 0; x <= width; x += 5) {
-        const y =
-          height / 2 +
-          amplitude * Math.sin(x * frequency + phaseShift) +
-          index * 15; // Offset by index
+        const y = height / 2 + amplitude * Math.sin(x * frequency + phaseShift) + index * 15; // Offset by index
 
         d += ` L ${x} ${y}`;
       }
@@ -65,7 +62,7 @@ export const AnimatedSvg = ({
     generatePathData();
 
     // Regenerate paths every few seconds for the morph effect
-    if (variant === "morph") {
+    if (variant === 'morph') {
       const interval = setInterval(() => {
         generatePathData();
       }, duration * 1000);
@@ -76,7 +73,7 @@ export const AnimatedSvg = ({
 
   const renderVariant = () => {
     switch (variant) {
-      case "morph":
+      case 'morph':
         return (
           <>
             {paths.map((path, i) => (
@@ -87,22 +84,22 @@ export const AnimatedSvg = ({
                 animate={{ d: path.d }}
                 transition={{
                   duration: duration / 2,
-                  ease: "easeInOut",
+                  ease: 'easeInOut',
                 }}
                 fill={`rgba(${parseInt(
-                  primaryColor.substring(5, 8)
+                  primaryColor.substring(5, 8),
                 )}, ${parseInt(primaryColor.substring(10, 13))}, ${parseInt(
-                  primaryColor.substring(15, 18)
+                  primaryColor.substring(15, 18),
                 )}, ${0.2 + i * 0.2})`}
                 style={{
-                  filter: "blur(10px)",
+                  filter: 'blur(10px)',
                 }}
               />
             ))}
           </>
         );
 
-      case "pulse":
+      case 'pulse':
         return (
           <g>
             <motion.circle
@@ -117,7 +114,7 @@ export const AnimatedSvg = ({
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             />
             <motion.circle
@@ -132,14 +129,14 @@ export const AnimatedSvg = ({
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
                 delay: 0.5,
               }}
             />
           </g>
         );
 
-      case "wave":
+      case 'wave':
         return (
           <g>
             {[...Array(5)].map((_, i) => (
@@ -147,13 +144,11 @@ export const AnimatedSvg = ({
                 key={i}
                 d={`M 0 ${height / 2} Q ${width / 4} ${height / 2 + 20} ${
                   width / 2
-                } ${height / 2} Q ${(3 * width) / 4} ${
-                  height / 2 - 20
-                } ${width} ${height / 2}`}
+                } ${height / 2} Q ${(3 * width) / 4} ${height / 2 - 20} ${width} ${height / 2}`}
                 stroke={`rgba(${parseInt(
-                  primaryColor.substring(5, 8)
+                  primaryColor.substring(5, 8),
                 )}, ${parseInt(primaryColor.substring(10, 13))}, ${parseInt(
-                  primaryColor.substring(15, 18)
+                  primaryColor.substring(15, 18),
                 )}, ${0.3 + i * 0.1})`}
                 strokeWidth={3}
                 fill="none"
@@ -163,33 +158,27 @@ export const AnimatedSvg = ({
                   d: [
                     `M 0 ${height / 2} Q ${width / 4} ${height / 2 + 20} ${
                       width / 2
-                    } ${height / 2} Q ${(3 * width) / 4} ${
-                      height / 2 - 20
-                    } ${width} ${height / 2}`,
+                    } ${height / 2} Q ${(3 * width) / 4} ${height / 2 - 20} ${width} ${height / 2}`,
                     `M 0 ${height / 2} Q ${width / 4} ${height / 2 - 20} ${
                       width / 2
-                    } ${height / 2} Q ${(3 * width) / 4} ${
-                      height / 2 + 20
-                    } ${width} ${height / 2}`,
+                    } ${height / 2} Q ${(3 * width) / 4} ${height / 2 + 20} ${width} ${height / 2}`,
                     `M 0 ${height / 2} Q ${width / 4} ${height / 2 + 20} ${
                       width / 2
-                    } ${height / 2} Q ${(3 * width) / 4} ${
-                      height / 2 - 20
-                    } ${width} ${height / 2}`,
+                    } ${height / 2} Q ${(3 * width) / 4} ${height / 2 - 20} ${width} ${height / 2}`,
                   ],
                 }}
                 transition={{
                   duration: 4,
                   delay: i * 0.2,
                   repeat: Infinity,
-                  ease: "easeInOut",
+                  ease: 'easeInOut',
                 }}
               />
             ))}
           </g>
         );
 
-      case "loader":
+      case 'loader':
         return (
           <g>
             <motion.circle
@@ -207,10 +196,10 @@ export const AnimatedSvg = ({
               transition={{
                 duration: 3,
                 repeat: Infinity,
-                ease: "linear",
+                ease: 'linear',
               }}
               style={{
-                transformOrigin: "center",
+                transformOrigin: 'center',
               }}
             />
             <motion.circle
@@ -228,10 +217,10 @@ export const AnimatedSvg = ({
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: "linear",
+                ease: 'linear',
               }}
               style={{
-                transformOrigin: "center",
+                transformOrigin: 'center',
               }}
             />
           </g>
@@ -245,13 +234,13 @@ export const AnimatedSvg = ({
   return (
     <motion.svg
       ref={svgRef}
-      className={cn("overflow-visible", className)}
+      className={cn('overflow-visible', className)}
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       xmlns="http://www.w3.org/2000/svg"
       style={{
-        filter: variant === "morph" ? "blur(2px)" : "none",
+        filter: variant === 'morph' ? 'blur(2px)' : 'none',
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

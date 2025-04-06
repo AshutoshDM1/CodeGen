@@ -1,98 +1,77 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Paperclip, ArrowUp, Loader2 } from "lucide-react";
-import { X } from "lucide-react";
-import { messageuser } from "@/services/api";
-import {
-  useChatStore,
-  useEditorCode,
-  useFilePaths,
-  useFileExplorer,
-  findFileContent,
-  useShowPreview,
-  useTerminalStore,
-  useUpdatingFiles,
-} from "@/store/chatStore";
-import { useState } from "react";
-import { ShinyButton } from "@/components/magicui/shiny-button";
-import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import { v4 as uuidv4 } from "uuid";
-interface AIMessage {
-  beforeMsg: string;
-  boltArtifact: {
-    title: string;
-    fileActions: Array<{
-      type: "file";
-      filePath?: string;
-      content: string;
-    }>;
-    shellActions: Array<{
-      type: "shell";
-      content: string;
-    }>;
-  };
-  afterMsg: string;
-}
+'use client';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Paperclip, ArrowUp, Loader2, X } from 'lucide-react';
+import { useChatStore } from '@/store/chatStore';
+import { useEditorCode } from '@/store/editorStore';
+import { useShowTab } from '@/store/showTabStore';
+import { useTerminalStore } from '@/store/terminalStore';
+import { useFilePaths, useUpdatingFiles, useFileExplorer } from '@/store/fileExplorerStore';
+import { findFileContent } from '@/lib/findFileContent';
+import { useState } from 'react';
+import { ShinyButton } from '@/components/magicui/shiny-button';
+import { useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
+import { v4 as uuidv4 } from 'uuid';
+import { messageuser } from '@/helper/messageReact';
+import { enhancePromptApi, errorHandler } from '@/services/api';
+import { AIMessage } from '@/types/AiResponse';
 
 export default function ChatInput({ projectId }: { projectId: string | null }) {
   const router = useRouter();
   const { setFileupdating } = useFilePaths();
-  const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } =
-    useChatStore();
+  const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } = useChatStore();
   const { EditorCode, setEditorCode } = useEditorCode();
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
   const { setFilePaths } = useFilePaths();
   const { addFileByAI } = useFileExplorer();
-  const { setShowWorkspace, setShowCode, setShowPreview } = useShowPreview();
-  const { setIsLoadingWebContainerMessage, setIsLoadingWebContainer } =
-    useTerminalStore((state) => state);
-  const { addUpdatingFiles, setUpdatingFiles, setAiThinking } =
-    useUpdatingFiles();
-  let buffer = "";
-  let buferAfter = "";
+  const { setShowWorkspace, setShowCode, setShowPreview } = useShowTab();
+  const { setIsLoadingWebContainerMessage, setIsLoadingWebContainer } = useTerminalStore(
+    (state) => state,
+  );
+  const { addUpdatingFiles, setUpdatingFiles, setAiThinking } = useUpdatingFiles();
+  const [enchancedLoadding, setEnchancedLoadding] = useState(false);
+  let buffer = '';
+  let buferAfter = '';
   const fetchData = async () => {
     try {
-      const URL =
-        process.env.NEXT_PUBLIC_API_URL ||
-        "https://codegen-server-yuxj.onrender.com";
+      const URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
       const Files = EditorCode;
       const CurrentFiles = JSON.stringify(Files);
       const prompt = inputValue;
       const messageToAI = {
-        role: "user",
+        role: 'user',
         content: `1. here all the current files which are present ${CurrentFiles} do the changes in the files 2. dont forget to update the package.json file otherwise it will not work in webcontainer.3. if user ask to make a app or website do changes in the files and make a that project currently the file have a basic Landing page so you can change that or if user ask to refine or edit the files then do the changes in the files and only in enhance the code dont change the whole project 4. ${prompt}`,
       };
 
       messageuser.messages.push(messageToAI);
 
-      const response = await fetch(`${URL}/api/chat`, {
-        method: "POST",
+      const response = await fetch(`${URL}/api/v1/ai/chat`, {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(messageuser),
       });
 
-      if (!response.body) throw new Error("No response body");
+      if (!response.body) throw new Error('No response body');
 
       const message: AIMessage = {
-        beforeMsg: "",
+        beforeMsg: '',
         boltArtifact: {
-          title: "",
+          title: '',
           fileActions: [],
           shellActions: [],
         },
-        afterMsg: "",
+        afterMsg: '',
       };
       addMessage({
-        role: "assistant",
+        role: 'assistant',
         content: {
-          startingContent: "",
+          startingContent: '',
           projectFiles: {},
-          endingContent: "",
+          endingContent: '',
         },
       });
 
@@ -103,12 +82,12 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       let isInsideFileAction = false;
       let isInsideShellAction = false;
       let currentFileAction = {
-        type: "file" as const,
-        filePath: "",
-        content: "",
+        type: 'file' as const,
+        filePath: '',
+        content: '',
       };
-      let currentShellAction = { type: "shell" as const, content: "" };
-      let accumulatedContent = "";
+      let currentShellAction = { type: 'shell' as const, content: '' };
+      let accumulatedContent = '';
       setAiThinking(false);
       while (true) {
         const { done, value } = await reader.read();
@@ -117,7 +96,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
         const chunk = new TextDecoder().decode(value);
         buffer += chunk;
 
-        if (chunk.includes("<")) {
+        if (chunk.includes('<')) {
           isBefore = true;
         }
 
@@ -125,34 +104,28 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           addAIbeforeMsg(chunk);
         }
 
-        if (buffer.includes("<boltArtifact")) {
-          const artifactMatch = buffer.match(
-            /<boltArtifact id="([^"]*)" title="([^"]*)">/
-          );
+        if (buffer.includes('<boltArtifact')) {
+          const artifactMatch = buffer.match(/<boltArtifact id="([^"]*)" title="([^"]*)">/);
           if (artifactMatch) {
             isInsideArtifact = true;
             message.boltArtifact.title = artifactMatch[2];
-            message.beforeMsg = buffer.split("<boltArtifact")[0];
-            buffer = buffer.substring(buffer.indexOf(">") + 1);
+            message.beforeMsg = buffer.split('<boltArtifact')[0];
+            buffer = buffer.substring(buffer.indexOf('>') + 1);
           }
         }
 
         if (isInsideArtifact && buffer.includes('<boltAction type="file"')) {
           isInsideFileAction = true;
-          currentFileAction = { type: "file", filePath: "", content: "" };
-          accumulatedContent = ""; // Reset accumulated content
+          currentFileAction = { type: 'file', filePath: '', content: '' };
+          accumulatedContent = ''; // Reset accumulated content
           const filePathMatch = buffer.match(/filePath="([^"]*)"/);
           if (filePathMatch) {
             currentFileAction.filePath = filePathMatch[1];
 
             // Check if file exists, if not create it
-            const fileExists = findFileContent(
-              EditorCode,
-              currentFileAction.filePath
-            );
+            const fileExists = findFileContent(EditorCode, currentFileAction.filePath);
             if (!fileExists && currentFileAction.filePath) {
-              const filename =
-                currentFileAction.filePath.split("/").pop() || "";
+              const filename = currentFileAction.filePath.split('/').pop() || '';
               // Create the file and open its parent folders
               addFileByAI(currentFileAction.filePath, filename);
               // Set the current file path
@@ -162,82 +135,78 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
             // Initialize with empty content
             if (currentFileAction.filePath) {
               setFilePaths(currentFileAction.filePath);
-              setEditorCode(currentFileAction.filePath, "");
+              setEditorCode(currentFileAction.filePath, '');
               console.log(currentFileAction.filePath);
               addUpdatingFiles([
                 {
-                  action: "Updating",
+                  action: 'Updating',
                   filePath: currentFileAction.filePath,
                 },
               ]);
             }
-            buffer = buffer.substring(buffer.indexOf(">") + 1);
+            buffer = buffer.substring(buffer.indexOf('>') + 1);
           }
         }
 
         if (isInsideFileAction) {
-          if (
-            !chunk.includes("</boltAction>") &&
-            !chunk.includes("<boltAction")
-          ) {
+          if (!chunk.includes('</boltAction>') && !chunk.includes('<boltAction')) {
             accumulatedContent += chunk;
             if (currentFileAction.filePath) {
               // First remove any XML tags at start and end
               const cleanContent = accumulatedContent
-                .replace(/^>?\s*/, "") // Remove leading '>' and whitespace
-                .replace(/\s*<\/boltAction>\s*$/, "") // Remove trailing boltAction tag
+                .replace(/^>?\s*/, '') // Remove leading '>' and whitespace
+                .replace(/\s*<\/boltAction>\s*$/, '') // Remove trailing boltAction tag
                 // Then process HTML entities and escapes
-                .replace(/\\n/g, "\n")
-                .replace(/\\t/g, "\t")
-                .replace(/\\([^\\])/g, "$1")
+                .replace(/\\n/g, '\n')
+                .replace(/\\t/g, '\t')
+                .replace(/\\([^\\])/g, '$1')
                 .replace(/\\"/g, '"')
-                .replace(/&amp;/g, "&")
-                .replace(/&lt;/g, "<")
-                .replace(/&gt;/g, ">")
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
                 .replace(/&quot;/g, '"')
                 .replace(/&#39;/g, "'")
-                .replace(/&amp;lt;/g, "<")
-                .replace(/&amp;gt;/g, ">")
-                .replace(/\{&gt;/g, "{>")
-                .replace(/&lt;\}/g, "<}")
-                .replace(/=&gt;/g, "=>")
+                .replace(/&amp;lt;/g, '<')
+                .replace(/&amp;gt;/g, '>')
+                .replace(/\{&gt;/g, '{>')
+                .replace(/&lt;\}/g, '<}')
+                .replace(/=&gt;/g, '=>')
                 .trim();
-
               setEditorCode(currentFileAction.filePath, cleanContent);
             }
           }
         }
 
-        if (isInsideFileAction && buffer.includes("</boltAction>")) {
+        if (isInsideFileAction && buffer.includes('</boltAction>')) {
           const cleanContent = accumulatedContent
-            .replace(/\\n/g, "\n")
-            .replace(/\\t/g, "\t")
-            .replace(/\\([^\\])/g, "$1")
+            .replace(/\\n/g, '\n')
+            .replace(/\\t/g, '\t')
+            .replace(/\\([^\\])/g, '$1')
             .replace(/\\"/g, '"')
-            .replace(/\/boltAction\s*$/, "")
+            .replace(/\/boltAction\s*$/, '')
             .trim();
           currentFileAction.content = cleanContent;
           message.boltArtifact.fileActions.push({ ...currentFileAction });
           isInsideFileAction = false;
-          buffer = buffer.substring(buffer.indexOf("</boltAction>") + 13);
+          buffer = buffer.substring(buffer.indexOf('</boltAction>') + 13);
         }
 
         if (isInsideArtifact && buffer.includes('<boltAction type="shell"')) {
           isInsideShellAction = true;
-          currentShellAction = { type: "shell", content: "" };
-          buffer = buffer.substring(buffer.indexOf(">") + 1);
+          currentShellAction = { type: 'shell', content: '' };
+          buffer = buffer.substring(buffer.indexOf('>') + 1);
         }
 
-        if (isInsideShellAction && buffer.includes("</boltAction>")) {
-          currentShellAction.content = buffer.split("</boltAction>")[0].trim();
+        if (isInsideShellAction && buffer.includes('</boltAction>')) {
+          currentShellAction.content = buffer.split('</boltAction>')[0].trim();
           message.boltArtifact.shellActions.push({ ...currentShellAction });
           isInsideShellAction = false;
-          buffer = buffer.substring(buffer.indexOf("</boltAction>") + 13);
+          buffer = buffer.substring(buffer.indexOf('</boltAction>') + 13);
         }
 
-        if (buffer.includes("</boltArtifact>")) {
-          buferAfter = buffer.split("</boltArtifact>")[1] || "";
-          buferAfter = buferAfter.replace(/^[>\s]+/, "").trim();
+        if (buffer.includes('</boltArtifact>')) {
+          buferAfter = buffer.split('</boltArtifact>')[1] || '';
+          buferAfter = buferAfter.replace(/^[>\s]+/, '').trim();
           if (buferAfter) {
             addAIafterMsg(chunk);
             setFileupdating(true);
@@ -247,16 +216,16 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       }
       return message;
     } catch (err) {
-      throw err;
+      errorHandler(err);
     } finally {
       setIsLoading(false);
-      setIsLoadingWebContainerMessage("Compiling the project...");
+      setIsLoadingWebContainerMessage('Compiling the project...');
       setIsLoadingWebContainer(true);
-      const event1 = new CustomEvent("updated-files");
-      await window.dispatchEvent(event1);
+      const updatedFilesEvent = new CustomEvent('updated-files');
+      window.dispatchEvent(updatedFilesEvent);
       setUpdatingFiles([]);
-      const event2 = new CustomEvent("remount-webcontainer");
-      window.dispatchEvent(event2);
+      const remountWebcontainerEvent = new CustomEvent('remount-webcontainer');
+      window.dispatchEvent(remountWebcontainerEvent);
       setShowPreview();
     }
   };
@@ -271,8 +240,8 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       router.push(`/workspace/${newId}`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
-    addMessage({ role: "user", content: inputValue });
-    setInputValue("");
+    addMessage({ role: 'user', content: inputValue });
+    setInputValue('');
     setShowWorkspace(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setShowCode();
@@ -287,16 +256,10 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
 
   const enhancePrompt = async (inputValue: string) => {
     try {
-      const URL = "http://localhost:4000/api/refinePrompt";
-      const response: Response = await fetch(URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt: inputValue }),
-      });
-      if (!response.body) throw new Error("No response body");
-      setInputValue(""); // First clear the input
+      setEnchancedLoadding(true);
+      const response: Response | undefined = await enhancePromptApi(inputValue);
+      if (!response?.body) throw new Error('No response body');
+      setInputValue(''); // First clear the input
       const reader = response.body.getReader();
       while (true) {
         const { done, value } = await reader.read();
@@ -307,7 +270,9 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
         });
       }
     } catch (err) {
-      console.log(err);
+      errorHandler(err);
+    } finally {
+      setEnchancedLoadding(false);
     }
   };
 
@@ -318,13 +283,13 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -10 }}
         transition={{
-          type: "spring",
+          type: 'spring',
           stiffness: 300,
           damping: 30,
           duration: 1,
         }}
         className={`w-full ${
-          projectId === null ? "max-w-3xl self-center" : ""
+          projectId === null ? 'max-w-3xl self-center' : ''
         } border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 `}
       >
         {/* Premium Banner */}
@@ -334,10 +299,15 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           </p>
           <div className="w-fit flex items-center gap-2">
             <ShinyButton
+              disabled={enchancedLoadding}
               onClick={() => enhancePrompt(inputValue)}
-              className="h-fit flex min-w-fit text-black"
+              className="min-h-[2.2rem] min-w-[12rem] flex text-black"
             >
-              Enhance Prompt
+              {enchancedLoadding ? (
+                <Loader2 className="h-4 w-4 animate-spin self-center" />
+              ) : (
+                'Enhance Prompt'
+              )}
             </ShinyButton>
             <Button
               variant="default"
@@ -359,7 +329,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
             <div className="flex items-center gap-2 w-full">
               <textarea
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey && !isLoading) {
+                  if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
                     e.preventDefault();
                     handleSubmit();
                   }
@@ -369,7 +339,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
                 className="w-full border-0  focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent resize-none   min-h-[52px] p-2"
                 placeholder="Ask CodeGen AI a question..."
                 rows={1}
-                style={{ overflow: "hidden" }}
+                style={{ overflow: 'hidden' }}
               />
               <div className="flex items-center gap-2">
                 <Button
@@ -384,7 +354,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
                       <span className="sr-only">Loading...</span>
                     </>
                   ) : (
-                    "Submit"
+                    'Submit'
                   )}
                 </Button>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -399,9 +369,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
                 <span className="sr-only">Attach file</span>
               </Button>
               <Button variant="ghost" size="icon" className="h-9 w-9">
-                <span className="h-5 w-5 flex items-center justify-center font-bold">
-                  ⌘
-                </span>
+                <span className="h-5 w-5 flex items-center justify-center font-bold">⌘</span>
                 <span className="sr-only">Command</span>
               </Button>
             </div>

@@ -3,52 +3,52 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
       },
       {
-        protocol: "https",
-        hostname: "github.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'github.com',
+        pathname: '/**',
       },
     ],
   },
   async headers() {
     return [
       {
-        source: "/:path*",
+        source: '/:path*',
         headers: [
           {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "require-corp",
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
           },
           {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
           },
         ],
       },
       {
-        source: "/api/:path*",
+        source: '/api/:path*',
         headers: [
           {
-            key: "Access-Control-Allow-Origin",
-            value: "*",
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
           },
           {
-            key: "Cross-Origin-Resource-Policy",
-            value: "cross-origin",
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'cross-origin',
           },
         ],
       },
       {
         // Add headers for external images
-        source: "/:path*",
+        source: '/:path*',
         headers: [
           {
-            key: "Cross-Origin-Resource-Policy",
-            value: "cross-origin",
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'cross-origin',
           },
         ],
       },

@@ -1,8 +1,8 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import GoogleLogin from "@/components/GoogleLogin";
-import { signIn } from "next-auth/react";
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import GoogleLogin from '@/components/GoogleLogin';
+import { signIn } from 'next-auth/react';
 
 type SendLoginUserdata = {
   email: string;
@@ -15,20 +15,20 @@ type SendLoginUserdata = {
 const LoginPage = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const sendUserdata: SendLoginUserdata = {
       email,
       password,
-      callbackUrl: "/workspace",
-      action: "login",
+      callbackUrl: '/workspace',
+      action: 'login',
       redirect: true,
     };
     setIsLoading(true);
-    await signIn("credentials", sendUserdata);
+    await signIn('credentials', sendUserdata);
     setIsLoading(false);
   };
 
@@ -55,9 +55,7 @@ const LoginPage = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-200">
-              Password
-            </label>
+            <label className="text-sm font-medium text-gray-200">Password</label>
             <input
               type="password"
               value={password}
@@ -80,7 +78,7 @@ const LoginPage = () => {
             <button
               type="button"
               className="text-sm text-cyan-500 hover:text-cyan-400"
-              onClick={() => router.push("/auth/forgot-password")}
+              onClick={() => router.push('/auth/forgot-password')}
             >
               Forgot password?
             </button>
@@ -94,17 +92,17 @@ const LoginPage = () => {
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
             ) : (
-              "Sign in"
+              'Sign in'
             )}
           </button>
         </form>
         <GoogleLogin />
         <div className="text-center">
           <span className="text-gray-400 text-sm">
-            Don&apos;t have an account?{" "}
+            Don&apos;t have an account?{' '}
             <button
               type="button"
-              onClick={() => router.push("/auth/register")}
+              onClick={() => router.push('/auth/register')}
               className="text-[#2adcff] hover:text-cyan-400 hover:underline "
             >
               Register

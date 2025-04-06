@@ -1,7 +1,7 @@
-"use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { getFileIcon } from "@/lib/file-utils";
+'use client';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { getFileIcon } from '@/lib/file-utils';
 
 interface AIMarkdownParserProps {
   content: string;
@@ -12,10 +12,7 @@ interface AIMarkdownParserProps {
     | Array<{ action: string; filePath: string }>;
 }
 
-export const AIMarkdownParser = ({
-  content,
-  animate = true,
-}: AIMarkdownParserProps) => {
+export const AIMarkdownParser = ({ content, animate = true }: AIMarkdownParserProps) => {
   const [parsedContent, setParsedContent] = useState<JSX.Element[]>([]);
 
   useEffect(() => {
@@ -26,13 +23,10 @@ export const AIMarkdownParser = ({
   // Check for file lists in the content and try to extract them even if they don't match the regex
   useEffect(() => {
     // This is a backup approach to extract file references if the regex fails
-    if (content && content.includes("*") && content.includes("`")) {
-      const lines = content.split("\n");
+    if (content && content.includes('*') && content.includes('`')) {
+      const lines = content.split('\n');
       const fileLines = lines.filter(
-        (line) =>
-          line.includes("*") &&
-          line.includes("`") &&
-          line.trim().startsWith("*")
+        (line) => line.includes('*') && line.includes('`') && line.trim().startsWith('*'),
       );
 
       // Additional detection for the specific bulleted format with 3 spaces
@@ -57,16 +51,12 @@ export const AIMarkdownParser = ({
     }
   }, [content]);
 
-  return (
-    <div className="ai-markdown-parser prose prose-invert max-w-none">
-      {parsedContent}
-    </div>
-  );
+  return <div className="ai-markdown-parser prose prose-invert max-w-none">{parsedContent}</div>;
 };
 
 // Main parser function
 const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
-  const lines = content.split("\n").filter((line) => line.trim() !== "");
+  const lines = content.split('\n').filter((line) => line.trim() !== '');
   const parsedElements: JSX.Element[] = [];
 
   let inNumberedList = false;
@@ -82,18 +72,14 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
     // Enhanced detection for any bullet points with backticks
     // This will handle all variations of the AI's file listing format
     const bulletWithFile =
-      trimmedLine.startsWith("*") &&
-      trimmedLine.includes("`") &&
-      !trimmedLine.includes("```");
+      trimmedLine.startsWith('*') && trimmedLine.includes('`') && !trimmedLine.includes('```');
 
     // Check for numbered list (e.g., "1. Item")
     const numberedMatch = trimmedLine.match(/^(\d+)\.\s(.+)$/);
 
     // Check for file list items that start with an asterisk (e.g., "* `file.js`")
     // Also handle format with multiple spaces after asterisk (e.g., "*   `file.js`")
-    const fileListMatch = trimmedLine.match(
-      /^\*\s{1,3}(?:\\?`|`)([^`]+)(?:\\?`|`)\s*(.*)$/
-    );
+    const fileListMatch = trimmedLine.match(/^\*\s{1,3}(?:\\?`|`)([^`]+)(?:\\?`|`)\s*(.*)$/);
 
     // Special check for the exact format AI often uses: "*   `filename.js`"
     const aiStyleMatch = fileListMatch
@@ -113,8 +99,8 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
     const isFileReference = actualFileListMatch || standaloneFileMatch;
 
     // Extract filename and description from either match
-    let filename = "";
-    let description = "";
+    let filename = '';
+    let description = '';
     if (actualFileListMatch) {
       [, filename, description] = actualFileListMatch;
     } else if (standaloneFileMatch) {
@@ -142,7 +128,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
               className="pl-6 mb-4"
             >
               {fileItems}
-            </motion.div>
+            </motion.div>,
           );
           fileItems = [];
           inFileList = false;
@@ -166,7 +152,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
             {number}
           </div>
           <div className="flex-1">{text}</div>
-        </motion.div>
+        </motion.div>,
       );
     } else if (isFileReference) {
       // If this is the first file item, start a new file list
@@ -184,7 +170,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
               className="mb-4"
             >
               {listItems}
-            </motion.div>
+            </motion.div>,
           );
           listItems = [];
           inNumberedList = false;
@@ -211,14 +197,10 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
             {fileIcon}
           </div>
           <div className="flex-1">
-            <code className="text-sm font-mono text-emerald-300 font-semibold">
-              {filename}
-            </code>
-            {description && (
-              <p className="text-xs text-zinc-400 mt-1">{description}</p>
-            )}
+            <code className="text-sm font-mono text-emerald-300 font-semibold">{filename}</code>
+            {description && <p className="text-xs text-zinc-400 mt-1">{description}</p>}
           </div>
-        </motion.div>
+        </motion.div>,
       );
     } else {
       // Process any pending lists before adding a regular paragraph
@@ -232,7 +214,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
             className="mb-4"
           >
             {listItems}
-          </motion.div>
+          </motion.div>,
         );
         listItems = [];
         inNumberedList = false;
@@ -249,7 +231,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
             className="pl-6 mb-4"
           >
             {fileItems}
-          </motion.div>
+          </motion.div>,
         );
         fileItems = [];
         inFileList = false;
@@ -266,7 +248,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
           className="mb-4"
         >
           {trimmedLine}
-        </motion.p>
+        </motion.p>,
       );
       currentIndex++;
     }
@@ -283,7 +265,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
         className="mb-4"
       >
         {listItems}
-      </motion.div>
+      </motion.div>,
     );
     currentIndex++;
   }
@@ -298,7 +280,7 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
         className="pl-6 mb-4"
       >
         {fileItems}
-      </motion.div>
+      </motion.div>,
     );
   }
 
