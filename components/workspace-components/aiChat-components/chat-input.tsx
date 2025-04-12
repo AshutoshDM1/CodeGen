@@ -12,15 +12,19 @@ import { useState } from 'react';
 import { ShinyButton } from '@/components/magicui/shiny-button';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { v4 as uuidv4 } from 'uuid';
 import { messageuser } from '@/helper/messageReact';
-import { enhancePromptApi, errorHandler } from '@/services/api';
+import { createMessage, createProject, enhancePromptApi, errorHandler } from '@/services/api';
 import { AIMessage } from '@/types/AiResponse';
+import { useSession } from 'next-auth/react';
+import { useProjectStore } from '@/store/projectStore';
+import { BorderBeam } from '@/components/magicui/border-beam';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 export default function ChatInput({ projectId }: { projectId: string | null }) {
   const router = useRouter();
   const { setFileupdating } = useFilePaths();
   const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } = useChatStore();
+  const { project, setProject } = useProjectStore();
   const { EditorCode, setEditorCode } = useEditorCode();
   const [inputValue, setInputValue] = useState('');
   const { setFilePaths } = useFilePaths();
@@ -31,6 +35,9 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
   );
   const { addUpdatingFiles, setUpdatingFiles, setAiThinking } = useUpdatingFiles();
   const [enchancedLoadding, setEnchancedLoadding] = useState(false);
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
+
   let buffer = '';
   let buferAfter = '';
   const fetchData = async () => {
@@ -230,25 +237,80 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
     }
   };
 
+  const createMessageMutation = useMutation({
+    mutationFn: async ({
+      message,
+      role,
+      id,
+    }: {
+      message: string;
+      role: 'user' | 'assistant';
+      id: number;
+    }) => {
+      return createMessage(message, role, id);
+    },
+    onSuccess: () => {
+      if (projectId) {
+        const numericProjectId = parseInt(projectId.split('-')[1]);
+        queryClient.invalidateQueries({ queryKey: ['messages', numericProjectId] });
+      }
+    },
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: async ({ userEmail, projectName }: { userEmail: string; projectName: string }) => {
+      return createProject(userEmail, projectName);
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+
+      const projectResponse = data.data;
+      setProject({
+        id: projectResponse?.response?.id,
+        projectName: inputValue.split(' ').slice(0, 3).join(' '),
+        projectDescription: 'this is a react project',
+        createdAt: new Date().toISOString(),
+      });
+
+      createMessageMutation.mutate({
+        message: inputValue,
+        role: 'user',
+        id: projectResponse?.response?.id,
+      });
+
+      router.push(`/workspace/projectId-${projectResponse?.response?.id}`);
+    },
+  });
+
   const handleSubmit = async () => {
-    if (!inputValue.trim()) return;
-    setIsLoading(true);
-    setAiThinking(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (projectId === null) {
-      const newId = uuidv4();
-      router.push(`/workspace/${newId}`);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-    addMessage({ role: 'user', content: inputValue });
-    setInputValue('');
-    setShowWorkspace(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setShowCode();
     try {
+      if (!inputValue.trim()) return;
+      setIsLoading(true);
+      setAiThinking(true);
+
+      addMessage({ role: 'user', content: inputValue });
+
+      if (projectId === null) {
+        createProjectMutation.mutate({
+          userEmail: session?.user?.email as string,
+          projectName: inputValue,
+        });
+      } else {
+        const numericProjectId = parseInt(projectId.split('-')[1]);
+        createMessageMutation.mutate({
+          message: inputValue,
+          role: 'user',
+          id: numericProjectId,
+        });
+      }
+
+      setInputValue('');
+      setShowWorkspace(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setShowCode();
       await fetchData();
     } catch (error) {
-      console.error(error);
+      errorHandler(error);
     } finally {
       setIsLoading(false);
     }

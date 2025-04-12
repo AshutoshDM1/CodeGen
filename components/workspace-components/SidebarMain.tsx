@@ -14,8 +14,8 @@ const SidebarMain = () => {
       ),
     },
     {
-      label: 'Library',
-      href: '#',
+      label: 'Projects',
+      href: '/workspace/projects',
       icon: (
         <div className="border-[1.5px] border-zinc-700 hover:bg-zinc-700 rounded-lg p-[7px]">
           <BookOpen className="w-[15px] h-[15px] font-[300] text-neutral-200" />
@@ -23,7 +23,7 @@ const SidebarMain = () => {
       ),
     },
     {
-      label: 'Projects',
+      label: 'Workspace',
       href: '/workspace/default',
       icon: (
         <div className="border-[1.5px] border-zinc-700 hover:bg-zinc-700 rounded-lg p-[7px]">

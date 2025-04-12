@@ -2,17 +2,16 @@ import { create } from 'zustand';
 import { projectFiles } from '@/types/webContainerFiles';
 import { Message } from './chatStore';
 
-type project = {
+export type Project = {
+  id: number;
   projectName: string;
-  projectId: string;
   projectDescription: string;
-  lastUpdatedCode: projectFiles;
-  messages: Message[];
+  createdAt: string;
 };
 
 interface projectStore {
-  project: project | null;
-  setProject: (project: project) => void;
+  project: Project | null;
+  setProject: (project: Project) => void;
   setProjectNull: () => void;
 }
 

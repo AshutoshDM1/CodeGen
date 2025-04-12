@@ -318,7 +318,7 @@ const CodeEditor = () => {
                       <ResizableHandle />
                       <ResizablePanel minSize={15} maxSize={100} defaultSize={80}>
                         <div className="py-2 px-3 text- text-neutral-200 border-b-[1.5px] border-border font-[inherit]  flex items-center justify-between">
-                          <h1 className="text-sm">{filePaths}</h1>
+                          <h1 className="text-sm font-medium">{filePaths}</h1>
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -330,7 +330,7 @@ const CodeEditor = () => {
                               });
                               window.dispatchEvent(event);
                             }}
-                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
+                            className="flex items-center gap-2 px-3 py-1 text-sm text-neutral-300 hover:text-white bg-[#111] rounded-md transition-colors"
                           >
                             {isSavingFiles ? (
                               <div className="min-w-16 flex justify-center items-center gap-2">

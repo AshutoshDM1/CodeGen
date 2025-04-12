@@ -5,11 +5,12 @@ const URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export const errorHandler = (err: unknown) => {
   if (err instanceof Error) {
-    toast.info(err.name as string, {
+    console.log(err.name, err.message);
+    toast.success(err.name as string, {
       description: err.message,
     });
   } else {
-    toast.info('An unknown error occurred view in console.');
+    toast.error('An unknown error occurred view in console.');
     console.error(err);
   }
 };
@@ -29,4 +30,48 @@ const enhancePromptApi = async (inputValue: string) => {
   }
 };
 
+const createProject = async (userEmail: string, projectName: string) => {
+  try {
+    const response = await axios.post(`${URL}/api/v1/project/createProject`, {
+      userEmail,
+      projectName,
+      projectDescription: 'this is a react project',
+    });
+    console.log(response);
+    toast.success('Project created successfully');
+    return response;
+  } catch (err) {
+    errorHandler(err);
+  }
+};
+const getALLProject = async (userEmail: string) => {
+  try {
+    let response: Response = await axios.post(`${URL}/api/v1/project/getAllProject`, {
+      userEmail,
+    });
+    return response;
+  } catch (err) {
+    errorHandler(err);
+  }
+};
+
+const createMessage = async (message: string, role: 'user' | 'assistant', projectId: number) => {
+  try {
+    const response: Response = await axios.post(`${URL}/api/v1/message/createMessage`, {
+      message: { role: role, content: message },
+      projectId,
+    });
+    return response;
+  } catch (err) {
+    errorHandler(err);
+  }
+};
+
+// AI endpoints
 export { enhancePromptApi };
+
+// Project endpoints
+export { createProject, getALLProject };
+
+// Message endpoints
+export { createMessage };

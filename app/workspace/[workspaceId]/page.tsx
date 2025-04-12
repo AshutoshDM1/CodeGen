@@ -13,7 +13,6 @@ import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button
 import { defaultProjectFiles } from '@/helper/defaultProjectFiles';
 import { useParams } from 'next/navigation';
 import { useProjectStore } from '@/store/projectStore';
-
 const Dashboard = () => {
   const { fullPreview, setFullPreview } = useFullPreview();
   const { url } = useTerminalStore();
@@ -31,24 +30,22 @@ const Dashboard = () => {
       }
     }, 100);
   };
-
+  // const projectId = workspaceId as string;
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    setMessages([]);
-    setProjectNull();
-    setCode(defaultProjectFiles);
-  }, []);
+  // useEffect(() => {
+  //   setCode(defaultProjectFiles);
+  // }, []);
 
-  useEffect(() => {
-    if (project) {
-      setCode(project.lastUpdatedCode);
-      setMessages(project.messages);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project]);
+  // useEffect(() => {
+  //   if (project) {
+  //     setCode(project.lastUpdatedCode);
+  //     setMessages(project.messages);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [project]);
   // Define startDevServer with useCallback
 
   return (

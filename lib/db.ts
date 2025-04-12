@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '.prisma/client';
 
 // Disable ESLint's no-var rule only for the global declaration
 /* eslint-disable no-var */

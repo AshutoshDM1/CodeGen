@@ -79,15 +79,83 @@ export const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: any; user: any }) {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google' || account?.provider === 'github') {
+        try {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! },
+            include: {
+              accounts: true,
+            },
+          });
+
+          if (!existingUser) {
+            // Create new user and account
+            await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name || '',
+                accounts: {
+                  create: {
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    access_token: account.access_token,
+                    expires_at: account.expires_at,
+                    token_type: account.token_type,
+                    scope: account.scope,
+                    id_token: account.id_token,
+                  },
+                },
+              },
+            });
+          } else {
+            // If user exists but doesn't have this OAuth account
+            const existingAccount = existingUser.accounts.find(
+              (acc: any) => acc.provider === account.provider,
+            );
+
+            if (!existingAccount) {
+              await prisma.account.create({
+                data: {
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                },
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error in signIn callback:', error);
+          return false;
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
+        // Find the user in database to get the correct ID
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.email = dbUser.email;
+        }
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
+        // Make sure to use the correct ID from the token
+        session.user.id = token.id as number;
       }
       return session;
     },
