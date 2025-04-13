@@ -1,15 +1,14 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getMessage } from '@/services/getMessage';
-import { useState, useEffect, useRef } from 'react';
-import { Message } from '@/store/chatStore';
 import { toast } from 'sonner';
-import { LoaderCircle } from 'lucide-react';
+import { useRef, useEffect } from 'react';
+import { ProcessedMessage } from '@/types/messages';
 
 interface MessageManagerProps {
   projectId: string | null;
-  onMessagesLoaded: (messages: any[]) => void;
+  onMessagesLoaded: (messages: ProcessedMessage[]) => void;
   children: React.ReactNode;
 }
 
@@ -18,8 +17,7 @@ export default function MessageManager({
   onMessagesLoaded,
   children,
 }: MessageManagerProps) {
-  const queryClient = useQueryClient();
-  const prevMessagesRef = useRef<any[]>([]);
+  const prevMessagesRef = useRef<ProcessedMessage[]>([]);
 
   // Extract numeric project ID
   const numericProjectId = projectId ? parseInt(projectId.split('-')[1]) : null;
@@ -27,7 +25,6 @@ export default function MessageManager({
   // Fetch messages with React Query
   const {
     data: messages = [],
-    isLoading,
     isError,
     error,
   } = useQuery({
@@ -50,8 +47,8 @@ export default function MessageManager({
         JSON.stringify(prevMessages) !== JSON.stringify(messages);
 
       if (messagesChanged) {
-        prevMessagesRef.current = messages;
-        onMessagesLoaded(messages);
+        prevMessagesRef.current = messages as ProcessedMessage[];
+        onMessagesLoaded(messages as ProcessedMessage[]);
       }
     }
   }, [messages, onMessagesLoaded]);

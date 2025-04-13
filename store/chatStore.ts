@@ -24,15 +24,37 @@ interface ChatStore {
   addAIbeforeMsg: (chunk: string) => void;
   addAIafterMsg: (chunk: string) => void;
   setUpdatedFilesChat: (updatedFiles: Array<{ action: string; filePath: string }>) => void;
+  updatingFiles: Array<{ action: string; filePath: string }>;
+  setUpdatingFiles: (files: Array<{ action: string; filePath: string }>) => void;
+  aiThinking: boolean;
+  setAiThinking: (aiThinking: boolean) => void;
+  addUpdatingFiles: (files: Array<{ action: string; filePath: string }>) => void;
 }
+
+interface UpdatingFiles {}
 
 export const useChatStore = create<ChatStore>((set) => ({
   messages: [],
   isLoading: false,
+  aiThinking: false,
+  updatingFiles: [],
+  setAiThinking: (aiThinking: boolean) => set({ aiThinking }),
+  setUpdatingFiles: (files) => set({ updatingFiles: files }),
+  addUpdatingFiles: (files: Array<{ action: string; filePath: string }>) =>
+    set((state) => {
+      // Filter out any files that already exist with same path and action
+      const newFiles = files.filter(
+        (newFile) =>
+          !state.updatingFiles.some(
+            (existingFile) =>
+              existingFile.filePath === newFile.filePath && existingFile.action === newFile.action,
+          ),
+      );
+      return { updatingFiles: [...state.updatingFiles, ...newFiles] };
+    }),
   setMessages: (messages) => set({ messages }),
   setUpdatedFilesChat: (updatedFiles: Array<{ action: string; filePath: string }>) =>
     set((state) => {
-      console.log(updatedFiles);
       const messages = [...state.messages];
       const lastMessage = messages[messages.length - 1];
       if (lastMessage && lastMessage.role === 'assistant') {
@@ -89,35 +111,3 @@ export const useChatStore = create<ChatStore>((set) => ({
   clearMessages: () => set({ messages: [] }),
   setIsLoading: (loading) => set({ isLoading: loading }),
 }));
-
-// interface CodeStore {
-//   code: Array<file | command>;
-//   setCode: (code: Array<file | command>) => void;
-//   addChunkfile: (chunk: string, filePath: string) => void;
-//   addChunkcommand: (chunk: string) => void;
-// }
-
-// export const useCodeStore = create<CodeStore>((set) => ({
-//   code: [],
-//   setCode: (code) => set({ code }),
-//   addChunkfile: (chunk: string, filePath: string) =>
-//     set((state) => {
-//       const code = [...state.code];
-//       const item = code.find((item) => item.type === 'file' && item.filePath === filePath);
-//       if (item) {
-//         item.content += chunk;
-//       } else {
-//         code.push({ filePath, content: chunk, type: 'file' });
-//       }
-//       return { code };
-//     }),
-//   addChunkcommand: (chunk: string) =>
-//     set((state) => {
-//       const code = [...state.code];
-//       const item = code.find((item) => item.type === 'shell');
-//       if (item) {
-//         code.push({ type: 'shell', content: chunk });
-//       }
-//       return { code };
-//     }),
-// }));

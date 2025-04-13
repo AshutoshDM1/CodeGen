@@ -34,33 +34,6 @@ export const useFileExplorerOpenStates = create<FileExplorerOpenStates>((set) =>
     }),
 }));
 
-interface UpdatingFiles {
-  updatingFiles: Array<{ action: string; filePath: string }>;
-  setUpdatingFiles: (files: Array<{ action: string; filePath: string }>) => void;
-  aiThinking: boolean;
-  setAiThinking: (aiThinking: boolean) => void;
-  addUpdatingFiles: (files: Array<{ action: string; filePath: string }>) => void;
-}
-
-export const useUpdatingFiles = create<UpdatingFiles>((set) => ({
-  aiThinking: false,
-  updatingFiles: [],
-  setAiThinking: (aiThinking: boolean) => set({ aiThinking }),
-  setUpdatingFiles: (files) => set({ updatingFiles: files }),
-  addUpdatingFiles: (files: Array<{ action: string; filePath: string }>) =>
-    set((state) => {
-      // Filter out any files that already exist with same path and action
-      const newFiles = files.filter(
-        (newFile) =>
-          !state.updatingFiles.some(
-            (existingFile) =>
-              existingFile.filePath === newFile.filePath && existingFile.action === newFile.action,
-          ),
-      );
-      return { updatingFiles: [...state.updatingFiles, ...newFiles] };
-    }),
-}));
-
 interface FileExplorer {
   fileExplorer: FileItem[];
   setFileExplorer: (fileExplorer: FileItem[]) => void;

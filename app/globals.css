@@ -265,15 +265,16 @@ pre[class*='language-'] {
 }
 
 .ai-chat-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #424242;
-  border-radius: 4px;
+  background-color: #383838c0;
+  border-radius: 0px;
+  margin-right: 2px;
   cursor: pointer;
   transition: all;
   transition-duration: 600ms;
 }
 
 .ai-chat-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #42424288;
+  background-color: rgba(66, 66, 66, 0.842);
 }
 
 .ai-chat-scrollbar::-webkit-scrollbar-corner {

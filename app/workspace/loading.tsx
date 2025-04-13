@@ -1,7 +1,5 @@
 'use client';
-
 import CatLoading from '@/components/CatLoading';
-import { motion } from 'framer-motion';
 
 export default function Loading() {
   return (

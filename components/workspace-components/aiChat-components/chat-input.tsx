@@ -2,11 +2,11 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Paperclip, ArrowUp, Loader2, X } from 'lucide-react';
-import { useChatStore } from '@/store/chatStore';
+import { AIResponse, useChatStore } from '@/store/chatStore';
 import { useEditorCode } from '@/store/editorStore';
 import { useShowTab } from '@/store/showTabStore';
 import { useTerminalStore } from '@/store/terminalStore';
-import { useFilePaths, useUpdatingFiles, useFileExplorer } from '@/store/fileExplorerStore';
+import { useFilePaths, useFileExplorer } from '@/store/fileExplorerStore';
 import { findFileContent } from '@/lib/findFileContent';
 import { useState } from 'react';
 import { ShinyButton } from '@/components/magicui/shiny-button';
@@ -17,14 +17,14 @@ import { createMessage, createProject, enhancePromptApi, errorHandler } from '@/
 import { AIMessage } from '@/types/AiResponse';
 import { useSession } from 'next-auth/react';
 import { useProjectStore } from '@/store/projectStore';
-import { BorderBeam } from '@/components/magicui/border-beam';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 export default function ChatInput({ projectId }: { projectId: string | null }) {
   const router = useRouter();
   const { setFileupdating } = useFilePaths();
-  const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } = useChatStore();
-  const { project, setProject } = useProjectStore();
+  const { messages, addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } =
+    useChatStore();
+  const { setProject } = useProjectStore();
   const { EditorCode, setEditorCode } = useEditorCode();
   const [inputValue, setInputValue] = useState('');
   const { setFilePaths } = useFilePaths();
@@ -33,7 +33,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
   const { setIsLoadingWebContainerMessage, setIsLoadingWebContainer } = useTerminalStore(
     (state) => state,
   );
-  const { addUpdatingFiles, setUpdatingFiles, setAiThinking } = useUpdatingFiles();
+  const { addUpdatingFiles, setUpdatingFiles, setAiThinking } = useChatStore();
   const [enchancedLoadding, setEnchancedLoadding] = useState(false);
   const { data: session } = useSession();
   const queryClient = useQueryClient();
@@ -49,12 +49,12 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       const prompt = inputValue;
       const messageToAI = {
         role: 'user',
-        content: `1. here all the current files which are present ${CurrentFiles} do the changes in the files 2. dont forget to update the package.json file otherwise it will not work in webcontainer.3. if user ask to make a app or website do changes in the files and make a that project currently the file have a basic Landing page so you can change that or if user ask to refine or edit the files then do the changes in the files and only in enhance the code dont change the whole project 4. ${prompt}`,
+        content: `1. here all the current files which are present ${CurrentFiles} do the changes in the files. User - ${prompt}`,
       };
 
       messageuser.messages.push(messageToAI);
 
-      const response = await fetch(`${URL}/api/v1/ai/chat`, {
+      const response = await fetch(`${URL}/api/v1/ai/chatDemo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -221,11 +221,16 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           }
         }
       }
+      createMessageMutation.mutate({
+        message: messages[messages.length - 1].content,
+        role: 'assistant',
+        id: parseInt(projectId?.split('-')[1] as string),
+      });
+      setIsLoading(false);
       return message;
     } catch (err) {
       errorHandler(err);
     } finally {
-      setIsLoading(false);
       setIsLoadingWebContainerMessage('Compiling the project...');
       setIsLoadingWebContainer(true);
       const updatedFilesEvent = new CustomEvent('updated-files');
@@ -243,7 +248,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       role,
       id,
     }: {
-      message: string;
+      message: string | AIResponse;
       role: 'user' | 'assistant';
       id: number;
     }) => {
@@ -271,14 +276,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
         projectDescription: 'this is a react project',
         createdAt: new Date().toISOString(),
       });
-
-      createMessageMutation.mutate({
-        message: inputValue,
-        role: 'user',
-        id: projectResponse?.response?.id,
-      });
-
-      router.push(`/workspace/projectId-${projectResponse?.response?.id}`);
+      router.push(`/workspace/projectId-${projectResponse?.response?.id}`, { scroll: false });
     },
   });
 
@@ -287,23 +285,22 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       if (!inputValue.trim()) return;
       setIsLoading(true);
       setAiThinking(true);
-
-      addMessage({ role: 'user', content: inputValue });
-
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       if (projectId === null) {
-        createProjectMutation.mutate({
+        await createProjectMutation.mutate({
           userEmail: session?.user?.email as string,
-          projectName: inputValue,
+          projectName: inputValue.split(' ').slice(0, 3).join(' '),
         });
       } else {
         const numericProjectId = parseInt(projectId.split('-')[1]);
-        createMessageMutation.mutate({
+        await createMessageMutation.mutate({
           message: inputValue,
           role: 'user',
           id: numericProjectId,
         });
       }
-
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      addMessage({ role: 'user', content: inputValue });
       setInputValue('');
       setShowWorkspace(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -311,8 +308,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       await fetchData();
     } catch (error) {
       errorHandler(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -390,6 +385,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           <div className="flex flex-col items-start px-1 py-2">
             <div className="flex items-center gap-2 w-full">
               <textarea
+                suppressHydrationWarning
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
                     e.preventDefault();
@@ -398,16 +394,17 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
                 }}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="w-full border-0  focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent resize-none   min-h-[52px] p-2"
+                className="w-full border-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent resize-none min-h-[52px] p-2"
                 placeholder="Ask CodeGen AI a question..."
                 rows={1}
                 style={{ overflow: 'hidden' }}
+                data-tribute="true"
               />
               <div className="flex items-center gap-2">
                 <Button
                   disabled={isLoading}
                   variant="ghost"
-                  className="h-8 bg-zinc-900 hover:bg-zinc-800"
+                  className="h-8 min-w-20 bg-zinc-900 hover:bg-zinc-800"
                   onClick={handleSubmit}
                 >
                   {isLoading ? (

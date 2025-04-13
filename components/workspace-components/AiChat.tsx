@@ -13,9 +13,9 @@ import { MorphingText } from '../magicui/morphing-text';
 import { AIMarkdownParser } from '../ui/ai-markdown-parser';
 import { Switch } from '../ui/switch';
 import { FileUpdateIndicator } from '../ui/file-update-indicator';
-import { useUpdatingFiles } from '@/store/fileExplorerStore';
 import MessageManager from './MessageManager';
 import React from 'react';
+import { ProcessedMessage } from '@/types/messages';
 
 const AiChat = ({
   projectId,
@@ -24,18 +24,25 @@ const AiChat = ({
   projectId: string | null;
   messagesEndRef?: React.RefObject<HTMLDivElement>;
 }) => {
-  const { messages, setMessages, addMessage } = useChatStore();
+  const { messages, setMessages } = useChatStore();
   const [showTypewriter, setShowTypewriter] = useState(true);
   const [useCustomParser, setUseCustomParser] = useState(true);
-  const { updatingFiles, aiThinking } = useUpdatingFiles();
+  const { updatingFiles, aiThinking } = useChatStore();
 
   const handleMessagesLoaded = React.useCallback(
-    (loadedMessages: any[]) => {
+    (loadedMessages: ProcessedMessage[]) => {
       if (!loadedMessages || loadedMessages.length === 0) return;
 
       // Transform messages to the expected format if needed
       try {
-        const transformedMessages = loadedMessages.map((msg) => (msg.message ? msg.message : msg));
+        // Convert API format to internal format if needed
+        const transformedMessages = loadedMessages.map((msg) => {
+          // ProcessedMessage is already in the right format, just return it
+          return {
+            role: msg.role,
+            content: msg.content,
+          };
+        });
         setMessages(transformedMessages);
       } catch (error) {
         console.error('Error transforming messages:', error);
@@ -48,7 +55,7 @@ const AiChat = ({
     if (messagesEndRef && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, messagesEndRef]);
+  }, [messages, updatingFiles, messagesEndRef]);
 
   const renderContent = (message: Message) => {
     if (message.role === 'user') {
@@ -187,7 +194,7 @@ const AiChat = ({
                 </div>
               </div>
               <div
-                className={`h-full w-full max-w-4xl mx-auto flex flex-col text-white ${
+                className={`w-full max-w-4xl mx-auto flex flex-col text-white ${
                   projectId === null ? 'justify-center' : 'justify-between'
                 } pr-5 ai-chat-scrollbar`}
               >

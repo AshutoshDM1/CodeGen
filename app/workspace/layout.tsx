@@ -9,11 +9,10 @@ import { cleanTerminalOutput } from '@/lib/terminalOutput';
 import JSZip from 'jszip';
 import SidebarMain from '@/components/workspace-components/SidebarMain';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
-import { useUpdatingFiles } from '@/store/fileExplorerStore';
 import { useFullPreview } from '@/store/showTabStore';
 
 const Layout = ({ children }: { children: ReactNode }) => {
-  const { updatingFiles } = useUpdatingFiles();
+  const { updatingFiles } = useChatStore();
   const { setUpdatedFilesChat } = useChatStore();
   const { fullPreview } = useFullPreview();
   const { webcontainer, loading: webcontainerLoading } = useWebContainer();

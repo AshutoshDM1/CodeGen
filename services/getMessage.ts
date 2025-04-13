@@ -1,8 +1,9 @@
 import { Message } from '@/store/chatStore';
+import { ApiMessage, ApiMessageArray, ProcessedMessage } from '@/types/messages';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-export const getMessage = async (projectId: number): Promise<any[]> => {
+export const getMessage = async (projectId: number): Promise<ProcessedMessage[]> => {
   if (!projectId) return [];
 
   try {
@@ -25,7 +26,7 @@ export const getMessage = async (projectId: number): Promise<any[]> => {
     console.log('API response:', data);
 
     // Try to handle different API response formats
-    let messages = [];
+    let messages: ApiMessageArray = [];
 
     if (data.messages) {
       messages = data.messages;
@@ -36,21 +37,21 @@ export const getMessage = async (projectId: number): Promise<any[]> => {
     }
 
     // Ensure messages are in the right format
-    return messages.map((msg: any) => {
+    return messages.map((msg: ApiMessage): ProcessedMessage => {
       // If msg already has the right structure, return it
-      if (msg.role && (typeof msg.content === 'string' || msg.content.startingContent)) {
-        return msg;
+      if (msg.role && (typeof msg.content === 'string' || msg.content?.startingContent)) {
+        return msg as ProcessedMessage;
       }
 
       // If msg has a message property with the right structure, return that
       if (msg.message && msg.message.role) {
-        return msg.message;
+        return msg.message as ProcessedMessage;
       }
 
       // Default fallback structure
       return {
         role: msg.role || 'assistant',
-        content: msg.content || msg.message || '',
+        content: msg.content || (msg.message as any) || '',
       };
     });
   } catch (error) {

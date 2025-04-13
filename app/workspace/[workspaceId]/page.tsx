@@ -5,21 +5,16 @@ import AiChat from '@/components/workspace-components/AiChat';
 import CodeEditor from '@/components/workspace-components/codeEditor';
 import { useChatStore } from '@/store/chatStore';
 import { useEffect, useRef } from 'react';
-import { useEditorCode } from '@/store/editorStore';
 import { useTerminalStore } from '@/store/terminalStore';
 import { useFullPreview, useShowTab } from '@/store/showTabStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
-import { defaultProjectFiles } from '@/helper/defaultProjectFiles';
 import { useParams } from 'next/navigation';
-import { useProjectStore } from '@/store/projectStore';
+
 const Dashboard = () => {
   const { fullPreview, setFullPreview } = useFullPreview();
   const { url } = useTerminalStore();
   const { showWorkspace, setShowWorkspace } = useShowTab();
-  const { setMessages } = useChatStore();
-  const { project, setProjectNull } = useProjectStore();
-  const { setCode } = useEditorCode((state) => state);
   const { workspaceId } = useParams();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages } = useChatStore();

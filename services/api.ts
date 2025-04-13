@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
 import axios from 'axios';
+import { AIResponse } from '@/store/chatStore';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -55,7 +56,11 @@ const getALLProject = async (userEmail: string) => {
   }
 };
 
-const createMessage = async (message: string, role: 'user' | 'assistant', projectId: number) => {
+const createMessage = async (
+  message: string | AIResponse,
+  role: 'user' | 'assistant',
+  projectId: number,
+) => {
   try {
     const response: Response = await axios.post(`${URL}/api/v1/message/createMessage`, {
       message: { role: role, content: message },

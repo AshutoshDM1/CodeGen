@@ -9,12 +9,26 @@ import { MagicCard } from './magicui/magic-card';
 import { Project } from '@/store/projectStore';
 import { toast } from 'sonner';
 
+// Hook to handle hydration issues
+function useHasMounted() {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  return hasMounted;
+}
+
 const ShowProjectsComponent = ({ userProjects }: { userProjects: Project[] }) => {
   const [projects, setProjects] = useState<Project[]>(userProjects);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'date'>('date');
+  const [sortBy] = useState<'name' | 'date'>('date');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
+  const fallbackDate = '2023-01-01';
+  const hasMounted = useHasMounted();
+
   const filteredProjects = projects
     .filter((project) => project.projectName.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
@@ -68,9 +82,22 @@ const ShowProjectsComponent = ({ userProjects }: { userProjects: Project[] }) =>
                         </h2>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-zinc-500">
-                            {project.createdAt
-                              ? `Created ${new Date(project.createdAt).toLocaleDateString()}`
-                              : `Created ${new Date().toLocaleDateString()}`}
+                            {!hasMounted
+                              ? 'Created'
+                              : project.createdAt
+                                ? `Created ${new Date(project.createdAt).toLocaleDateString(
+                                    'en-US',
+                                    {
+                                      year: 'numeric',
+                                      month: 'numeric',
+                                      day: 'numeric',
+                                    },
+                                  )}`
+                                : `Created ${new Date(fallbackDate).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'numeric',
+                                    day: 'numeric',
+                                  })}`}
                           </span>
                           <Button
                             variant="ghost"
