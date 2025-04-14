@@ -17,7 +17,7 @@ const Dashboard = () => {
   const { showWorkspace, setShowWorkspace } = useShowTab();
   const { workspaceId } = useParams();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages } = useChatStore();
+  const { messages, updatingFiles } = useChatStore();
   const scrollToBottom = () => {
     setTimeout(() => {
       if (messagesEndRef.current) {
@@ -25,23 +25,9 @@ const Dashboard = () => {
       }
     }, 100);
   };
-  // const projectId = workspaceId as string;
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
-
-  // useEffect(() => {
-  //   setCode(defaultProjectFiles);
-  // }, []);
-
-  // useEffect(() => {
-  //   if (project) {
-  //     setCode(project.lastUpdatedCode);
-  //     setMessages(project.messages);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [project]);
-  // Define startDevServer with useCallback
+  }, [messages, updatingFiles]);
 
   return (
     <>

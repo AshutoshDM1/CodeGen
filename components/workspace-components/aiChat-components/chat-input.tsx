@@ -221,11 +221,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           }
         }
       }
-      createMessageMutation.mutate({
-        message: messages[messages.length - 1].content,
-        role: 'assistant',
-        id: parseInt(projectId?.split('-')[1] as string),
-      });
       setIsLoading(false);
       return message;
     } catch (err) {
@@ -242,44 +237,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
     }
   };
 
-  const createMessageMutation = useMutation({
-    mutationFn: async ({
-      message,
-      role,
-      id,
-    }: {
-      message: string | AIResponse;
-      role: 'user' | 'assistant';
-      id: number;
-    }) => {
-      return createMessage(message, role, id);
-    },
-    onSuccess: () => {
-      if (projectId) {
-        const numericProjectId = parseInt(projectId.split('-')[1]);
-        queryClient.invalidateQueries({ queryKey: ['messages', numericProjectId] });
-      }
-    },
-  });
-
-  const createProjectMutation = useMutation({
-    mutationFn: async ({ userEmail, projectName }: { userEmail: string; projectName: string }) => {
-      return createProject(userEmail, projectName);
-    },
-    onSuccess: (data) => {
-      if (!data) return;
-
-      const projectResponse = data.data;
-      setProject({
-        id: projectResponse?.response?.id,
-        projectName: inputValue.split(' ').slice(0, 3).join(' '),
-        projectDescription: 'this is a react project',
-        createdAt: new Date().toISOString(),
-      });
-      router.push(`/workspace/projectId-${projectResponse?.response?.id}`, { scroll: false });
-    },
-  });
-
   const handleSubmit = async () => {
     try {
       if (!inputValue.trim()) return;
@@ -287,17 +244,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       setAiThinking(true);
       await new Promise((resolve) => setTimeout(resolve, 1500));
       if (projectId === null) {
-        await createProjectMutation.mutate({
-          userEmail: session?.user?.email as string,
-          projectName: inputValue.split(' ').slice(0, 3).join(' '),
-        });
-      } else {
-        const numericProjectId = parseInt(projectId.split('-')[1]);
-        await createMessageMutation.mutate({
-          message: inputValue,
-          role: 'user',
-          id: numericProjectId,
-        });
       }
       await new Promise((resolve) => setTimeout(resolve, 1000));
       addMessage({ role: 'user', content: inputValue });
@@ -345,9 +291,7 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
           damping: 30,
           duration: 1,
         }}
-        className={`w-full ${
-          projectId === null ? 'max-w-3xl self-center' : ''
-        } border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 `}
+        className={`max-w-4xl mx-auto self-center border rounded-lg pt-1 ease-in-out duration-300 backdrop-blur-lg bg-background/95 `}
       >
         {/* Premium Banner */}
         <div className="flex items-center justify-between px-4 pt-2 mb-2 flex-wrap gap-2 ">
