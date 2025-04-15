@@ -1,21 +1,34 @@
-import Scene from '@/components/3d-sence';
-import HeroSection from '@/components/HeroSection';
-import Navbar from '@/components/Navbar';
-
+import Navbar from '@/components/LandingPage-components/Navbar';
+import SplineComponent from '@/components/LandingPage-components/SplineComponent';
+import GetButton from '@/components/LandingPage-components/GetButton';
+import BgLight from '@/components/LandingPage-components/Bg-Light';
+import { AuroraBackground } from '@/components/ui/aurora-background';
+//https://prod.spline.design/XAMw-bPTlleYGM07/scene.splinecode
 export default function Home() {
   return (
     <>
-      <main
-        style={{
-          background:
-            'linear-gradient(160deg, rgba(0,255,252,1) 0%, rgba(0,157,155,1) 0%, rgba(0,59,58,1) 12%, rgba(0,0,0,1) 17%, rgba(0,0,0,1) 36%, rgba(0,0,0,1) 59%, rgba(0,0,0,1) 83%, rgba(20,112,60,1) 92%, rgba(23,128,68,1) 94%, rgba(29,164,87,1) 100%, rgba(45,253,135,1) 100%)',
-        }}
-        className="w-full flex flex-col bg-black"
-      >
-        <Navbar />
-        <div className="h-[95vh] w-full flex justify-center items-center overflow-hidden relative z-[10]">
-          <HeroSection />
-          <Scene />
+      <main>
+        {/* <BgLight blur={true} /> */}
+
+        <div className="w-full h-[100vh] absolute top-0 z-[20] overflow-hidden bg-black ">
+        <div></div>
+        
+          <SplineComponent />
+          <Navbar />
+          <div className=" flex flex-col justify-center items-center h-screen ">
+            <h1 className="text-[85px] md:text-[230px] font-[sans-serif] font-bold mb-2">
+              <span className="bg-clip-text text-transparent bg-gradient-to-b from-gray-600 to-white">
+                Codegen
+              </span>
+            </h1>
+            <p className="text-[20px] md:text-[24px] text-gray-300 mb-2">
+              AI Powered Coding Workspace
+            </p>
+            <p className="text-[20px] md:text-[24px] text-gray-300 mb-12">
+              Build Landing Pages, Web Apps, and more with AI
+            </p>
+            <GetButton />
+          </div>
         </div>
       </main>
     </>

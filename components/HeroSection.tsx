@@ -1,9 +1,16 @@
 'use client';
+import { Dot, Menu, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const HeroSection: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   const router = useRouter();
   const session = useSession();
   const [isLoading, setIsLoading] = useState(false);
@@ -17,51 +24,64 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between items-center relative z-[10]  pointer-events-none ">
-      <div className="text-center font-bold text-[40px] md:text-[85px] mt-5 md:mt-0 flex flex-col justify-between items-center text-white ">
-        <div className="py-12 space-y-2  px -4">
-          <h1>
-            Your{' '}
-            <span className="bg-gradient-to-r from-cyan-500 to-green-500 text-transparent bg-clip-text">
-              AI Powered
-            </span>
-          </h1>
-          <h1>
-            <span className="bg-gradient-to-r from-cyan-500 to-green-500 text-transparent bg-clip-text">
-              Coding{' '}
-            </span>
-            Workspace
-          </h1>
+    <div className="w-full h-[100vh] bg-black relative z-[0] overflow-hidden">
+      <nav className="absolute top-0 w-full py-6 px-8 flex justify-center items-center">
+        {/* Mobile hamburger */}
+        <div className="md:hidden absolute right-6 top-6 z-30">
+          <button
+            onClick={toggleMenu}
+            className="p-2 bg-[#1e1e1e80] border-[1px] border-[#3d3d3d8f] backdrop-blur-sm rounded-full"
+          >
+            {isMenuOpen ? <X size={24} color="white" /> : <Menu size={24} color="white" />}
+          </button>
         </div>
 
-        <div className="h-fit flex justify-center items-center flex-col max-w-3xl px-4">
-          <p className="text-start  font-sans font-light text-[20px] md:text-[23px] text-gray-200">
-            Experience the future of coding with our AI-powered platform.
-          </p>
-          <p className="text-start  font-sans font-light text-[20px] md:text-[23px] text-gray-200">
-            Write, deploy, and collaborate in real-time with integrated AI assistance.
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-4 mt-8">
-            <button
-              onClick={onClick}
-              className="px-6 min-w-42 text-black h-12 flex justify-center items-center text-center font-sans font-medium text-[18px] bg-white/90 rounded-[20px] cursor-pointer hover:bg-white transition pointer-events-auto"
-            >
-              {isLoading ? (
-                <div className="w-4 h-4 border-2 border-[#121212] border-t-transparent rounded-full animate-spin" />
-              ) : (
-                'Start Coding'
-              )}
-            </button>
-
-            <button className="px-6 h-12 flex justify-center items-center text-center font-sans font-medium text-[18px] border-2 border-white/20 text-white rounded-[20px] cursor-pointer pointer-events-auto hover:bg-white/10 transition">
-              Explore Features
-            </button>
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-20 md:hidden">
+            <div className="flex flex-col items-center gap-6">
+              <NavItem text="Docs" />
+              <NavItem text="Pricing" />
+              <NavItem text="Github" />
+              <NavItem text="About" />
+              <NavItem text="Login" />
+            </div>
           </div>
+        )}
+
+        {/* Desktop menu */}
+        <div className="hidden md:flex items-center justify-center gap-2 border-[2px] border-[#3d3d3d8f] rounded-full p-2 px-3 backdrop-blur-sm">
+          <NavItem text="Docs" />
+          <NavItem text="Pricing" />
+          <NavItem text="Github" />
+          <NavItem text="About" />
+          <NavItem text="Login" />
         </div>
+      </nav>
+      <div className="flex flex-col justify-center items-center h-screen text-white">
+        <h1 className="text-[85px] md:text-[230px] font-[sans-serif] font-bold mb-2">Codegen</h1>
+        <p className="text-[20px] md:text-[24px] text-gray-300 mb-12">
+          AI Powered Coding Workspace
+        </p>
+        <button className="bg-white text-black px-8 py-3 rounded-full font-medium hover:bg-gray-200 transition">
+          Try Now
+        </button>
       </div>
     </div>
   );
 };
 
 export default HeroSection;
+
+function NavItem({ text }: { text: string }) {
+  return (
+    <button className="flex items-center gap-0 border-[2px] border-transparent group hover:border-[#3b3b3bd5] transition-all duration-200 rounded-full py-1 pr-5">
+      <span className="text-gray-500 text-2xl group-hover:text-green-500 transition-all duration-300 delay-100">
+        <Dot size={36} />
+      </span>
+      <h1 className="text-gray-300 transition-all duration-300 group-hover:text-white font-medium font-[system-ui] hover:text-white text-[14px] line-height-[24px] flex items-start justify-start mb-1">
+        {text}
+      </h1>
+    </button>
+  );
+}
