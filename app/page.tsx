@@ -1,35 +1,39 @@
-import Navbar from '@/components/LandingPage-components/Navbar';
-import SplineComponent from '@/components/LandingPage-components/SplineComponent';
-import GetButton from '@/components/LandingPage-components/GetButton';
-import BgLight from '@/components/LandingPage-components/Bg-Light';
-import { AuroraBackground } from '@/components/ui/aurora-background';
-//https://prod.spline.design/XAMw-bPTlleYGM07/scene.splinecode
+'use client';
+import { useEffect } from 'react';
+import MainPage from '@/components/LandingPage-components/MainPage';
+import Connect from '@/components/LandingPage-components/Connect';
+import Footer from '@/components/LandingPage-components/Footer';
+import ProductsSection from '@/components/LandingPage-components/ProductsSection';
+import VideoFeatures from '@/components/LandingPage-components/VideoFeatures';
+import FeatureSection from '@/components/LandingPage-components/FeatureSection';
+import AgentFeatures from '@/components/LandingPage-components/AgentFeatures ';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
+
 export default function Home() {
+  useEffect(() => {
+    const lenis = new Lenis({
+      autoRaf: true,
+      lerp: 0.1,
+      smoothWheel: true,
+      touchMultiplier: 2,
+      touchInertiaMultiplier: 2,
+    });
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
   return (
     <>
-      <main>
-        {/* <BgLight blur={true} /> */}
-
-        <div className="w-full h-[100vh] absolute top-0 z-[20] overflow-hidden bg-black ">
-        <div></div>
-        
-          <SplineComponent />
-          <Navbar />
-          <div className=" flex flex-col justify-center items-center h-screen ">
-            <h1 className="text-[85px] md:text-[230px] font-[sans-serif] font-bold mb-2">
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-gray-600 to-white">
-                Codegen
-              </span>
-            </h1>
-            <p className="text-[20px] md:text-[24px] text-gray-300 mb-2">
-              AI Powered Coding Workspace
-            </p>
-            <p className="text-[20px] md:text-[24px] text-gray-300 mb-12">
-              Build Landing Pages, Web Apps, and more with AI
-            </p>
-            <GetButton />
-          </div>
-        </div>
+      <main className="w-full h-full bg-black ai-chat-scrollbar">
+        <MainPage />
+        <VideoFeatures />
+        <FeatureSection />
+        <ProductsSection />
+        <AgentFeatures />
+        <Connect />
+        <Footer />
       </main>
     </>
   );

@@ -31,7 +31,6 @@ interface ChatStore {
   addUpdatingFiles: (files: Array<{ action: string; filePath: string }>) => void;
 }
 
-
 export const useChatStore = create<ChatStore>((set) => ({
   messages: [],
   isLoading: false,

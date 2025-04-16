@@ -1,8 +1,12 @@
 'use client';
 import { Dot } from 'lucide-react';
 import { motion } from 'framer-motion';
-
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 const Navbar = () => {
+  const session = useSession();
+  const router = useRouter();
+
   const container = {
     hidden: { opacity: 0, y: -20 },
     show: {
@@ -15,9 +19,28 @@ const Navbar = () => {
     },
   };
 
-  const item = {
+  const itemVariant = {
     hidden: { opacity: 0 },
     show: { opacity: 1, y: 0 },
+  };
+
+  const navItems = [
+    { text: 'Docs', href: '/docs' },
+    { text: 'Pricing', href: '/pricing' },
+    { text: 'Github', href: 'https://github.com/AshutoshDM1/CodeGen' },
+    { text: 'About', href: '/about' },
+    { text: 'Login', href: '/auth/login' },
+  ];
+
+  const handleClick = (href: string) => {
+    if (href.startsWith('http')) {
+      window.open(href, '_blank');
+    }
+    if (session.status === 'authenticated' && href === '/auth/login') {
+      router.push('/workspace');
+    } else {
+      router.push(href);
+    }
   };
 
   return (
@@ -25,18 +48,19 @@ const Navbar = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="absolute top-0 w-full py-6 px-8 flex justify-center items-center"
+      className="absolute top-5 w-full py-6 px-8 justify-center items-center pointer-events-none hidden md:flex"
     >
       <motion.div
         variants={container}
         initial="hidden"
         animate="show"
-        className="flex items-center justify-center gap-2 border-[2px] border-[#3d3d3d8f] rounded-full p-2 px-3 backdrop-blur-sm"
+        className="flex items-center justify-center gap-2 border-[2px] border-[#3d3d3d8f] rounded-full p-2 px-3 backdrop-blur-sm pointer-events-auto"
       >
-        {['Docs', 'Pricing', 'Github', 'About', 'Login'].map((text) => (
+        {navItems.map((item, index) => (
           <motion.button
-            key={text}
-            variants={item}
+            onClick={() => handleClick(item.href)}
+            key={index}
+            variants={itemVariant}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-0 border-[2px] border-transparent group hover:border-[#3b3b3bd5] transition-all duration-200 rounded-full py-1 pr-5"
@@ -50,7 +74,7 @@ const Navbar = () => {
               <Dot size={36} />
             </motion.span>
             <motion.h1 className="text-gray-300 transition-all duration-300 group-hover:text-white font-medium font-[system-ui] hover:text-black text-[14px] line-height-[24px] flex items-start justify-start mb-1">
-              {text}
+              {item.text}
             </motion.h1>
           </motion.button>
         ))}

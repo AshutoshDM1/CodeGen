@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Paperclip, ArrowUp, Loader2, X } from 'lucide-react';
-import { AIResponse, useChatStore } from '@/store/chatStore';
+import { useChatStore } from '@/store/chatStore';
 import { useEditorCode } from '@/store/editorStore';
 import { useShowTab } from '@/store/showTabStore';
 import { useTerminalStore } from '@/store/terminalStore';
@@ -10,21 +10,14 @@ import { useFilePaths, useFileExplorer } from '@/store/fileExplorerStore';
 import { findFileContent } from '@/lib/findFileContent';
 import { useState } from 'react';
 import { ShinyButton } from '@/components/magicui/shiny-button';
-import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { messageuser } from '@/helper/messageReact';
-import { createMessage, createProject, enhancePromptApi, errorHandler } from '@/services/api';
+import { enhancePromptApi, errorHandler } from '@/services/api';
 import { AIMessage } from '@/types/AiResponse';
-import { useSession } from 'next-auth/react';
-import { useProjectStore } from '@/store/projectStore';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 export default function ChatInput({ projectId }: { projectId: string | null }) {
-  const router = useRouter();
   const { setFileupdating } = useFilePaths();
-  const { messages, addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } =
-    useChatStore();
-  const { setProject } = useProjectStore();
+  const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } = useChatStore();
   const { EditorCode, setEditorCode } = useEditorCode();
   const [inputValue, setInputValue] = useState('');
   const { setFilePaths } = useFilePaths();
@@ -35,8 +28,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
   );
   const { addUpdatingFiles, setUpdatingFiles, setAiThinking } = useChatStore();
   const [enchancedLoadding, setEnchancedLoadding] = useState(false);
-  const { data: session } = useSession();
-  const queryClient = useQueryClient();
 
   let buffer = '';
   let buferAfter = '';

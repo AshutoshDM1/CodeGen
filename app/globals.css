@@ -298,3 +298,35 @@ pre[class*='language-'] {
 * {
   letter-spacing: 0.3px;
 }
+
+/* custom scrollbar */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 9px;
+  margin-right: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #383838c0;
+  border-radius: 0px;
+  margin-right: 2px;
+  cursor: pointer;
+  transition: all;
+  transition-duration: 600ms;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(66, 66, 66, 0.842);
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}

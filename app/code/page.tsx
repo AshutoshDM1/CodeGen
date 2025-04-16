@@ -320,21 +320,21 @@ export default function SonnerDemo() {
               >
                 Multiple Actions
               </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
+              <Button
+                variant="outline"
+                onClick={() =>
                   toast('With progress', {
                     description: 'Uploading file...',
                     duration: 5000,
-              action: {
+                    action: {
                       label: 'Cancel',
                       onClick: () => toast.error('Upload cancelled'),
-              },
-            })
-          }
-        >
+                    },
+                  })
+                }
+              >
                 With Progress
-        </Button>
+              </Button>
             </CardContent>
           </Card>
         </div>

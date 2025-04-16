@@ -1,7 +1,5 @@
 'use client';
 import { Dot, Menu, X } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const HeroSection: React.FC = () => {
@@ -9,18 +7,6 @@ const HeroSection: React.FC = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
-
-  const router = useRouter();
-  const session = useSession();
-  const [isLoading, setIsLoading] = useState(false);
-  const onClick = () => {
-    setIsLoading(true);
-    if (session.status === 'unauthenticated') {
-      router.push('/auth/login');
-    } else {
-      router.push('/workspace');
-    }
   };
 
   return (

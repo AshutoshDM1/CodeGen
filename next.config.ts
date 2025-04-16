@@ -12,6 +12,11 @@ const nextConfig = {
         hostname: 'github.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'aceternity.com',
+        pathname: '/**',
+      },
     ],
   },
   async headers() {

@@ -13,9 +13,6 @@ import { MorphingText } from '../magicui/morphing-text';
 import { AIMarkdownParser } from '../ui/ai-markdown-parser';
 import { Switch } from '../ui/switch';
 import { FileUpdateIndicator } from '../ui/file-update-indicator';
-import MessageManager from './MessageManager';
-import React from 'react';
-import { ProcessedMessage } from '@/types/messages';
 
 const AiChat = ({
   projectId,
@@ -24,7 +21,7 @@ const AiChat = ({
   projectId: string | null;
   messagesEndRef?: React.RefObject<HTMLDivElement>;
 }) => {
-  const { messages, setMessages } = useChatStore();
+  const { messages } = useChatStore();
   const [showTypewriter, setShowTypewriter] = useState(true);
   const [useCustomParser, setUseCustomParser] = useState(true);
   const { updatingFiles, aiThinking } = useChatStore();
