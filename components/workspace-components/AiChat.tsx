@@ -25,7 +25,6 @@ const AiChat = ({
   const [showTypewriter, setShowTypewriter] = useState(true);
   const [useCustomParser, setUseCustomParser] = useState(true);
   const { updatingFiles, aiThinking } = useChatStore();
-  console.log(messages);
   useEffect(() => {
     if (messagesEndRef && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -143,7 +142,7 @@ const AiChat = ({
         <ResizablePanel defaultSize={47} minSize={27} maxSize={67} key="resizable-panel">
           <div className="flex flex-col h-full items-center px-6 py-4 ease-in-out duration-300 overflow-x-hidden ai-chat-scrollbar ">
             <div className="w-full flex items-center justify-between ease-in-out duration-300 ">
-              <NavbarAiChat projectId={`projectId-${projectId}`} />
+              <NavbarAiChat projectId={`${projectId}`} />
               {/* Display options */}
               <div className="items-center gap-4 hidden ease-in-out duration-300">
                 <div className="flex items-center space-x-2">

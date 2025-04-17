@@ -12,12 +12,16 @@ import { useState } from 'react';
 import { ShinyButton } from '@/components/magicui/shiny-button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { messageuser } from '@/helper/messageReact';
-import { enhancePromptApi, errorHandler } from '@/services/api';
+import { createMessage, createProject, enhancePromptApi, errorHandler } from '@/services/api';
 import { AIMessage } from '@/types/AiResponse';
-
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 export default function ChatInput({ projectId }: { projectId: number | null }) {
+  const router = useRouter();
+  const { data: session } = useSession();
   const { setFileupdating } = useFilePaths();
-  const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } = useChatStore();
+  const { messages, addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } =
+    useChatStore();
   const { EditorCode, setEditorCode } = useEditorCode();
   const [inputValue, setInputValue] = useState('');
   const { setFilePaths } = useFilePaths();
@@ -137,7 +141,7 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
               console.log(currentFileAction.filePath);
               addUpdatingFiles([
                 {
-                  action: 'Updating',
+                  action: 'Updated',
                   filePath: currentFileAction.filePath,
                 },
               ]);
@@ -212,16 +216,19 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
           }
         }
       }
+
       setIsLoading(false);
       return message;
     } catch (err) {
+      setIsLoading(false);
       errorHandler(err);
     } finally {
+      setFileupdating(false);
+      setUpdatingFiles([]);
       setIsLoadingWebContainerMessage('Compiling the project...');
       setIsLoadingWebContainer(true);
       const updatedFilesEvent = new CustomEvent('updated-files');
       window.dispatchEvent(updatedFilesEvent);
-      setUpdatingFiles([]);
       const remountWebcontainerEvent = new CustomEvent('remount-webcontainer');
       window.dispatchEvent(remountWebcontainerEvent);
       setShowPreview();
@@ -232,15 +239,39 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
     try {
       if (!inputValue.trim()) return;
       setIsLoading(true);
-      setAiThinking(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      addMessage({ role: 'user', content: inputValue });
       setInputValue('');
-      setShowWorkspace(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setShowCode();
-      await fetchData();
+      // setAiThinking(true);
+      if (projectId === null) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (session?.user?.email) {
+          const projectResponse = await createProject(
+            session?.user?.email,
+            inputValue.split(' ').slice(0, 3).join(' '),
+          );
+          createMessage(inputValue, 'user', projectResponse.response.id);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          router.push(`/workspace/projectId-${projectResponse.response.id}`);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setShowWorkspace(true);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setShowCode();
+        }
+      } else {
+        addMessage({
+          role: 'user',
+          content: inputValue,
+        });
+        createMessage(inputValue, 'user', projectId);
+      }
+      const message = await fetchData();
+      setFileupdating(false);
+      setIsLoading(false);
+      // if (message) {
+      //   console.log(message);
+      //   createMessage(messages[messages.length - 1].content, 'assistant', projectId);
+      // }
     } catch (error) {
+      console.log(error);
       errorHandler(error);
     }
   };
@@ -330,7 +361,6 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
                 placeholder="Ask CodeGen AI a question..."
                 rows={1}
                 style={{ overflow: 'hidden' }}
-                data-tribute="true"
               />
               <div className="flex items-center gap-2">
                 <Button

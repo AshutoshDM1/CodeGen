@@ -38,9 +38,9 @@ const createProject = async (userEmail: string, projectName: string) => {
       projectName,
       projectDescription: 'this is a react project',
     });
-    console.log(response);
+    console.log(response.data);
     toast.success('Project created successfully');
-    return response;
+    return response.data;
   } catch (err) {
     errorHandler(err);
   }
@@ -59,9 +59,10 @@ const getALLProject = async (userEmail: string) => {
 const createMessage = async (
   message: string | AIResponse,
   role: 'user' | 'assistant',
-  projectId: number,
+  projectId: number | null,
 ) => {
   try {
+    console.log(message, role, projectId);
     const response: Response = await axios.post(`${URL}/api/v1/message/createMessage`, {
       message: { role: role, content: message },
       projectId,

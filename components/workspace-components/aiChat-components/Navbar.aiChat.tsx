@@ -22,10 +22,10 @@ const NavbarAiChat = ({ projectId }: { projectId: string | null }) => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              {projectId ? (
-                <BreadcrumbPage>{projectId}</BreadcrumbPage>
-              ) : (
+              {projectId === 'null' ? (
                 <BreadcrumbPage>New Chat</BreadcrumbPage>
+              ) : (
+                <BreadcrumbPage>{projectId}</BreadcrumbPage>
               )}
             </BreadcrumbItem>
           </BreadcrumbList>

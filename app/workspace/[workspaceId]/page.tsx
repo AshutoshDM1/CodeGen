@@ -3,7 +3,7 @@ import { ResizablePanelGroup } from '@/components/ui/resizable';
 import Alert from '@/components/workspace-components/Alert';
 import AiChat from '@/components/workspace-components/AiChat';
 import CodeEditor from '@/components/workspace-components/codeEditor';
-import { useChatStore } from '@/store/chatStore';
+import { Message, useChatStore } from '@/store/chatStore';
 import { useEffect, useRef } from 'react';
 import { useTerminalStore } from '@/store/terminalStore';
 import { useFullPreview, useShowTab } from '@/store/showTabStore';
@@ -12,8 +12,8 @@ import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 
-const fetchMessage = async () => {
-  const response = await fetch(`http://localhost:4000/api/v1/message/getMessage/55`);
+const fetchMessage = async (projectId: number) => {
+  const response = await fetch(`http://localhost:4000/api/v1/message/getMessage/${projectId}`);
   const data = await response.json();
   console.log('data', data);
   return data;
@@ -25,7 +25,7 @@ const Dashboard = () => {
   const { showWorkspace, setShowWorkspace } = useShowTab();
   const { workspaceId } = useParams();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, updatingFiles } = useChatStore();
+  const { messages, updatingFiles, addMessage } = useChatStore();
   const projectId: number | null = workspaceId
     ? parseInt(workspaceId.toString().split('-')[1])
     : null;
@@ -40,16 +40,24 @@ const Dashboard = () => {
     scrollToBottom();
   }, [messages, updatingFiles]);
 
-  const { data, isLoading, error } = useQuery({
+  const { data } = useQuery({
     queryKey: ['messages', projectId],
-    queryFn: fetchMessage,
+    queryFn: () => fetchMessage(projectId as number),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    enabled: !!projectId,
   });
 
   useEffect(() => {
-    if (data) {
-      console.log('data', data);
+    if (data?.messages) {
+      data.messages.forEach((message: { id: number; createdAt: string; message: Message }) => {
+        addMessage(message.message);
+      });
     }
-  }, [data]);
+  }, [data, addMessage]);
 
   return (
     <>
