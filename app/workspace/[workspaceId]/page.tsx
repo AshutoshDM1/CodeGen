@@ -49,15 +49,21 @@ const Dashboard = () => {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled: !!projectId,
+    retry: 1,
+    retryDelay: 1000,
   });
 
   useEffect(() => {
-    if (data?.messages) {
-      data.messages.forEach((message: { id: number; createdAt: string; message: Message }) => {
-        addMessage(message.message);
-      });
+    if (data?.messages && data.messages.length > 0) {
+      const newMessages = data.messages.map(
+        (message: { id: number; createdAt: string; message: Message }) => message.message,
+      );
+
+      if (newMessages.length > 0 && messages.length === 0) {
+        newMessages.forEach((msg: Message) => addMessage(msg));
+      }
     }
-  }, [data, addMessage]);
+  }, [data, addMessage, messages.length]);
 
   return (
     <>

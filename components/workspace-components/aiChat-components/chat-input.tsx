@@ -8,7 +8,7 @@ import { useShowTab } from '@/store/showTabStore';
 import { useTerminalStore } from '@/store/terminalStore';
 import { useFilePaths, useFileExplorer } from '@/store/fileExplorerStore';
 import { findFileContent } from '@/lib/findFileContent';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ShinyButton } from '@/components/magicui/shiny-button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { messageuser } from '@/helper/messageReact';
@@ -211,29 +211,56 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
           buferAfter = buferAfter.replace(/^[>\s]+/, '').trim();
           if (buferAfter) {
             addAIafterMsg(chunk);
-            setFileupdating(true);
             message.afterMsg += chunk;
           }
         }
       }
-
       setIsLoading(false);
       return message;
     } catch (err) {
       setIsLoading(false);
       errorHandler(err);
     } finally {
-      setFileupdating(false);
+      setFileupdating(true);
       setUpdatingFiles([]);
-      setIsLoadingWebContainerMessage('Compiling the project...');
-      setIsLoadingWebContainer(true);
-      const updatedFilesEvent = new CustomEvent('updated-files');
-      window.dispatchEvent(updatedFilesEvent);
-      const remountWebcontainerEvent = new CustomEvent('remount-webcontainer');
-      window.dispatchEvent(remountWebcontainerEvent);
-      setShowPreview();
+
+      if (projectId && EditorCode && Object.keys(EditorCode).length > 0) {
+        setIsLoadingWebContainerMessage('Compiling the project...');
+        setIsLoadingWebContainer(true);
+        const updatedFilesEvent = new CustomEvent('updated-files');
+        window.dispatchEvent(updatedFilesEvent);
+        const remountWebcontainerEvent = new CustomEvent('remount-webcontainer');
+        window.dispatchEvent(remountWebcontainerEvent);
+        setShowPreview();
+      }
     }
   };
+
+  const sendMessage = useCallback(async () => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant' && projectId) {
+        try {
+          console.log('Sending message to backend:', lastMessage);
+          await createMessage(lastMessage.content, 'assistant', projectId);
+          console.log('Message sent successfully');
+        } catch (error) {
+          console.error('Error sending message to backend:', error);
+          errorHandler(error);
+        }
+      }
+    }
+  }, [messages, projectId]);
+
+  useEffect(() => {
+    const handleSendMessage = async () => {
+      await sendMessage();
+    };
+    window.addEventListener('send-message', handleSendMessage);
+    return () => {
+      window.removeEventListener('send-message', handleSendMessage);
+    };
+  }, [sendMessage]);
 
   const handleSubmit = async () => {
     try {
@@ -264,14 +291,17 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
         createMessage(inputValue, 'user', projectId);
       }
       const message = await fetchData();
-      setFileupdating(false);
+      console.log('Here1');
+      setFileupdating(true);
       setIsLoading(false);
-      // if (message) {
-      //   console.log(message);
-      //   createMessage(messages[messages.length - 1].content, 'assistant', projectId);
-      // }
+      if (message) {
+        // Slight delay to ensure the message is fully added to the store
+        setTimeout(() => {
+          const sendMessageEvent = new CustomEvent('send-message');
+          window.dispatchEvent(sendMessageEvent);
+        }, 300);
+      }
     } catch (error) {
-      console.log(error);
       errorHandler(error);
     }
   };
