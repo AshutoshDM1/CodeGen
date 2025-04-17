@@ -45,7 +45,7 @@ export default function Connect() {
         <motion.div variants={container} className="flex justify-center gap-6 flex-wrap">
           <motion.div variants={item}>
             <Link
-              href="https://discord.com"
+              href="https://discord.com/invite/mvZAABKw9J"
               className="flex items-center justify-center px-8 py-2 rounded-full bg-[#111] border border-[#333] hover:border-[#555] transition-all duration-300 gap-2"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
@@ -57,7 +57,7 @@ export default function Connect() {
 
           <motion.div variants={item}>
             <Link
-              href="https://twitter.com"
+              href="https://x.com/AshutoshDM_1"
               className="flex items-center justify-center px-8 py-2 rounded-full bg-[#111] border border-[#333] hover:border-[#555] transition-all duration-300 gap-2"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
@@ -69,7 +69,7 @@ export default function Connect() {
 
           <motion.div variants={item}>
             <Link
-              href="https://github.com"
+              href="https://github.com/AshutoshDM1/CodeGen"
               className="flex items-center justify-center px-8 py-2 rounded-full bg-[#111] border border-[#333] hover:border-[#555] transition-all duration-300 gap-2"
             >
               <Github className="w-5 h-5" />

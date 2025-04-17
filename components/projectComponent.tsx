@@ -47,7 +47,7 @@ const ShowProjectsComponent = ({ userProjects }: { userProjects: Project[] }) =>
   };
 
   return (
-    <div className="min-h-screen w-full text-white p-4 overflow-auto terminal-scrollbar">
+    <div className="min-h-screen bg-[#0a0a0a] w-full text-white p-4 overflow-auto terminal-scrollbar">
       <div className="max-w-7xl mx-auto">
         <div className="relative w-full mb-8">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500 h-4 w-4" />
@@ -70,55 +70,61 @@ const ShowProjectsComponent = ({ userProjects }: { userProjects: Project[] }) =>
               className="bg-[#141414] rounded-lg relative group hover:bg-[#1A1A1A] transition-all duration-200"
             >
               <MagicCard gradientColor={'#262626'}>
-                <Link href={`/workspace/projectId-${project.id}`} className="block p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-[#1A1A1A] rounded-md group-hover:bg-[#202020]">
-                      <FolderClosed className="w-5 h-5 text-zinc-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h2 className="text-sm font-medium text-zinc-200 truncate">
+                <Link href={`/workspace/projectId-${project.id}`} className="block p-6 h-full">
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-[#1A1A1A] rounded-lg group-hover:bg-[#202020] transition-colors">
+                        <FolderClosed className="w-6 h-6 text-zinc-400 group-hover:text-zinc-300" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h2 className="text-lg font-semibold text-zinc-200 truncate group-hover:text-white transition-colors">
                           {project.projectName}
                         </h2>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-zinc-500">
-                            {!hasMounted
-                              ? 'Created'
-                              : project.createdAt
-                                ? `Created ${new Date(project.createdAt).toLocaleDateString(
-                                    'en-US',
-                                    {
-                                      year: 'numeric',
-                                      month: 'numeric',
-                                      day: 'numeric',
-                                    },
-                                  )}`
-                                : `Created ${new Date(fallbackDate).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'numeric',
-                                    day: 'numeric',
-                                  })}`}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-full hover:bg-[#202020]"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setProjectToDelete(project.id);
-                              setIsDeleteModalOpen(true);
-                            }}
-                          >
-                            <span className="sr-only">Delete project</span>
-                            <Trash2 className="h-4 w-4 text-zinc-500 hover:text-zinc-300" />
-                          </Button>
-                        </div>
                       </div>
-                      {project.projectDescription && (
-                        <p className="text-xs text-zinc-500 mt-1 truncate">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 rounded-full hover:bg-[#202020]"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setProjectToDelete(project.id);
+                          setIsDeleteModalOpen(true);
+                        }}
+                      >
+                        <span className="sr-only">Delete project</span>
+                        <Trash2 className="h-5 w-5 text-zinc-500 hover:text-zinc-300" />
+                      </Button>
+                    </div>
+
+                    <div className="flex-grow bg-[#1A1A1A]/30 rounded-lg p-4 mb-3 hover:bg-[#1A1A1A]/50 transition-colors">
+                      {project.projectDescription ? (
+                        <p className="text-sm text-zinc-400 group-hover:text-zinc-300 transition-colors">
                           {project.projectDescription}
                         </p>
+                      ) : (
+                        <p className="text-sm text-zinc-500 italic">No description provided</p>
                       )}
+                    </div>
+
+                    <div className="flex justify-between items-center mt-auto">
+                      <span className="text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors">
+                        {!hasMounted
+                          ? 'Created'
+                          : project.createdAt
+                            ? `Created ${new Date(project.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'numeric',
+                                day: 'numeric',
+                              })}`
+                            : `Created ${new Date(fallbackDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'numeric',
+                                day: 'numeric',
+                              })}`}
+                      </span>
+                      <div className="text-xs px-2 py-1 bg-[#202020] rounded-full text-zinc-400 group-hover:bg-[#262626] transition-colors">
+                        Open Project →
+                      </div>
                     </div>
                   </div>
                 </Link>

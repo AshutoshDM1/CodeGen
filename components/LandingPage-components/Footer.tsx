@@ -60,25 +60,25 @@ export default function Footer() {
                 hello@codegen.ai
               </Link>
               <Link
-                href="https://discord.com"
+                href="https://discord.com/invite/mvZAABKw9J"
                 className="px-6 py-2.5 rounded-full bg-black/10 hover:bg-black/20 transition-all duration-300 text-black/70 hover:text-black/90 text-lg backdrop-blur-sm"
               >
                 Discord
               </Link>
               <Link
-                href="/forum"
+                href="https://x.com/AshutoshDM_1"
                 className="px-6 py-2.5 rounded-full bg-black/10 hover:bg-black/20 transition-all duration-300 text-black/70 hover:text-black/90 text-lg backdrop-blur-sm"
               >
                 Forum
               </Link>
               <Link
-                href="https://twitter.com"
+                href="https://x.com/AshutoshDM_1"
                 className="px-6 py-2.5 rounded-full bg-black/10 hover:bg-black/20 transition-all duration-300 text-black/70 hover:text-black/90 text-lg backdrop-blur-sm"
               >
                 Twitter
               </Link>
               <Link
-                href="https://github.com"
+                href="https://github.com/AshutoshDM1/CodeGen"
                 className="px-6 py-2.5 rounded-full bg-black/10 hover:bg-black/20 transition-all duration-300 text-black/70 hover:text-black/90 text-lg backdrop-blur-sm"
               >
                 Github

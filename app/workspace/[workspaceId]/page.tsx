@@ -10,6 +10,14 @@ import { useFullPreview, useShowTab } from '@/store/showTabStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+
+const fetchMessage = async () => {
+  const response = await fetch(`http://localhost:4000/api/v1/message/getMessage/55`);
+  const data = await response.json();
+  console.log('data', data);
+  return data;
+};
 
 const Dashboard = () => {
   const { fullPreview, setFullPreview } = useFullPreview();
@@ -18,6 +26,9 @@ const Dashboard = () => {
   const { workspaceId } = useParams();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, updatingFiles } = useChatStore();
+  const projectId: number | null = workspaceId
+    ? parseInt(workspaceId.toString().split('-')[1])
+    : null;
   const scrollToBottom = () => {
     setTimeout(() => {
       if (messagesEndRef.current) {
@@ -28,6 +39,17 @@ const Dashboard = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, updatingFiles]);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['messages', projectId],
+    queryFn: fetchMessage,
+  });
+
+  useEffect(() => {
+    if (data) {
+      console.log('data', data);
+    }
+  }, [data]);
 
   return (
     <>
@@ -150,7 +172,7 @@ const Dashboard = () => {
           <div key="workspaceView" className="h-screen w-full">
             <Alert />
             <ResizablePanelGroup direction="horizontal" className="min-h-screen">
-              <AiChat projectId={workspaceId as string} messagesEndRef={messagesEndRef} />
+              <AiChat projectId={projectId} messagesEndRef={messagesEndRef} />
               {showWorkspace === true ? (
                 <CodeEditor />
               ) : (

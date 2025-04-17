@@ -15,7 +15,7 @@ import { messageuser } from '@/helper/messageReact';
 import { enhancePromptApi, errorHandler } from '@/services/api';
 import { AIMessage } from '@/types/AiResponse';
 
-export default function ChatInput({ projectId }: { projectId: string | null }) {
+export default function ChatInput({ projectId }: { projectId: number | null }) {
   const { setFileupdating } = useFilePaths();
   const { addMessage, isLoading, setIsLoading, addAIbeforeMsg, addAIafterMsg } = useChatStore();
   const { EditorCode, setEditorCode } = useEditorCode();
@@ -233,9 +233,6 @@ export default function ChatInput({ projectId }: { projectId: string | null }) {
       if (!inputValue.trim()) return;
       setIsLoading(true);
       setAiThinking(true);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      if (projectId === null) {
-      }
       await new Promise((resolve) => setTimeout(resolve, 1000));
       addMessage({ role: 'user', content: inputValue });
       setInputValue('');
