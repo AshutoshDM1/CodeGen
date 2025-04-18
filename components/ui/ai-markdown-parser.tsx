@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { getFileIcon } from '@/lib/file-utils';
 
 interface AIMarkdownParserProps {
@@ -12,13 +11,13 @@ interface AIMarkdownParserProps {
     | Array<{ action: string; filePath: string }>;
 }
 
-export const AIMarkdownParser = ({ content, animate = true }: AIMarkdownParserProps) => {
+export const AIMarkdownParser = ({ content }: AIMarkdownParserProps) => {
   const [parsedContent, setParsedContent] = useState<JSX.Element[]>([]);
 
   useEffect(() => {
-    const parsed = parseAIContent(content, animate);
+    const parsed = parseAIContent(content);
     setParsedContent(parsed);
-  }, [content, animate]);
+  }, [content]);
 
   // Check for file lists in the content and try to extract them even if they don't match the regex
   useEffect(() => {
@@ -55,7 +54,7 @@ export const AIMarkdownParser = ({ content, animate = true }: AIMarkdownParserPr
 };
 
 // Main parser function
-const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
+const parseAIContent = (content: string): JSX.Element[] => {
   const lines = content.split('\n').filter((line) => line.trim() !== '');
   const parsedElements: JSX.Element[] = [];
 
@@ -117,18 +116,9 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
         // If we were in a file list, close it first
         if (inFileList) {
           parsedElements.push(
-            <motion.div
-              key={`file-list-${currentIndex}`}
-              initial={animate ? { opacity: 0, y: 10 } : undefined}
-              animate={animate ? { opacity: 1, y: 0 } : undefined}
-              transition={{
-                duration: 0.5,
-                delay: currentIndex * 0.1,
-              }}
-              className="pl-6 mb-4"
-            >
+            <div key={`file-list-${currentIndex}`} className="pl-6 mb-4">
               {fileItems}
-            </motion.div>,
+            </div>,
           );
           fileItems = [];
           inFileList = false;
@@ -138,21 +128,12 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
 
       // Add the numbered item
       listItems.push(
-        <motion.div
-          key={`step-${number}`}
-          initial={animate ? { opacity: 0, x: -10 } : undefined}
-          animate={animate ? { opacity: 1, x: 0 } : undefined}
-          transition={{
-            duration: 0.5,
-            delay: animate ? 0.2 + parseInt(number) * 0.1 : 0,
-          }}
-          className="flex items-start gap-3 mb-2"
-        >
+        <div key={`step-${number}`} className="flex items-start gap-3 mb-2">
           <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 text-green-400 font-semibold text-sm">
             {number}
           </div>
           <div className="flex-1">{text}</div>
-        </motion.div>,
+        </div>,
       );
     } else if (isFileReference) {
       // If this is the first file item, start a new file list
@@ -162,15 +143,9 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
         // If we were in a numbered list, close it first
         if (inNumberedList) {
           parsedElements.push(
-            <motion.div
-              key={`numbered-list-${currentIndex}`}
-              initial={animate ? { opacity: 0 } : undefined}
-              animate={animate ? { opacity: 1 } : undefined}
-              transition={{ duration: 0.5 }}
-              className="mb-4"
-            >
+            <div key={`numbered-list-${currentIndex}`} className="mb-4">
               {listItems}
-            </motion.div>,
+            </div>,
           );
           listItems = [];
           inNumberedList = false;
@@ -183,14 +158,8 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
 
       // Add the file item
       fileItems.push(
-        <motion.div
+        <div
           key={`file-${filename}`}
-          initial={animate ? { opacity: 0, x: -5 } : undefined}
-          animate={animate ? { opacity: 1, x: 0 } : undefined}
-          transition={{
-            duration: 0.3,
-            delay: animate ? 0.1 * fileItems.length : 0,
-          }}
           className="flex items-center gap-3 mb-3 border rounded-md p-3 transition-colors bg-transparent"
         >
           <div className="flex-shrink-0 bg-gradient-to-r from-blue-500/50 to-purple-500/50 p-2 rounded-md flex items-center justify-center w-10 h-10">
@@ -200,21 +169,15 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
             <code className="text-sm font-mono text-emerald-300 font-semibold">{filename}</code>
             {description && <p className="text-xs text-zinc-400 mt-1">{description}</p>}
           </div>
-        </motion.div>,
+        </div>,
       );
     } else {
       // Process any pending lists before adding a regular paragraph
       if (inNumberedList) {
         parsedElements.push(
-          <motion.div
-            key={`numbered-list-${currentIndex}`}
-            initial={animate ? { opacity: 0 } : undefined}
-            animate={animate ? { opacity: 1 } : undefined}
-            transition={{ duration: 0.5 }}
-            className="mb-4"
-          >
+          <div key={`numbered-list-${currentIndex}`} className="mb-4">
             {listItems}
-          </motion.div>,
+          </div>,
         );
         listItems = [];
         inNumberedList = false;
@@ -223,15 +186,9 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
 
       if (inFileList) {
         parsedElements.push(
-          <motion.div
-            key={`file-list-${currentIndex}`}
-            initial={animate ? { opacity: 0, y: 10 } : undefined}
-            animate={animate ? { opacity: 1, y: 0 } : undefined}
-            transition={{ duration: 0.5, delay: currentIndex * 0.1 }}
-            className="pl-6 mb-4"
-          >
+          <div key={`file-list-${currentIndex}`} className="pl-6 mb-4">
             {fileItems}
-          </motion.div>,
+          </div>,
         );
         fileItems = [];
         inFileList = false;
@@ -240,15 +197,9 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
 
       // Add regular paragraph
       parsedElements.push(
-        <motion.p
-          key={`p-${index}`}
-          initial={animate ? { opacity: 0 } : undefined}
-          animate={animate ? { opacity: 1 } : undefined}
-          transition={{ duration: 0.5, delay: currentIndex * 0.1 }}
-          className="mb-4"
-        >
+        <p key={`p-${index}`} className="mb-4">
           {trimmedLine}
-        </motion.p>,
+        </p>,
       );
       currentIndex++;
     }
@@ -257,30 +208,18 @@ const parseAIContent = (content: string, animate: boolean): JSX.Element[] => {
   // Process any remaining list items
   if (inNumberedList && listItems.length > 0) {
     parsedElements.push(
-      <motion.div
-        key={`numbered-list-${currentIndex}`}
-        initial={animate ? { opacity: 0 } : undefined}
-        animate={animate ? { opacity: 1 } : undefined}
-        transition={{ duration: 0.5 }}
-        className="mb-4"
-      >
+      <div key={`numbered-list-${currentIndex}`} className="mb-4">
         {listItems}
-      </motion.div>,
+      </div>,
     );
     currentIndex++;
   }
 
   if (inFileList && fileItems.length > 0) {
     parsedElements.push(
-      <motion.div
-        key={`file-list-${currentIndex}`}
-        initial={animate ? { opacity: 0, y: 10 } : undefined}
-        animate={animate ? { opacity: 1, y: 0 } : undefined}
-        transition={{ duration: 0.5, delay: currentIndex * 0.1 }}
-        className="pl-6 mb-4"
-      >
+      <div key={`file-list-${currentIndex}`} className="pl-6 mb-4">
         {fileItems}
-      </motion.div>,
+      </div>,
     );
   }
 

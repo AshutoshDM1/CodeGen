@@ -26,7 +26,7 @@ export const useTerminalStore = create<TerminalStore>((set) => ({
     set({ isLoadingWebContainerMessage }),
   showTerminalInput: true,
   url: '', // url of the project which webcontainer is giving,  no use currently
-  terminal: ['Welcome to the terminal'],
+  terminal: [],
   addCommand: (terminal) => set((state) => ({ terminal: [...state.terminal, terminal] })),
   clearTerminal: () => set({ terminal: [] }),
   setShowTerminalInput: (showTerminalInput) => set({ showTerminalInput }),

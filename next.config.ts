@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    domains: ['lh3.googleusercontent.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -17,20 +18,30 @@ const nextConfig = {
         hostname: 'aceternity.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
     ],
   },
   async headers() {
     return [
       {
-        source: '/:path*',
+        // Apply these headers to all routes
+        source: '/(.*)',
         headers: [
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp',
+            value: 'credentialless',
           },
           {
             key: 'Cross-Origin-Opener-Policy',
             value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'cross-origin',
           },
         ],
       },
@@ -40,20 +51,6 @@ const nextConfig = {
           {
             key: 'Access-Control-Allow-Origin',
             value: '*',
-          },
-          {
-            key: 'Cross-Origin-Resource-Policy',
-            value: 'cross-origin',
-          },
-        ],
-      },
-      {
-        // Add headers for external images
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Cross-Origin-Resource-Policy',
-            value: 'cross-origin',
           },
         ],
       },

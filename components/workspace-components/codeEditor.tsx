@@ -1,7 +1,6 @@
 import { Editor } from '@monaco-editor/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import * as monaco from 
-'monaco-editor';
+import * as monaco from 'monaco-editor';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../ui/resizable';
 import FileExplorer from '../FileExplorer';
 import DevNavbar from './DevNavbar';

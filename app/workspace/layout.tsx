@@ -5,8 +5,7 @@ import { useWebContainer } from '@/hooks/useWebContainer';
 import { useEditorCode } from '@/store/editorStore';
 import { useTerminalStore } from '@/store/terminalStore';
 import { FileSystemTree, WebContainer } from '@webcontainer/api';
-import { cleanTerminalOutput } from '@/lib/terminalOutput';
-import JSZip from 'jszip';
+import JSZip from 'jszip';  
 import SidebarMain from '@/components/workspace-components/SidebarMain';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
 import { useFullPreview } from '@/store/showTabStore';
@@ -31,6 +30,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const { setIsLoadingWebContainer, setIsLoadingWebContainerMessage } = useTerminalStore(
     (state) => state,
   );
+
   const startDevServer = useCallback(
     async (container: WebContainer) => {
       if (!container) return;
@@ -54,13 +54,14 @@ const Layout = ({ children }: { children: ReactNode }) => {
       devProcess.output.pipeTo(
         new WritableStream({
           write(chunk) {
-            const cleanedOutput = cleanTerminalOutput(chunk);
-            if (cleanedOutput) {
-              addCommand(cleanedOutput);
-            }
-            if (chunk.includes('Error')) {
-              setIsLoading(false);
-            }
+            addCommand(chunk);
+            // const cleanedOutput = cleanTerminalOutput(chunk);
+            // if (cleanedOutput) {
+            //   addCommand(cleanedOutput);
+            // }
+            // if (chunk.includes('Error')) {
+            //   setIsLoading(false);
+            // }
           },
         }),
       );
@@ -90,6 +91,13 @@ const Layout = ({ children }: { children: ReactNode }) => {
       addCommand('> ✅ Files remounted successfully');
 
       const installProcess = await webcontainer.spawn('npm', ['install']);
+      // installProcess.output.pipeTo(
+      //   new WritableStream({
+      //     write(chunk) {
+      //       addCommand(chunk);
+      //     },
+      //   }),
+      // );
       const installExitCode = await installProcess.exit;
       if (installExitCode !== 0) {
         throw new Error('Installation failed');
@@ -166,6 +174,13 @@ const Layout = ({ children }: { children: ReactNode }) => {
         await webcontainer.mount(files);
 
         const installProcess = await webcontainer.spawn('npm', ['install']);
+        // installProcess.output.pipeTo(
+        //   new WritableStream({
+        //     write(chunk) {
+        //       addCommand(chunk);
+        //     },
+        //   }),
+        // );
         const installExitCode = await installProcess.exit;
 
         if (installExitCode !== 0) {

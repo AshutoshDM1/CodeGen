@@ -98,11 +98,11 @@ const Texts: React.FC<Pick<MorphingTextProps, 'texts'>> = ({ texts }) => {
   return (
     <>
       <span
-        className="absolute inset-x-0 top-0 m-auto inline-block w-full bg-gradient-to-r from-blue-500 to-green-500 text-transparent bg-clip-text"
+        className="absolute inset-x-0 top-0 m-auto inline-block w-full bg-gradient-to-r from-[#9439d1] via-[#F0ABFC] to-[#FFFFFF] text-transparent bg-clip-text"
         ref={text1Ref}
       />
       <span
-        className="absolute inset-x-0 top-0 m-auto inline-block w-full bg-gradient-to-r from-blue-500 to-green-500 text-transparent bg-clip-text h-24"
+        className="absolute inset-x-0 top-0 m-auto inline-block w-full bg-gradient-to-r from-[#9439d1] via-[#F0ABFC] to-[#FFFFFF] text-transparent bg-clip-text h-24"
         ref={text2Ref}
       />
     </>

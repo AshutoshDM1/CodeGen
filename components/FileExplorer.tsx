@@ -86,9 +86,9 @@ const FileTree = ({ item, depth = 0, path = '', onFileClick }: FileTreeProps) =>
           </span>
         )}
         {item.type === 'folder' ? (
-          <Folder size={16} className="text-neutral-400" />
+          <Folder size={16} className="text-neutral-400 min-w-4 min-h-4" />
         ) : (
-          <File size={16} className="text-neutral-400 ml-1" />
+          <File size={16} className="text-neutral-400 ml-1 min-w-4 min-h-4" />
         )}
         <span className="text-sm pl-1 text-neutral-200 overflow-hidden text-ellipsis whitespace-nowrap">
           {item.name}

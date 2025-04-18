@@ -1,12 +1,12 @@
 'use client';
 import { useEffect } from 'react';
-import MainPage from '@/components/LandingPage-components/MainPage';
-import Connect from '@/components/LandingPage-components/Connect';
-import Footer from '@/components/LandingPage-components/Footer';
-import ProductsSection from '@/components/LandingPage-components/ProductsSection';
-import VideoFeatures from '@/components/LandingPage-components/VideoFeatures';
-import FeatureSection from '@/components/LandingPage-components/FeatureSection';
-import AgentFeatures from '@/components/LandingPage-components/AgentFeatures ';
+import MainPage from '@/components/Landing-components/MainPage';
+import Connect from '@/components/Landing-components/Connect';
+import Footer from '@/components/Landing-components/Footer';
+import ProductsSection from '@/components/Landing-components/ProductsSection';
+import VideoFeatures from '@/components/Landing-components/VideoFeatures';
+import FeatureSection from '@/components/Landing-components/FeatureSection';
+import AgentFeatures from '@/components/Landing-components/AgentFeatures ';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 

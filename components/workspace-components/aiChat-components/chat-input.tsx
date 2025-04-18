@@ -36,9 +36,8 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
   let buffer = '';
   let buferAfter = '';
   const fetchData = async () => {
-    try {
+  try {
       const URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
       const Files = EditorCode;
       const CurrentFiles = JSON.stringify(Files);
       const prompt = inputValue;
@@ -49,7 +48,7 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
 
       messageuser.messages.push(messageToAI);
 
-      const response = await fetch(`${URL}/api/v1/ai/chatDemo`, {
+      const response = await fetch(`${URL}/api/v1/ai/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -224,15 +223,13 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
       setFileupdating(true);
       setUpdatingFiles([]);
 
-      if (projectId && EditorCode && Object.keys(EditorCode).length > 0) {
-        setIsLoadingWebContainerMessage('Compiling the project...');
-        setIsLoadingWebContainer(true);
-        const updatedFilesEvent = new CustomEvent('updated-files');
-        window.dispatchEvent(updatedFilesEvent);
-        const remountWebcontainerEvent = new CustomEvent('remount-webcontainer');
-        window.dispatchEvent(remountWebcontainerEvent);
-        setShowPreview();
-      }
+      setIsLoadingWebContainerMessage('Compiling the project...');
+      setIsLoadingWebContainer(true);
+      const updatedFilesEvent = new CustomEvent('updated-files');
+      window.dispatchEvent(updatedFilesEvent);
+      const remountWebcontainerEvent = new CustomEvent('remount-webcontainer');
+      window.dispatchEvent(remountWebcontainerEvent);
+      setShowPreview();
     }
   };
 
