@@ -13,7 +13,7 @@ interface FileUpdateIndicatorProps {
 }
 
 const FileUpdateIndicator = ({
-  message = 'Updating',
+
   variant = 'full',
   className = '',
   filePath,
