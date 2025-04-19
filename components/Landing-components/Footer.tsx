@@ -48,7 +48,8 @@ export default function Footer() {
               className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8"
             >
               <span className="text-black/70 text-lg">New Delhi, India</span>
-              <span className="text-black/70 text-lg">© 2024 CodeGen AI</span>
+              <span className="text-black/70 text-lg">© 2025 CodeGen AI ,All rights reserved</span>
+              <span className="text-black/70 text-lg">Made with ❤️ by Ashutosh</span>
             </motion.div>
 
             {/* Right Side - Links */}

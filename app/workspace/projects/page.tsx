@@ -14,6 +14,10 @@ export default async function ProjectsPage() {
   const session = (await getServerSession(authOptions)) as Session | null;
   const response = (await getALLProject(session?.user?.email || '')) as ProjectResponse | undefined;
 
+  if (!response) {
+    return <div>No projects found</div>;
+  }
+
   return (
     <>
       <ShowProjectsComponent userProjects={response?.data?.projectResponse || []} />

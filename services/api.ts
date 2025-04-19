@@ -1,15 +1,18 @@
 import { toast } from 'sonner';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { AIResponse } from '@/store/chatStore';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
 export const errorHandler = (err: unknown) => {
   if (err instanceof Error) {
     console.log(err.name, err.message);
     toast.success(err.name as string, {
       description: err.message,
     });
+  }
+  if (err instanceof AxiosError) {
+    toast.error('Axios error occurred view in console.');
+    console.error(err);
   } else {
     toast.error('An unknown error occurred view in console.');
     console.error(err);
@@ -50,8 +53,10 @@ const getALLProject = async (userEmail: string) => {
     let response: Response = await axios.post(`${URL}/api/v1/project/getAllProject`, {
       userEmail,
     });
+    console.log(response);
     return response;
   } catch (err) {
+    console.log(err);
     errorHandler(err);
   }
 };

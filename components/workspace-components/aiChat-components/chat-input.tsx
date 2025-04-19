@@ -264,13 +264,13 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
       if (!inputValue.trim()) return;
       setIsLoading(true);
       setInputValue('');
-      // setAiThinking(true);
+      setAiThinking(true);
       if (projectId === null) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (session?.user?.email) {
           const projectResponse = await createProject(
             session?.user?.email,
-            inputValue.split(' ').slice(0, 3).join(' '),
+            inputValue.split(' ').slice(0, 4).join(' '),
           );
           createMessage(inputValue, 'user', projectResponse.response.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));

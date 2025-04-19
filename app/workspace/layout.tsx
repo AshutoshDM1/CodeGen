@@ -5,10 +5,11 @@ import { useWebContainer } from '@/hooks/useWebContainer';
 import { useEditorCode } from '@/store/editorStore';
 import { useTerminalStore } from '@/store/terminalStore';
 import { FileSystemTree, WebContainer } from '@webcontainer/api';
-import JSZip from 'jszip';  
+import JSZip from 'jszip';
 import SidebarMain from '@/components/workspace-components/SidebarMain';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
 import { useFullPreview } from '@/store/showTabStore';
+import { toast } from 'sonner';
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const { updatingFiles } = useChatStore();
@@ -166,8 +167,8 @@ const Layout = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const setupWebContainer = async () => {
       if (!webcontainer || isInitialized.current) return;
-
       try {
+        toast.loading('Starting up WebContainer...');
         setIsLoading(true);
 
         const files = EditorCode as unknown as FileSystemTree;
@@ -190,9 +191,13 @@ const Layout = ({ children }: { children: ReactNode }) => {
         await startDevServer(webcontainer);
         isInitialized.current = true;
         prevEditorCode.current = EditorCode;
+        toast.dismiss();
+        toast.info('WebContainer started successfully');
       } catch (error) {
         console.error('Setup failed:', error);
         setIsLoading(false);
+        toast.dismiss();
+        toast.error('Failed to start WebContainer');
       }
     };
 

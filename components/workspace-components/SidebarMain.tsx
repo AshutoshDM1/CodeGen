@@ -16,18 +16,33 @@ import {
   AlertDialogAction,
 } from '../ui/alert-dialog';
 
-// Define the extended user type
-interface ExtendedUser extends DefaultUser {
-  image?: string | null;
-}
-
-interface DefaultUser {
-  name?: string | null;
-  email?: string | null;
-}
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  image: string;
+  password: string;
+  createdAt: Date;
+};
 
 const SidebarMain = () => {
   const { data: session } = useSession();
+  const user = session?.user as User | undefined;
+
+  const getImageUrl = (imagePath: string | undefined) => {
+    if (!imagePath) return '';
+
+    if (imagePath.startsWith('http')) return imagePath;
+
+    // If it's a Google user content URL that got malformed
+    if (imagePath.includes('googleusercontent.com')) {
+      return `https://${imagePath.split('\\').pop()}`; // Extract the actual URL part
+    }
+    return imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  };
+
+  const userImageUrl = getImageUrl(user?.image);
+
   const links = [
     {
       label: 'New Chat',
@@ -87,12 +102,13 @@ const SidebarMain = () => {
           <div className="flex flex-col gap-3">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Avatar>
+                <Avatar className="cursor-pointer">
                   <AvatarImage
-                    src={(session?.user as ExtendedUser)?.image || ''}
-                    alt={session?.user?.name || ''}
+                    src={userImageUrl}
+                    alt={user?.name || ''}
+                    referrerPolicy="no-referrer"
                   />
-                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
               </AlertDialogTrigger>
               <AlertDialogContent className="bg-zinc-900 border border-zinc-700">
@@ -101,21 +117,20 @@ const SidebarMain = () => {
                   <div className="flex items-center gap-4 py-2">
                     <Avatar className="h-16 w-16">
                       <AvatarImage
-                        src={(session?.user as ExtendedUser)?.image || ''}
-                        alt={session?.user?.name || ''}
+                        src={userImageUrl}
+                        alt={user?.name || ''}
+                        referrerPolicy="no-referrer"
                       />
                       <AvatarFallback className="bg-zinc-800 text-zinc-100">
-                        {session?.user?.name
+                        {user?.name
                           ?.split(' ')
                           .map((n) => n[0])
-                          .join('') || 'CN'}
+                          .join('') || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
-                      <h3 className="text-lg font-medium text-zinc-100">
-                        {session?.user?.name || 'User'}
-                      </h3>
-                      <p className="text-sm text-zinc-400">{session?.user?.email || ''}</p>
+                      <h3 className="text-lg font-medium text-zinc-100">{user?.name || 'User'}</h3>
+                      <p className="text-sm text-zinc-400">{user?.email || ''}</p>
                     </div>
                   </div>
                 </AlertDialogHeader>

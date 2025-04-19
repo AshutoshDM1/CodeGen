@@ -49,11 +49,16 @@ const FileUpdateIndicator = ({
       className={`flex items-center justify-start gap-3 p-1.5 px-3 bg-gradient-to-r backdrop-blur-xl border border-blue-500/20 rounded-md text-sm w-fit ${className}`}
     >
       {loading ? (
-        <Loader2 className="animate-spin h-3 w-3 text-blue-500" />
+        <>
+          <Loader2 className="animate-spin h-3 w-3 text-blue-500" />
+          <span className="text-blue-300 font-medium">Updating...</span>
+        </>
       ) : (
-        <CheckCircle className="h-3 w-3 text-green-500" />
+        <>
+          <CheckCircle className="h-3 w-3 text-green-500" />
+          <span className="text-blue-300 font-medium">Updated</span>
+        </>
       )}
-      <span className="text-blue-300 font-medium">{message}</span>
       <div className="flex items-center gap-1.5">
         <div className="w-4 h-4 text-blue-400 mb-1 mr-1">{fileIcon}</div>
         <span className="text-zinc-400 font-mono">{filePath}</span>
