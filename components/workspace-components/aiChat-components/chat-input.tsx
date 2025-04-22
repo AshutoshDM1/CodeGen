@@ -12,7 +12,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { ShinyButton } from '@/components/magicui/shiny-button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { messageuser } from '@/helper/messageReact';
-import { createMessage, createProject, enhancePromptApi, errorHandler } from '@/services/api';
+import {
+  createMessage,
+  createProject,
+  enhancePromptApi,
+  errorHandler,
+  sendCode,
+  updateCode,
+} from '@/services/api';
 import { AIMessage } from '@/types/AiResponse';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -36,7 +43,7 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
   let buffer = '';
   let buferAfter = '';
   const fetchData = async () => {
-  try {
+    try {
       const URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const Files = EditorCode;
       const CurrentFiles = JSON.stringify(Files);
@@ -222,7 +229,6 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
     } finally {
       setFileupdating(true);
       setUpdatingFiles([]);
-
       setIsLoadingWebContainerMessage('Compiling the project...');
       setIsLoadingWebContainer(true);
       const updatedFilesEvent = new CustomEvent('updated-files');
@@ -240,6 +246,7 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
         try {
           console.log('Sending message to backend:', lastMessage);
           await createMessage(lastMessage.content, 'assistant', projectId);
+          await updateCode(projectId, EditorCode);
           console.log('Message sent successfully');
         } catch (error) {
           console.error('Error sending message to backend:', error);
@@ -266,13 +273,13 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
       setInputValue('');
       setAiThinking(true);
       if (projectId === null) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         if (session?.user?.email) {
           const projectResponse = await createProject(
             session?.user?.email,
             inputValue.split(' ').slice(0, 4).join(' '),
           );
           createMessage(inputValue, 'user', projectResponse.response.id);
+          sendCode(projectResponse.response.id, EditorCode);
           await new Promise((resolve) => setTimeout(resolve, 1000));
           router.push(`/workspace/projectId-${projectResponse.response.id}`);
           await new Promise((resolve) => setTimeout(resolve, 1000));

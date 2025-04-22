@@ -2,9 +2,10 @@ import { useFullPreview } from '@/store/showTabStore';
 import { useTerminalStore } from '@/store/terminalStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import WebContainerLoading from './WebContainerLoading';
-
+import { useEditorCode } from '@/store/editorStore';
 const WebContainer = () => {
   const { url } = useTerminalStore();
+  const { EditorCode } = useEditorCode();
   const { isLoadingWebContainer, isLoadingWebContainerMessage } = useTerminalStore(
     (state) => state,
   );
@@ -143,9 +144,90 @@ const WebContainer = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="flex items-center justify-center w-full h-full"
+              className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-purple-900 to-black p-6"
             >
-              <p>Failed to load preview</p>
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="relative mb-6"
+              >
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="text-blue-500"
+                >
+                  <motion.circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.5, ease: 'easeInOut' }}
+                  />
+                  <motion.path
+                    d="M12 8v4m0 4h.01"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.5 }}
+                  />
+                </svg>
+              </motion.div>
+              <motion.h3
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-xl font-semibold text-white mb-2"
+              >
+                WebContainer is not live
+              </motion.h3>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="text-gray-300 text-center max-w-md"
+              >
+                The preview environment needs to be initialized. Click the button below to install
+                dependencies and start the server.
+              </motion.p>
+              <motion.button
+                onClick={() => {
+                  const event = new CustomEvent('remount-webcontainer', {
+                    detail: { files: EditorCode },
+                  });
+                  window.dispatchEvent(event);
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="mt-6 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-md flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                  <path d="M21 3v5h-5" />
+                </svg>
+                Install dependencies & Run Server
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>

@@ -11,15 +11,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-
-const fetchMessage = async (projectId: number) => {
-  const response = await fetch(`http://localhost:4000/api/v1/message/getMessage/${projectId}`);
-  const data = await response.json();
-  console.log('data', data);
-  return data;
-};
-
+import { getALLMessage, getCode, getProject } from '@/services/api';
+import { useEditorCode } from '@/store/editorStore';
+import { syncFileExplorerFromEditorCode } from '@/lib/syncFileExplorer';
+import { useProjectStore } from '@/store/projectStore';
 const Dashboard = () => {
+  const { setProject } = useProjectStore();
+  const { setCode } = useEditorCode();
   const { fullPreview, setFullPreview } = useFullPreview();
   const { url } = useTerminalStore();
   const { showWorkspace, setShowWorkspace } = useShowTab();
@@ -42,7 +40,7 @@ const Dashboard = () => {
 
   const { data } = useQuery({
     queryKey: ['messages', projectId],
-    queryFn: () => fetchMessage(projectId as number),
+    queryFn: () => getALLMessage(projectId as number),
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnMount: false,
@@ -52,18 +50,56 @@ const Dashboard = () => {
     retry: 1,
     retryDelay: 1000,
   });
-
+  const { data: projectData } = useQuery({
+    queryKey: ['project', projectId],
+    queryFn: () => getProject(projectId as number),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    enabled: !!projectId,
+    retry: 1,
+    retryDelay: 1000,
+  });
+  const { data: codeData } = useQuery({
+    queryKey: ['code', projectId],
+    queryFn: () => getCode(projectId as number),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    enabled: !!projectId,
+    retry: 1,
+    retryDelay: 1000,
+  });
   useEffect(() => {
-    if (data?.messages && data.messages.length > 0) {
-      const newMessages = data.messages.map(
-        (message: { id: number; createdAt: string; message: Message }) => message.message,
-      );
+    setTimeout(() => {
+      setShowWorkspace(true);
+    }, 2000);
+    if (projectData?.data?.message) {
+      setProject(projectData.data.message);
+      if (data?.messages && data.messages.length > 0) {
+        const newMessages = data.messages.map(
+          (message: { id: number; createdAt: string; message: Message }) => message.message,
+        );
 
-      if (newMessages.length > 0 && messages.length === 0) {
-        newMessages.forEach((msg: Message) => addMessage(msg));
+        if (newMessages.length > 0 && messages.length === 0) {
+          newMessages.forEach((msg: Message) => addMessage(msg));
+        }
+        if (codeData?.data?.code) {
+          const codeToSet = codeData.data.code.code;
+          setCode(codeToSet);
+          syncFileExplorerFromEditorCode(codeToSet);
+          setTimeout(() => {
+            const remountEvent = new CustomEvent('remount-webcontainer');
+            window.dispatchEvent(remountEvent);
+          }, 1000);
+        }
       }
     }
-  }, [data, addMessage, messages.length]);
+  }, [data, addMessage, messages.length, codeData]);
 
   return (
     <>

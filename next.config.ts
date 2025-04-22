@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['lh3.googleusercontent.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -28,12 +27,12 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Apply these headers to all routes
+        // Apply strict isolation to all routes
         source: '/(.*)',
         headers: [
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: 'credentialless',
+            value: 'require-corp',
           },
           {
             key: 'Cross-Origin-Opener-Policy',
@@ -42,6 +41,28 @@ const nextConfig = {
           {
             key: 'Cross-Origin-Resource-Policy',
             value: 'cross-origin',
+          },
+        ],
+      },
+      {
+        // Special route for handling profile images
+        source: '/api/proxy-image/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'credentialless',
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'unsafe-none',
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'cross-origin',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
           },
         ],
       },

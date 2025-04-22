@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import GoogleLogin from '@/components/GoogleLogin';
+import GoogleLogin from '@/components/Signup-components/GoogleLogin';
 import { signIn } from 'next-auth/react';
 
 type SendLoginUserdata = {

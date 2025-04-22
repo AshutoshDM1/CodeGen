@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import ErrorComponent from '@/components/Error';
+import ErrorComponent from '@/components/Signup-components/Error';
 
 export default function ErrorPage() {
   return (

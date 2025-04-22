@@ -15,7 +15,16 @@ export default async function ProjectsPage() {
   const response = (await getALLProject(session?.user?.email || '')) as ProjectResponse | undefined;
 
   if (!response) {
-    return <div>No projects found</div>;
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div className="text-center p-8 bg-black/50 rounded-lg border border-border">
+          <h2 className="text-2xl font-bold text-white mb-3">No Projects Found</h2>
+          <p className="text-neutral-300 mb-4">
+            You don&apos;t have any projects yet or there was an error loading them.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

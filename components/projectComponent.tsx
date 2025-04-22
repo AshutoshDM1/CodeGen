@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { MagicCard } from './magicui/magic-card';
 import { Project } from '@/store/projectStore';
 import { toast } from 'sonner';
+import { deleteProject } from '@/services/api';
 
 // Hook to handle hydration issues
 function useHasMounted() {
@@ -85,8 +86,9 @@ const ShowProjectsComponent = ({ userProjects }: { userProjects: Project[] }) =>
                         variant="ghost"
                         size="icon"
                         className="h-9 w-9 rounded-full hover:bg-[#202020]"
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.preventDefault();
+                          await deleteProject(project.id);
                           setProjectToDelete(project.id);
                           setIsDeleteModalOpen(true);
                         }}

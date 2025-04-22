@@ -3,6 +3,7 @@ import { FileContent, projectFiles } from '@/types/webContainerFiles';
 import { defaultProjectFiles } from '@/helper/defaultProjectFiles';
 import { cleanCodeContent } from '@/lib/cleanCodeContent';
 import { findFileContent } from '@/lib/findFileContent';
+import { syncFileExplorerFromEditorCode } from '@/lib/syncFileExplorer';
 
 interface EditorCodeStore {
   EditorCode: projectFiles;
@@ -16,7 +17,13 @@ export const useEditorCode = create<EditorCodeStore>((set) => ({
   getfileCode: (filePath: string): string => {
     return findFileContent(useEditorCode.getState().EditorCode, filePath) ?? '';
   },
-  setCode: (code: projectFiles) => set({ EditorCode: code }),
+  setCode: (code: projectFiles) => {
+    // Update editor code
+    set({ EditorCode: code });
+
+    // Sync with file explorer
+    syncFileExplorerFromEditorCode(code);
+  },
   setEditorCode: (filePath, code) =>
     set((state) => {
       // Clean the code before storing it
@@ -53,6 +60,9 @@ export const useEditorCode = create<EditorCodeStore>((set) => ({
         current[filePath] = { file: { contents: cleanedCode } };
       }
 
-      return { EditorCode: current };
+      // Sync with file explorer after update
+      const newState = { EditorCode: current };
+      setTimeout(() => syncFileExplorerFromEditorCode(current), 0);
+      return newState;
     }),
 }));

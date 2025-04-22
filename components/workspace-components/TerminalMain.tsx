@@ -88,7 +88,6 @@ const TerminalMain = () => {
                 const text = chunk.toString();
                 xtermRef.current.write(text);
               }
-              console.log(chunk);
             },
           }),
         );

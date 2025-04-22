@@ -1,6 +1,7 @@
 import { toast } from 'sonner';
 import axios, { AxiosError } from 'axios';
 import { AIResponse } from '@/store/chatStore';
+import { projectFiles } from '@/types/webContainerFiles';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 export const errorHandler = (err: unknown) => {
@@ -53,7 +54,6 @@ const getALLProject = async (userEmail: string) => {
     let response: Response = await axios.post(`${URL}/api/v1/project/getAllProject`, {
       userEmail,
     });
-    console.log(response);
     return response;
   } catch (err) {
     console.log(err);
@@ -78,11 +78,68 @@ const createMessage = async (
   }
 };
 
+const getALLMessage = async (projectId: number) => {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const response = await fetch(`${API_URL}/api/v1/message/getMessage/${projectId}`);
+  const data = await response.json();
+  return data;
+};
+
+const sendCode = async (projectId: number, code: projectFiles) => {
+  try {
+    const response = await axios.post(`${URL}/api/v1/code/createCode`, {
+      projectId,
+      code,
+    });
+    return response;
+  } catch (err) {
+    errorHandler(err);
+  }
+};
+
+const updateCode = async (projectId: number, code: projectFiles) => {
+  try {
+    const response = await axios.put(`${URL}/api/v1/code/updateCode`, {
+      projectId,
+      code,
+    });
+    return response;
+  } catch (err) {
+    errorHandler(err);
+  }
+};
+const getCode = async (projectId: number) => {
+  try {
+    const response = await axios.get(`${URL}/api/v1/code/getCode/${projectId}`);
+    return response;
+  } catch (err) {
+    errorHandler(err);
+  }
+};
+const getProject = async (projectId: number) => {
+  try {
+    const response = await axios.get(`${URL}/api/v1/project/getProject/${projectId}`);
+    return response;
+  } catch (err) {
+    errorHandler(err);
+  }
+};
+const deleteProject = async (projectId: number) => {
+  try {
+    const response = await axios.delete(`${URL}/api/v1/project/deleteProject/${projectId}`);
+    return response;
+  } catch (err) {
+    errorHandler(err);
+  }
+};
 // AI endpoints
 export { enhancePromptApi };
 
 // Project endpoints
-export { createProject, getALLProject };
+export { createProject, getALLProject, deleteProject };
 
 // Message endpoints
-export { createMessage };
+export { createMessage, getALLMessage };
+
+// Send code endpoint
+export { sendCode, updateCode, getCode, getProject };

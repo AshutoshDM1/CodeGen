@@ -6,11 +6,17 @@ import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { useChatStore } from '@/store/chatStore';
 import { useProjectStore } from '@/store/projectStore';
+import { useEditorCode } from '@/store/editorStore';
+import { defaultProjectFiles } from '@/helper/defaultProjectFiles';
+import { syncFileExplorerFromEditorCode } from '@/lib/syncFileExplorer';
 const Dashboard = () => {
   const { setMessages } = useChatStore();
   const { setProjectNull } = useProjectStore();
+  const { setCode } = useEditorCode();
   useEffect(() => {
     setMessages([]);
+    setCode(defaultProjectFiles);
+    syncFileExplorerFromEditorCode(defaultProjectFiles);
     setProjectNull();
   }, []);
   return (

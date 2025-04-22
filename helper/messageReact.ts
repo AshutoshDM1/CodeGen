@@ -20,7 +20,7 @@ export const messageuser = {
     },
     {
       role: 'user',
-      content: `1. use frame-motion and good styling 2. Keeping in mind the project is already have boilerplate code which is created by vite Having ts as language and tsx files and tailwind css as styling language which is already installed in the project 3. dont forget to update the package.json file otherwise it will not work in webcontainer.`,
+      content: `1. use frame-motion and good styling 2. Keeping in mind the project is already have boilerplate code which is created by vite Having ts as language and tsx files and tailwind css as styling language which is already installed in the project 3. dont forget to update the package.json and dont add any comment in package.json file otherwise it will not work in webcontainer.`,
     },
   ],
 };

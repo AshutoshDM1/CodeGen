@@ -32,12 +32,13 @@ const SidebarMain = () => {
   const getImageUrl = (imagePath: string | undefined) => {
     if (!imagePath) return '';
 
+    // Use proxy for Google user images
+    if (imagePath.includes('googleusercontent.com')) {
+      return `/api/proxy-image?url=${encodeURIComponent(imagePath)}`;
+    }
+
     if (imagePath.startsWith('http')) return imagePath;
 
-    // If it's a Google user content URL that got malformed
-    if (imagePath.includes('googleusercontent.com')) {
-      return `https://${imagePath.split('\\').pop()}`; // Extract the actual URL part
-    }
     return imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
   };
 

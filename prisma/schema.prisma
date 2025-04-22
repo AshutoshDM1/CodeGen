@@ -8,36 +8,29 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  email         String    @unique
-  name          String
-  password      String?   // Optional for OAuth users
-  createdAt     DateTime  @default(now())
-  
-  // OAuth related fields
-  accounts      Account[]
-  
-  // Application relationships
-  projects      Project[]
-  messages      Message[]    // Direct relation to messages
-  codes         Code[]       // Direct relation to codes
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String
+  password  String?
+  createdAt DateTime  @default(now())
+  accounts  Account[]
+  projects  Project[]
 }
 
 model Account {
   id                String  @id @default(cuid())
-  userId           Int
-  type             String
-  provider         String
+  userId            Int
+  type              String
+  provider          String
   providerAccountId String
-  refresh_token    String? @db.Text
-  access_token     String? @db.Text
-  expires_at       Int?
-  token_type       String?
-  scope            String?
-  id_token         String? @db.Text
-  session_state    String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -46,35 +39,25 @@ model Project {
   id                 Int       @id @default(autoincrement())
   projectName        String
   projectDescription String
-  createdAt         DateTime  @default(now())
-  
-  // Relations
-  userId           Int
-  user             User      @relation(fields: [userId], references: [id])
-  messages         Message[]
-  code             Code?     // One-to-one with Code
+  createdAt          DateTime  @default(now())
+  userId             Int
+  code               Code?
+  messages           Message[]
+  user               User      @relation(fields: [userId], references: [id])
 }
 
 model Code {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   code      Json
   createdAt DateTime @default(now())
-  
-  // Relations
-  projectId Int     @unique  // Makes it one-to-one with Project
-  project   Project @relation(fields: [projectId], references: [id])
-  userId    Int
-  user      User    @relation(fields: [userId], references: [id])
+  projectId Int      @unique
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Message {
   id        Int      @id @default(autoincrement())
   message   Json
   createdAt DateTime @default(now())
-  
-  // Relations
   projectId Int
-  project   Project @relation(fields: [projectId], references: [id])
-  userId    Int
-  user      User    @relation(fields: [userId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

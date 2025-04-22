@@ -325,7 +325,7 @@ const CodeEditor = () => {
                             disabled={isSavingFiles}
                             onClick={() => {
                               setIsSavingFiles(true);
-                              const event = new CustomEvent('remount-webcontainer', {
+                              const event = new CustomEvent('save-files', {
                                 detail: { files: EditorCode },
                               });
                               window.dispatchEvent(event);
