@@ -6,6 +6,7 @@ export interface FilePaths {
   fileupdating: boolean;
   setFilePaths: (filePaths: string) => void;
   setFileupdating: (fileupdating: boolean) => void;
+  resetFilePaths: () => void;
 }
 
 export const useFilePaths = create<FilePaths>((set) => ({
@@ -13,11 +14,13 @@ export const useFilePaths = create<FilePaths>((set) => ({
   filePaths: 'src/App.tsx',
   setFilePaths: (filePaths) => set({ filePaths }),
   setFileupdating: (fileupdating: boolean) => set({ fileupdating: !fileupdating }),
+  resetFilePaths: () => set({ filePaths: 'src/App.tsx', fileupdating: false }),
 }));
 
 export interface FileExplorerOpenStates {
   openFolders: Set<string>;
   setOpenFolder: (path: string, isOpen: boolean) => void;
+  resetOpenFolders: () => void;
 }
 
 export const useFileExplorerOpenStates = create<FileExplorerOpenStates>((set) => ({
@@ -32,11 +35,13 @@ export const useFileExplorerOpenStates = create<FileExplorerOpenStates>((set) =>
       }
       return { openFolders: newOpenFolders };
     }),
+  resetOpenFolders: () => set({ openFolders: new Set<string>(['src']) }),
 }));
 
 interface FileExplorer {
   fileExplorer: FileItem[];
   setFileExplorer: (fileExplorer: FileItem[]) => void;
+  resetFileExplorer: () => void;
   addFileExplorer: (fileName: string) => void;
   addFileByAI: (filePath: string, fileName: string) => void;
   deleteFileExplorer: (fileName: string) => void;
@@ -48,6 +53,7 @@ interface FileExplorer {
 export const useFileExplorer = create<FileExplorer>((set) => ({
   fileExplorer: fileStructure,
   setFileExplorer: (fileExplorer) => set({ fileExplorer }),
+  resetFileExplorer: () => set({ fileExplorer: fileStructure }),
   addFileByAI: (filePath: string, fileName: string) =>
     set((state) => {
       const { setOpenFolder } = useFileExplorerOpenStates.getState();

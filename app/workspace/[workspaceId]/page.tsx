@@ -15,6 +15,12 @@ import { getALLMessage, getCode, getProject } from '@/services/api';
 import { useEditorCode } from '@/store/editorStore';
 import { syncFileExplorerFromEditorCode } from '@/lib/syncFileExplorer';
 import { useProjectStore } from '@/store/projectStore';
+import {
+  useFileExplorer,
+  useFilePaths,
+  useFileExplorerOpenStates,
+} from '@/store/fileExplorerStore';
+
 const Dashboard = () => {
   const { setProject } = useProjectStore();
   const { setCode } = useEditorCode();
@@ -23,7 +29,11 @@ const Dashboard = () => {
   const { showWorkspace, setShowWorkspace } = useShowTab();
   const { workspaceId } = useParams();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, updatingFiles, addMessage } = useChatStore();
+  const { messages, updatingFiles, addMessage, clearMessages } = useChatStore();
+  const { resetFileExplorer } = useFileExplorer();
+  const { resetFilePaths } = useFilePaths();
+  const { resetOpenFolders } = useFileExplorerOpenStates();
+
   const projectId: number | null = workspaceId
     ? parseInt(workspaceId.toString().split('-')[1])
     : null;
@@ -41,9 +51,9 @@ const Dashboard = () => {
   const { data } = useQuery({
     queryKey: ['messages', projectId],
     queryFn: () => getALLMessage(projectId as number),
-    staleTime: Infinity,
+    staleTime: 0,
     gcTime: Infinity,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled: !!projectId,
@@ -53,9 +63,9 @@ const Dashboard = () => {
   const { data: projectData } = useQuery({
     queryKey: ['project', projectId],
     queryFn: () => getProject(projectId as number),
-    staleTime: Infinity,
+    staleTime: 0,
     gcTime: Infinity,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled: !!projectId,
@@ -65,15 +75,26 @@ const Dashboard = () => {
   const { data: codeData } = useQuery({
     queryKey: ['code', projectId],
     queryFn: () => getCode(projectId as number),
-    staleTime: Infinity,
+    staleTime: 0,
     gcTime: Infinity,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled: !!projectId,
     retry: 1,
     retryDelay: 1000,
   });
+
+  // Reset state when projectId changes
+  useEffect(() => {
+    if (projectId !== null) {
+      clearMessages(); // Clear messages when project changes
+      resetFileExplorer(); // Reset file explorer
+      resetFilePaths(); // Reset file paths
+      resetOpenFolders(); // Reset open folders
+    }
+  }, [projectId, clearMessages, resetFileExplorer, resetFilePaths, resetOpenFolders]);
+
   useEffect(() => {
     setTimeout(() => {
       setShowWorkspace(true);
@@ -92,14 +113,10 @@ const Dashboard = () => {
           const codeToSet = codeData.data.code.code;
           setCode(codeToSet);
           syncFileExplorerFromEditorCode(codeToSet);
-          setTimeout(() => {
-            const remountEvent = new CustomEvent('remount-webcontainer');
-            window.dispatchEvent(remountEvent);
-          }, 1000);
         }
       }
     }
-  }, [data, addMessage, messages.length, codeData]);
+  }, [data, addMessage, messages.length, codeData, projectId, projectData, setProject, setCode]);
 
   return (
     <>
