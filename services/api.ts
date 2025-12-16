@@ -29,6 +29,9 @@ const enhancePromptApi = async (inputValue: string) => {
       },
       body: JSON.stringify({ prompt: inputValue }),
     });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
     return response;
   } catch (err) {
     errorHandler(err);

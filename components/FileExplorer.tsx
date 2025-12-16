@@ -74,7 +74,7 @@ const FileTree = ({ item, depth = 0, path = '', onFileClick }: FileTreeProps) =>
   return (
     <div className="px-3 mb-1 ">
       <div
-        className={`flex items-center gap-1 py-1 mb-1 hover:bg-blue-200/30 cursor-pointer rounded-md pr-2 ${
+        className={`flex items-center gap-1 py-1 mb-1 hover:bg-blue-200/30 transition-all duration-[5ms] ease-in-out cursor-pointer rounded-md pr-2 ${
           isSelected ? 'bg-blue-600' : ''
         }`}
         style={{ paddingLeft: `${depth * 12}px` }}
