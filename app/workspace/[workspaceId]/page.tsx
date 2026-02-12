@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { ResizablePanelGroup } from '@/components/ui/resizable';
 import Alert from '@/components/workspace-components/Alert';

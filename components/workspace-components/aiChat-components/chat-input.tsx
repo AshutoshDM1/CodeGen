@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -23,6 +24,7 @@ import {
 import { AIMessage } from '@/types/AiResponse';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { projectFiles } from '@/types/webContainerFiles';
 export default function ChatInput({ projectId }: { projectId: number | null }) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -40,8 +42,6 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
   const { addUpdatingFiles, setUpdatingFiles, setAiThinking } = useChatStore();
   const [enchancedLoadding, setEnchancedLoadding] = useState(false);
 
-  let buffer = '';
-  let buferAfter = '';
   const fetchData = async () => {
     try {
       const URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
@@ -63,7 +63,21 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
         body: JSON.stringify(messageuser),
       });
 
-      if (!response.body) throw new Error('No response body');
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      // Get the full response text at once
+      const fullText = await response.text();
+
+      console.log('===== FULL AI RESPONSE =====');
+      console.log('Response length:', fullText.length);
+      console.log('First 500 chars:', fullText.substring(0, 500));
+      console.log('============================');
+
+      // Show loading while parsing
+      setIsLoadingWebContainerMessage('Parsing AI response...');
+      setIsLoadingWebContainer(true);
+      setAiThinking(false);
+      setFileupdating(false);
 
       const message: AIMessage = {
         beforeMsg: '',
@@ -74,157 +88,137 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
         },
         afterMsg: '',
       };
+
+      // Parse the full text
+      let buffer = fullText;
+
+      // Extract beforeMsg
+      const artifactMatch = buffer.match(/<boltArtifact id="([^"]*)" title="([^"]*)">/);
+      if (artifactMatch) {
+        message.beforeMsg = buffer.split('<boltArtifact')[0].trim();
+        message.boltArtifact.title = artifactMatch[2];
+        buffer = buffer.substring(buffer.indexOf('<boltArtifact'));
+      } else {
+        // If no artifact found, the entire response is beforeMsg
+        message.beforeMsg = fullText;
+        console.warn('No boltArtifact found in response!');
+      }
+
+      // Extract file actions - Using a more flexible regex that handles newlines better
+      const fileActionRegex = /<boltAction\s+type="file"\s+filePath="([^"]*)"\s*>([\s\S]*?)<\/boltAction>/g;
+      let fileMatch;
+      
+      // Reset regex lastIndex to ensure we start from the beginning
+      fileActionRegex.lastIndex = 0;
+      
+      let matchCount = 0;
+      while ((fileMatch = fileActionRegex.exec(buffer)) !== null) {
+        matchCount++;
+        const filePath = fileMatch[1];
+        let content = fileMatch[2];
+
+        console.log(`\n===== FILE MATCH #${matchCount} =====`);
+        console.log(`File path: "${filePath}"`);
+        console.log(`Raw content length: ${content.length}`);
+        console.log(`First 300 chars of raw content:`, content.substring(0, 300));
+
+        // Clean the content - trim all leading and trailing whitespace
+        // DO NOT process escape sequences since AI sends plain text
+        content = content.trim();
+
+        console.log(`Cleaned content length: ${content.length}`);
+        console.log(`First 300 chars of cleaned content:`, content.substring(0, 300));
+
+        // Always update the file content first
+        if (filePath && content) {
+          console.log(`\n[FileUpdate] Processing: ${filePath}`);
+          console.log(`[FileUpdate] Content length: ${content.length}`);
+          console.log(`[FileUpdate] First 100 chars:`, content.substring(0, 100));
+          
+          // Check if file exists BEFORE updating
+          const fileExists = findFileContent(EditorCode, filePath);
+          console.log(`[FileUpdate] File exists in current state: ${!!fileExists}`);
+          
+          // If file doesn't exist, create it in file explorer first
+          if (!fileExists) {
+            const filename = filePath.split('/').pop() || '';
+            console.log(`[FileUpdate] Creating new file in explorer: ${filename} at ${filePath}`);
+            addFileByAI(filePath, filename);
+          }
+          
+          // Now update the editor code (this will work for both new and existing files)
+          console.log(`[FileUpdate] Calling setEditorCode for: ${filePath}`);
+          setEditorCode(filePath, content);
+          console.log(`[FileUpdate] setEditorCode called successfully`);
+          
+          addUpdatingFiles([
+            {
+              action: 'Updated',
+              filePath: filePath,
+            },
+          ]);
+          console.log(`[FileUpdate] ✓ File ${fileExists ? 'updated' : 'created'} successfully\n`);
+        } else {
+          console.warn(`[FileUpdate] ⚠ Skipped file due to missing path or content`);
+          console.warn(`[FileUpdate]   Path: "${filePath}", Content length: ${content?.length || 0}`);
+        }
+
+        message.boltArtifact.fileActions.push({
+          type: 'file',
+          filePath,
+          content,
+        });
+        console.log(`============================\n`);
+      }
+
+      console.log(`\n===== PARSING COMPLETE =====`);
+      console.log(`Total files processed: ${message.boltArtifact.fileActions.length}`);
+      console.log(`============================\n`);
+
+      // Extract shell actions
+      const shellActionRegex = /<boltAction type="shell">([\s\S]*?)<\/boltAction>/g;
+      let shellMatch;
+      while ((shellMatch = shellActionRegex.exec(buffer)) !== null) {
+        const content = shellMatch[1].trim();
+        message.boltArtifact.shellActions.push({
+          type: 'shell',
+          content,
+        });
+      }
+
+      // Extract afterMsg
+      const artifactEndMatch = buffer.match(/<\/boltArtifact>([\s\S]*)/);
+      if (artifactEndMatch) {
+        message.afterMsg = artifactEndMatch[1].replace(/^[>\s]+/, '').trim();
+      }
+
+      // Add the complete message to chat
       addMessage({
         role: 'assistant',
         content: {
-          startingContent: '',
-          projectFiles: {},
-          endingContent: '',
+          startingContent: message.beforeMsg,
+          projectFiles: message.boltArtifact.fileActions.reduce(
+            (acc, file) => {
+              if (file.filePath) {
+                acc[file.filePath] = {
+                  file: {
+                    contents: file.content,
+                  },
+                };
+              }
+              return acc;
+            },
+            {} as projectFiles,
+          ),
+          endingContent: message.afterMsg,
         },
       });
-
-      setFileupdating(false);
-      const reader = response.body.getReader();
-      let isBefore = false;
-      let isInsideArtifact = false;
-      let isInsideFileAction = false;
-      let isInsideShellAction = false;
-      let currentFileAction = {
-        type: 'file' as const,
-        filePath: '',
-        content: '',
-      };
-      let currentShellAction = { type: 'shell' as const, content: '' };
-      let accumulatedContent = '';
-      setAiThinking(false);
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = new TextDecoder().decode(value);
-        buffer += chunk;
-
-        if (chunk.includes('<')) {
-          isBefore = true;
-        }
-
-        if (!isInsideArtifact && !isBefore) {
-          addAIbeforeMsg(chunk);
-        }
-
-        if (buffer.includes('<boltArtifact')) {
-          const artifactMatch = buffer.match(/<boltArtifact id="([^"]*)" title="([^"]*)">/);
-          if (artifactMatch) {
-            isInsideArtifact = true;
-            message.boltArtifact.title = artifactMatch[2];
-            message.beforeMsg = buffer.split('<boltArtifact')[0];
-            buffer = buffer.substring(buffer.indexOf('>') + 1);
-          }
-        }
-
-        if (isInsideArtifact && buffer.includes('<boltAction type="file"')) {
-          isInsideFileAction = true;
-          currentFileAction = { type: 'file', filePath: '', content: '' };
-          accumulatedContent = ''; // Reset accumulated content
-          const filePathMatch = buffer.match(/filePath="([^"]*)"/);
-          if (filePathMatch) {
-            currentFileAction.filePath = filePathMatch[1];
-
-            // Check if file exists, if not create it
-            const fileExists = findFileContent(EditorCode, currentFileAction.filePath);
-            if (!fileExists && currentFileAction.filePath) {
-              const filename = currentFileAction.filePath.split('/').pop() || '';
-              // Create the file and open its parent folders
-              addFileByAI(currentFileAction.filePath, filename);
-              // Set the current file path
-              setFilePaths(currentFileAction.filePath);
-            }
-
-            // Initialize with empty content
-            if (currentFileAction.filePath) {
-              setFilePaths(currentFileAction.filePath);
-              setEditorCode(currentFileAction.filePath, '');
-              console.log(currentFileAction.filePath);
-              addUpdatingFiles([
-                {
-                  action: 'Updated',
-                  filePath: currentFileAction.filePath,
-                },
-              ]);
-            }
-            buffer = buffer.substring(buffer.indexOf('>') + 1);
-          }
-        }
-
-        if (isInsideFileAction) {
-          if (!chunk.includes('</boltAction>') && !chunk.includes('<boltAction')) {
-            accumulatedContent += chunk;
-            if (currentFileAction.filePath) {
-              // First remove any XML tags at start and end
-              const cleanContent = accumulatedContent
-                .replace(/^>?\s*/, '') // Remove leading '>' and whitespace
-                .replace(/\s*<\/boltAction>\s*$/, '') // Remove trailing boltAction tag
-                // Then process HTML entities and escapes
-                .replace(/\\n/g, '\n')
-                .replace(/\\t/g, '\t')
-                .replace(/\\([^\\])/g, '$1')
-                .replace(/\\"/g, '"')
-                .replace(/&amp;/g, '&')
-                .replace(/&lt;/g, '<')
-                .replace(/&gt;/g, '>')
-                .replace(/&quot;/g, '"')
-                .replace(/&#39;/g, "'")
-                .replace(/&amp;lt;/g, '<')
-                .replace(/&amp;gt;/g, '>')
-                .replace(/\{&gt;/g, '{>')
-                .replace(/&lt;\}/g, '<}')
-                .replace(/=&gt;/g, '=>')
-                .trim();
-              setEditorCode(currentFileAction.filePath, cleanContent);
-            }
-          }
-        }
-
-        if (isInsideFileAction && buffer.includes('</boltAction>')) {
-          const cleanContent = accumulatedContent
-            .replace(/\\n/g, '\n')
-            .replace(/\\t/g, '\t')
-            .replace(/\\([^\\])/g, '$1')
-            .replace(/\\"/g, '"')
-            .replace(/\/boltAction\s*$/, '')
-            .trim();
-          currentFileAction.content = cleanContent;
-          message.boltArtifact.fileActions.push({ ...currentFileAction });
-          isInsideFileAction = false;
-          buffer = buffer.substring(buffer.indexOf('</boltAction>') + 13);
-        }
-
-        if (isInsideArtifact && buffer.includes('<boltAction type="shell"')) {
-          isInsideShellAction = true;
-          currentShellAction = { type: 'shell', content: '' };
-          buffer = buffer.substring(buffer.indexOf('>') + 1);
-        }
-
-        if (isInsideShellAction && buffer.includes('</boltAction>')) {
-          currentShellAction.content = buffer.split('</boltAction>')[0].trim();
-          message.boltArtifact.shellActions.push({ ...currentShellAction });
-          isInsideShellAction = false;
-          buffer = buffer.substring(buffer.indexOf('</boltAction>') + 13);
-        }
-
-        if (buffer.includes('</boltArtifact>')) {
-          buferAfter = buffer.split('</boltArtifact>')[1] || '';
-          buferAfter = buferAfter.replace(/^[>\s]+/, '').trim();
-          if (buferAfter) {
-            addAIafterMsg(chunk);
-            message.afterMsg += chunk;
-          }
-        }
-      }
       setIsLoading(false);
+      console.log('EditorCode', EditorCode);
       return message;
     } catch (err) {
       setIsLoading(false);
+      setIsLoadingWebContainer(false);
       errorHandler(err);
     } finally {
       setFileupdating(true);
@@ -238,6 +232,8 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
       setShowPreview();
     }
   };
+
+  // 
 
   const sendMessage = useCallback(async () => {
     if (messages.length > 0) {
@@ -254,7 +250,7 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
         }
       }
     }
-  }, [messages, projectId]);
+  }, [messages, projectId, EditorCode]);
 
   useEffect(() => {
     const handleSendMessage = async () => {
@@ -314,17 +310,11 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
     try {
       setEnchancedLoadding(true);
       const response: Response | undefined = await enhancePromptApi(inputValue);
-      if (!response?.body) throw new Error('No response body');
-      setInputValue(''); // First clear the input
-      const reader = response.body.getReader();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = new TextDecoder().decode(value);
-        setInputValue((prev) => {
-          return prev + chunk;
-        });
-      }
+      if (!response) throw new Error('No response');
+      
+      // Get the full text at once
+      const enhancedText = await response.text();
+      setInputValue(enhancedText);
     } catch (err) {
       errorHandler(err);
     } finally {

@@ -4,7 +4,7 @@ import * as monaco from 'monaco-editor';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../ui/resizable';
 import FileExplorer from '../FileExplorer';
 import DevNavbar from './DevNavbar';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   useFilePaths,
   useFileExplorerOpenStates,
@@ -80,9 +80,36 @@ const CodeEditor = () => {
   const [showFileExplorer] = useState(true);
   const { showTab, setShowWorkspace } = useShowTab();
   const { EditorCode, setEditorCode } = useEditorCode();
-  const code = findFileContent(EditorCode as projectFiles, filePaths) ?? '';
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [monacoInstance, setMonacoInstance] = useState<typeof monaco | null>(null);
+
+  // Recompute code whenever EditorCode or filePaths changes
+  const code = useMemo(() => {
+    const content = findFileContent(EditorCode as projectFiles, filePaths) ?? '';
+    console.log('[CodeEditor] Code recomputed for:', filePaths);
+    console.log('[CodeEditor] Content length:', content.length);
+    console.log('[CodeEditor] First 100 chars:', content.substring(0, 100));
+    return content;
+  }, [EditorCode, filePaths]);
+
+  // Update editor content when code changes (e.g., from AI updates)
+  useEffect(() => {
+    if (editor && code !== undefined) {
+      const currentValue = editor.getValue();
+      // Only update if the content is different to avoid cursor jumps during typing
+      if (currentValue !== code) {
+        console.log('[CodeEditor] Updating editor content for:', filePaths);
+        console.log('[CodeEditor] Current value length:', currentValue.length);
+        console.log('[CodeEditor] New code length:', code.length);
+        const position = editor.getPosition();
+        editor.setValue(code);
+        if (position) {
+          editor.setPosition(position);
+        }
+        console.log('[CodeEditor] ✓ Editor value updated');
+      }
+    }
+  }, [code, editor, filePaths]);
 
   useEffect(() => {
     if (editor && monacoInstance) {
