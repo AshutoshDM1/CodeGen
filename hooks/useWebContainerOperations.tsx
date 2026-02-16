@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useRef } from 'react';
 import { WebContainer, FileSystemTree } from '@webcontainer/api';
 import { useTerminalStore } from '@/store/terminalStore';

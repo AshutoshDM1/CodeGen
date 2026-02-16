@@ -65,15 +65,8 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
 
       if (!response.ok) throw new Error('Network response was not ok');
 
-      // Get the full response text at once
       const fullText = await response.text();
 
-      console.log('===== FULL AI RESPONSE =====');
-      console.log('Response length:', fullText.length);
-      console.log('First 500 chars:', fullText.substring(0, 500));
-      console.log('============================');
-
-      // Show loading while parsing
       setIsLoadingWebContainerMessage('Parsing AI response...');
       setIsLoadingWebContainer(true);
       setAiThinking(false);
@@ -89,78 +82,41 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
         afterMsg: '',
       };
 
-      // Parse the full text
       let buffer = fullText;
 
-      // Extract beforeMsg
       const artifactMatch = buffer.match(/<boltArtifact id="([^"]*)" title="([^"]*)">/);
       if (artifactMatch) {
         message.beforeMsg = buffer.split('<boltArtifact')[0].trim();
         message.boltArtifact.title = artifactMatch[2];
         buffer = buffer.substring(buffer.indexOf('<boltArtifact'));
       } else {
-        // If no artifact found, the entire response is beforeMsg
         message.beforeMsg = fullText;
-        console.warn('No boltArtifact found in response!');
       }
 
-      // Extract file actions - Using a more flexible regex that handles newlines better
       const fileActionRegex = /<boltAction\s+type="file"\s+filePath="([^"]*)"\s*>([\s\S]*?)<\/boltAction>/g;
       let fileMatch;
-      
-      // Reset regex lastIndex to ensure we start from the beginning
+
       fileActionRegex.lastIndex = 0;
-      
-      let matchCount = 0;
+
       while ((fileMatch = fileActionRegex.exec(buffer)) !== null) {
-        matchCount++;
         const filePath = fileMatch[1];
-        let content = fileMatch[2];
+        const content = fileMatch[2].trim();
 
-        console.log(`\n===== FILE MATCH #${matchCount} =====`);
-        console.log(`File path: "${filePath}"`);
-        console.log(`Raw content length: ${content.length}`);
-        console.log(`First 300 chars of raw content:`, content.substring(0, 300));
-
-        // Clean the content - trim all leading and trailing whitespace
-        // DO NOT process escape sequences since AI sends plain text
-        content = content.trim();
-
-        console.log(`Cleaned content length: ${content.length}`);
-        console.log(`First 300 chars of cleaned content:`, content.substring(0, 300));
-
-        // Always update the file content first
         if (filePath && content) {
-          console.log(`\n[FileUpdate] Processing: ${filePath}`);
-          console.log(`[FileUpdate] Content length: ${content.length}`);
-          console.log(`[FileUpdate] First 100 chars:`, content.substring(0, 100));
-          
-          // Check if file exists BEFORE updating
           const fileExists = findFileContent(EditorCode, filePath);
-          console.log(`[FileUpdate] File exists in current state: ${!!fileExists}`);
-          
-          // If file doesn't exist, create it in file explorer first
+
           if (!fileExists) {
             const filename = filePath.split('/').pop() || '';
-            console.log(`[FileUpdate] Creating new file in explorer: ${filename} at ${filePath}`);
             addFileByAI(filePath, filename);
           }
-          
-          // Now update the editor code (this will work for both new and existing files)
-          console.log(`[FileUpdate] Calling setEditorCode for: ${filePath}`);
+
           setEditorCode(filePath, content);
-          console.log(`[FileUpdate] setEditorCode called successfully`);
-          
           addUpdatingFiles([
             {
               action: 'Updated',
               filePath: filePath,
             },
           ]);
-          console.log(`[FileUpdate] ✓ File ${fileExists ? 'updated' : 'created'} successfully\n`);
-        } else {
-          console.warn(`[FileUpdate] ⚠ Skipped file due to missing path or content`);
-          console.warn(`[FileUpdate]   Path: "${filePath}", Content length: ${content?.length || 0}`);
         }
 
         message.boltArtifact.fileActions.push({
@@ -168,14 +124,8 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
           filePath,
           content,
         });
-        console.log(`============================\n`);
       }
 
-      console.log(`\n===== PARSING COMPLETE =====`);
-      console.log(`Total files processed: ${message.boltArtifact.fileActions.length}`);
-      console.log(`============================\n`);
-
-      // Extract shell actions
       const shellActionRegex = /<boltAction type="shell">([\s\S]*?)<\/boltAction>/g;
       let shellMatch;
       while ((shellMatch = shellActionRegex.exec(buffer)) !== null) {
@@ -186,7 +136,6 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
         });
       }
 
-      // Extract afterMsg
       const artifactEndMatch = buffer.match(/<\/boltArtifact>([\s\S]*)/);
       if (artifactEndMatch) {
         message.afterMsg = artifactEndMatch[1].replace(/^[>\s]+/, '').trim();
@@ -214,8 +163,8 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
         },
       });
       setIsLoading(false);
-      console.log('EditorCode', EditorCode);
       return message;
+
     } catch (err) {
       setIsLoading(false);
       setIsLoadingWebContainer(false);
@@ -227,13 +176,14 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
       setIsLoadingWebContainer(true);
       const updatedFilesEvent = new CustomEvent('updated-files');
       window.dispatchEvent(updatedFilesEvent);
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const npmInstallEvent = new CustomEvent('npm-install');
+      window.dispatchEvent(npmInstallEvent);
       const remountWebcontainerEvent = new CustomEvent('remount-webcontainer');
       window.dispatchEvent(remountWebcontainerEvent);
       setShowPreview();
     }
   };
-
-  // 
 
   const sendMessage = useCallback(async () => {
     if (messages.length > 0) {
@@ -311,7 +261,7 @@ export default function ChatInput({ projectId }: { projectId: number | null }) {
       setEnchancedLoadding(true);
       const response: Response | undefined = await enhancePromptApi(inputValue);
       if (!response) throw new Error('No response');
-      
+
       // Get the full text at once
       const enhancedText = await response.text();
       setInputValue(enhancedText);

@@ -109,11 +109,11 @@ const Dashboard = () => {
 
         if (newMessages.length > 0 && messages.length === 0) {
           newMessages.forEach((msg: Message) => addMessage(msg));
-        }
-        if (codeData?.data?.code) {
-          const codeToSet = codeData.data.code.code;
-          setCode(codeToSet);
-          syncFileExplorerFromEditorCode(codeToSet);
+          if (codeData?.data?.code) {
+            const codeToSet = codeData.data.code.code;
+            setCode(codeToSet);
+            syncFileExplorerFromEditorCode(codeToSet);
+          }
         }
       }
     }
